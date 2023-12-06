@@ -1,0 +1,62 @@
+name: "Passport"
+source: "../template_sources/passport.png"
+features:
+  - id: rf_symbol
+    pattern: true
+    x: 1600
+    y: 50
+    w: 170
+    h: 170
+  - id: photo_security_corner
+    pattern: true
+    x: 100
+    y: 180
+    w: 100
+    h: 100
+  - id: photo_security_bottom
+    pattern: true
+    x: 90
+    y: 660
+    w: 100
+    h: 100
+  - id: photo_security_right
+    pattern: true
+    x: 570
+    y: 180
+    w: 100
+    h: 100
+  - id: last_name
+    x: 808
+    y: 140
+    w: 800
+    h: 200
+  - id: first_name
+    x: 808
+    y: 340
+    w: 800
+    h: 90
+  - id: father_name
+    x: 808
+    y: 420
+    w: 800
+    h: 90
+  - id: sex
+    x: 737
+    y: 519
+    w: 213
+    h: 86
+  - id: birthday
+    x: 1120
+    y: 520
+    w: 620
+    h: 87
+  - id: place_of_birth
+    x: 827
+    y: 597
+    w: 878
+    h: 342
+  - id: mrz
+    x: 111
+    y: 968
+    w: 1713
+    h: 226
