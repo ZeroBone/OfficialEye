@@ -6,18 +6,18 @@ import cv2
 import numpy as np
 
 from officialeye.debug import DebugInformationContainer
-from officialeye.matcher.flann_matcher import FlannKeypointMatcher
+from officialeye.matching.flann_matcher import FlannKeypointMatcher
 from officialeye.utils.cli_utils import export_and_show_image
 from officialeye.region.feature import TemplateFeature
 from officialeye.region.keypoint import TemplateKeypoint
-from officialeye.matcher.matcher import KeypointMatcher
 
 
 class Template:
     def __init__(self, yaml_dict: dict, path_to_template: str, /):
         self._path_to_template = path_to_template
-        self.name = yaml_dict["name"]
-        self._source = yaml_dict["source"]
+        self.t_id = str(yaml_dict["id"])
+        self.name = str(yaml_dict["name"])
+        self._source = str(yaml_dict["source"])
         self.height, self.width, _ = self.load_source_image().shape
         self._keypoints = [
             TemplateKeypoint(f, self) for f in yaml_dict["keypoints"]
@@ -65,7 +65,7 @@ class Template:
 
         with click.progressbar(length=len(self._keypoints) + 2, label="Matching") as bar:
 
-            matcher = FlannKeypointMatcher(target, debug=DebugInformationContainer() if debug_mode else None)
+            matcher = FlannKeypointMatcher(self.t_id, target, debug=DebugInformationContainer() if debug_mode else None)
 
             bar.update(1)
 
@@ -73,10 +73,11 @@ class Template:
                 matcher.match_keypoint(kp)
                 bar.update(2 + i)
 
-            matcher.match_finish()
+            result = matcher.match_finish()
 
         if debug_mode:
             matcher.debug_export()
+            result.debug_print()
 
         # output_path = "debug.png"
         # cv2.imwrite(output_path, img)

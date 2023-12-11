@@ -1,7 +1,9 @@
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.matcher.matcher import KeypointMatcher
+from officialeye.matching.match import Match
+from officialeye.matching.matcher import KeypointMatcher
+from officialeye.matching.result import KeypointMatchingResult
 from officialeye.region.keypoint import TemplateKeypoint
 
 
@@ -9,10 +11,11 @@ FLANN_INDEX_KDTREE = 1
 
 
 class FlannKeypointMatcher(KeypointMatcher):
-    def __init__(self, img: cv2.Mat, /, **kwargs):
-        super().__init__(img, **kwargs)
+    def __init__(self, template_id: str, img: cv2.Mat, /, **kwargs):
+        super().__init__(template_id, img, **kwargs)
         self._ratio_thresh = 0.7
         self._debug_images = []
+        self._result = KeypointMatchingResult()
 
     def match_keypoint(self, keypoint: TemplateKeypoint, /):
         # noinspection PyUnresolvedReferences
@@ -36,9 +39,15 @@ class FlannKeypointMatcher(KeypointMatcher):
         for i, (m, n) in enumerate(matches):
             if m.distance < self._ratio_thresh * n.distance:
                 matches_mask[i] = [1, 0]
+
                 pattern_point = keypoints_pattern[m.queryIdx].pt
                 target_point = keypoints_target[m.trainIdx].pt
-                # print(pattern_point, target_point)
+
+                pattern_point = (int(pattern_point[0]), int(pattern_point[1]))
+                target_point = (int(target_point[0]), int(target_point[1]))
+
+                match = Match(self.template_id, pattern_point, target_point)
+                self._result.add_match(match)
 
         if self.in_debug_mode():
             # noinspection PyTypeChecker
@@ -54,9 +63,7 @@ class FlannKeypointMatcher(KeypointMatcher):
                 matchesMask=matches_mask,
                 flags=cv2.DrawMatchesFlags_DEFAULT
             )
-            self._debug.add_image(debug_image, name=f"keypoint_{keypoint.id}")
+            self._debug.add_image(debug_image, name=f"match_{keypoint.id}")
 
     def match_finish(self):
-        pass
-
-
+        return self._result
