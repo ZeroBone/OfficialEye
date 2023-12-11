@@ -6,9 +6,21 @@ import cv2
 from officialeye.template import Template
 
 
+class OEContext:
+    def __init__(self):
+        self.debug_mode = False
+
+
+context = OEContext()
+
+
 @click.group()
-def cli():
-    pass
+@click.option("-d", "--debug", is_flag=True, show_default=True, default=False, help="Enable debug mode.")
+def cli(debug: bool):
+    global context
+    context.debug_mode = debug
+    if context.debug_mode:
+        click.secho("Warning: Debug mode enabled. Disable for production use to avoid performance issues.", bg="yellow", bold=True)
 
 
 def load_template(path: str) -> Template:
@@ -41,12 +53,12 @@ def show(template_path: str):
 @click.command()
 @click.argument("template_path", type=click.Path(exists=True))
 @click.argument("target_path", type=click.Path(exists=True))
-@click.option("--debug", is_flag=True, show_default=True, default=False, help="Debug mode")
-def apply(template_path: str, target_path: str, debug: bool):
+def apply(template_path: str, target_path: str):
     """Analyzes image using template, and prints debug info."""
+    global context
     template = load_template(template_path)
     target = cv2.imread(target_path, cv2.IMREAD_COLOR)
-    template.apply(target, debug_mode=debug)
+    template.apply(target, debug_mode=context.debug_mode)
 
 
 @click.command()
@@ -59,14 +71,14 @@ def analyze(name: str):
 
 
 @click.command()
-def author():
-    """Go to the Author's GitHub."""
-    click.launch("https://github.com/ZeroBone")
+def homepage():
+    """Go to the officialeye"s Homepage on GitHub."""
+    click.launch("https://github.com/ZeroBone/OfficialEye")
 
 
 cli.add_command(show)
 cli.add_command(apply)
-cli.add_command(author)
+cli.add_command(homepage)
 cli.add_command(analyze)
 cli.add_command(pattern)
 

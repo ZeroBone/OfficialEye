@@ -40,8 +40,10 @@ class DebugInformationContainer:
 
         os.makedirs(debug_directory, exist_ok=True)
 
+        click.secho(f"Export directory: '{debug_directory}'.", bg="yellow", bold=True)
+
         for image_id, image in enumerate(self._images):
             export_filename = image.get_export_filename(image_id)
             export_path = os.path.join(debug_directory, export_filename)
             cv2.imwrite(export_path, image.img)
-            click.secho(f"Exported '{export_filename}' (debug mode).", bg="yellow", bold=True)
+            click.secho(f"Exported '{export_filename}'.", fg="yellow", bold=True)
