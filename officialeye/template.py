@@ -5,10 +5,12 @@ import click
 import cv2
 import numpy as np
 
-from officialeye.cli_utils import export_and_show_image
-from officialeye.feature import TemplateFeature
-from officialeye.keypoint import TemplateKeypoint
-from officialeye.matcher import Matcher
+from officialeye.debug import DebugInformationContainer
+from officialeye.matcher.flann_matcher import FlannKeypointMatcher
+from officialeye.utils.cli_utils import export_and_show_image
+from officialeye.region.feature import TemplateFeature
+from officialeye.region.keypoint import TemplateKeypoint
+from officialeye.matcher.matcher import KeypointMatcher
 
 
 class Template:
@@ -57,21 +59,24 @@ class Template:
         mp = self._generate_keypoint_visualization()
         export_and_show_image(mp)
 
-    def apply(self, target, /):
+    def apply(self, target, /, *, debug_mode: bool = False):
         # find all patterns in the target image
         # img = target.copy()
 
         with click.progressbar(length=len(self._keypoints) + 2, label="Matching") as bar:
 
-            matcher = Matcher(target, debug_mode=True)  # TODO: debug handling
+            matcher = FlannKeypointMatcher(target, debug=DebugInformationContainer() if debug_mode else None)
 
             bar.update(1)
 
             for i, kp in enumerate(self._keypoints):
-                matcher.add_keypoint(kp)
+                matcher.match_keypoint(kp)
                 bar.update(2 + i)
 
-            matcher.match()
+            matcher.match_finish()
+
+        if debug_mode:
+            matcher.debug_export()
 
         # output_path = "debug.png"
         # cv2.imwrite(output_path, img)

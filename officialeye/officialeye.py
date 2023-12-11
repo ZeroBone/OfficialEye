@@ -41,11 +41,12 @@ def show(template_path: str):
 @click.command()
 @click.argument("template_path", type=click.Path(exists=True))
 @click.argument("target_path", type=click.Path(exists=True))
-def apply(template_path: str, target_path: str):
+@click.option("--debug", is_flag=True, show_default=True, default=False, help="Debug mode")
+def apply(template_path: str, target_path: str, debug: bool):
     """Analyzes image using template, and prints debug info."""
     template = load_template(template_path)
     target = cv2.imread(target_path, cv2.IMREAD_COLOR)
-    template.apply(target)
+    template.apply(target, debug_mode=debug)
 
 
 @click.command()

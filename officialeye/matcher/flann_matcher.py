@@ -1,37 +1,20 @@
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.cli_utils import export_and_show_image
-from officialeye.keypoint import TemplateKeypoint
-
-
-def _remove_noise(img):
-    # blur
-    blur = cv2.GaussianBlur(img, (0, 0), sigmaX=33, sigmaY=33)
-
-    # divide
-    divide = cv2.divide(img, blur, scale=255)
-
-    # otsu threshold
-    thresh = cv2.threshold(divide, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
-
-    # apply morphology
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    morph = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
-
-    return morph
+from officialeye.matcher.matcher import KeypointMatcher
+from officialeye.region.keypoint import TemplateKeypoint
 
 
 FLANN_INDEX_KDTREE = 1
 
 
-class Matcher:
-    def __init__(self, img: cv2.Mat, /, *, debug_mode: bool = False):
-        self._img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+class FlannKeypointMatcher(KeypointMatcher):
+    def __init__(self, img: cv2.Mat, /, **kwargs):
+        super().__init__(img, **kwargs)
         self._ratio_thresh = 0.7
-        self._debug = debug_mode
+        self._debug_images = []
 
-    def add_keypoint(self, keypoint: TemplateKeypoint, /):
+    def match_keypoint(self, keypoint: TemplateKeypoint, /):
         # noinspection PyUnresolvedReferences
         sift = cv2.SIFT_create()
 
@@ -55,10 +38,9 @@ class Matcher:
                 matches_mask[i] = [1, 0]
                 pattern_point = keypoints_pattern[m.queryIdx].pt
                 target_point = keypoints_target[m.trainIdx].pt
-                print(pattern_point, target_point)
+                # print(pattern_point, target_point)
 
-        if self._debug:
-
+        if self.in_debug_mode():
             # noinspection PyTypeChecker
             debug_image = cv2.drawMatchesKnn(
                 pattern,
@@ -72,8 +54,9 @@ class Matcher:
                 matchesMask=matches_mask,
                 flags=cv2.DrawMatchesFlags_DEFAULT
             )
+            self._debug.add_image(debug_image, name=f"keypoint_{keypoint.id}")
 
-            export_and_show_image(debug_image)
-
-    def match(self):
+    def match_finish(self):
         pass
+
+
