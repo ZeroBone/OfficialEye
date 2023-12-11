@@ -61,8 +61,8 @@ class Template:
 
         matcher = Matcher(target)
 
-        for f in self._features:
-            matcher.add_feature(f)
+        for kp in self._keypoints:
+            matcher.add_keypoint(kp)
 
         matcher.match()
 

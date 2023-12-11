@@ -2,7 +2,7 @@
 import cv2
 
 from officialeye.cli_utils import export_and_show_image
-from officialeye.feature import TemplateFeature
+from officialeye.keypoint import TemplateKeypoint
 
 
 def _remove_noise(img):
@@ -57,11 +57,11 @@ class Matcher:
     def __init__(self, img: cv2.Mat, /):
         self._img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    def add_feature(self, feature: TemplateFeature, /):
+    def add_keypoint(self, keypoint: TemplateKeypoint, /):
         # noinspection PyUnresolvedReferences
         sift = cv2.SIFT_create()
 
-        pattern = feature.to_image(grayscale=True)
+        pattern = keypoint.to_image(grayscale=True)
         target = self._img
 
         keypoints_pattern, destination_pattern = sift.detectAndCompute(pattern, None)
