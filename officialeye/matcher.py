@@ -22,40 +22,14 @@ def _remove_noise(img):
     return morph
 
 
-def _find_template(img: cv2.Mat, template: cv2.Mat):
-    # make the image and template grayscale
-    img = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
-    template = cv2.cvtColor(template, cv2.COLOR_RGB2GRAY)
-
-    # remove noise from image and template
-    img = _remove_noise(img)
-    template = _remove_noise(template)
-
-    cv2.imwrite("_d_img.png", img)
-    cv2.imwrite("_d_template.png", template)
-
-    # perform actual template matching
-    vertices = []
-
-    for method in (cv2.TM_CCOEFF, cv2.TM_CCOEFF_NORMED, cv2.TM_CCORR, cv2.TM_CCORR_NORMED,
-                   cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED):
-        result = cv2.matchTemplate(img, template, method)
-        min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
-        if method in (cv2.TM_SQDIFF, cv2.TM_SQDIFF_NORMED):
-            top_left = min_loc
-        else:
-            top_left = max_loc
-        vertices.append(top_left)
-
-    return vertices
-
-
 FLANN_INDEX_KDTREE = 1
 
 
 class Matcher:
-    def __init__(self, img: cv2.Mat, /):
+    def __init__(self, img: cv2.Mat, /, *, debug_mode: bool = False):
         self._img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        self._ratio_thresh = 0.7
+        self._debug = debug_mode
 
     def add_keypoint(self, keypoint: TemplateKeypoint, /):
         # noinspection PyUnresolvedReferences
@@ -77,46 +51,29 @@ class Matcher:
 
         # filter matches
         for i, (m, n) in enumerate(matches):
-            if m.distance < 0.7 * n.distance:
+            if m.distance < self._ratio_thresh * n.distance:
                 matches_mask[i] = [1, 0]
-                print(m)
+                pattern_point = keypoints_pattern[m.queryIdx].pt
+                target_point = keypoints_target[m.trainIdx].pt
+                print(pattern_point, target_point)
 
-        draw_params = dict(matchColor=(0, 0xff, 0),
-                           singlePointColor=(0xff, 0, 0),
-                           matchesMask=matches_mask,
-                           flags=cv2.DrawMatchesFlags_DEFAULT)
+        if self._debug:
 
-        debug_image = cv2.drawMatchesKnn(
-            pattern,
-            keypoints_pattern,
-            target,
-            keypoints_target,
-            matches,
-            None,
-            **draw_params
-        )
+            # noinspection PyTypeChecker
+            debug_image = cv2.drawMatchesKnn(
+                pattern,
+                keypoints_pattern,
+                target,
+                keypoints_target,
+                matches,
+                None,
+                matchColor=(0, 0xff, 0),
+                singlePointColor=(0xff, 0, 0),
+                matchesMask=matches_mask,
+                flags=cv2.DrawMatchesFlags_DEFAULT
+            )
 
-        export_and_show_image(debug_image)
-
-        """
-        vertices = _find_template()
-        feature.find_on_image(target)
-
-        source_points.append([x, y])
-        source_points.append([x + f.w, y])
-        source_points.append([x + f.w, y + f.h])
-        source_points.append([x, y + f.h])
-
-        destination_points.append([f.x, f.y])
-        destination_points.append([f.x + f.w, f.y])
-        destination_points.append([f.x + f.w, f.y + f.h])
-        destination_points.append([f.x, f.y + f.h])
-
-        # img = cv2.rectangle(img, (x, y), (x + f.w, y + f.h), (0, 0, 0xff), 4)
-        for (x, y), color in zip(vertices, [(0, 0, 0xff), (0, 0xff, 0), (0xff, 0, 0), (0, 0xff, 0xff), (0xff, 0xff, 0),
-                                            (0xff, 0, 0xff), (0xff, 0xff, 0xff)]):
-            img = cv2.rectangle(img, (x, y), (x + f.w, y + f.h), color, 4)
-        """
+            export_and_show_image(debug_image)
 
     def match(self):
         pass

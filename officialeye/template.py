@@ -1,4 +1,6 @@
 import os
+
+import click
 # noinspection PyPackageRequirements
 import cv2
 import numpy as np
@@ -59,12 +61,17 @@ class Template:
         # find all patterns in the target image
         # img = target.copy()
 
-        matcher = Matcher(target)
+        with click.progressbar(length=len(self._keypoints) + 2, label="Matching") as bar:
 
-        for kp in self._keypoints:
-            matcher.add_keypoint(kp)
+            matcher = Matcher(target, debug_mode=True)  # TODO: debug handling
 
-        matcher.match()
+            bar.update(1)
+
+            for i, kp in enumerate(self._keypoints):
+                matcher.add_keypoint(kp)
+                bar.update(2 + i)
+
+            matcher.match()
 
         # output_path = "debug.png"
         # cv2.imwrite(output_path, img)
