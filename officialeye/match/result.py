@@ -2,7 +2,7 @@ from typing import List
 
 import click
 
-from officialeye.matching.match import Match
+from officialeye.match.match import Match
 
 
 class KeypointMatchingResult:

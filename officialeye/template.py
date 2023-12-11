@@ -6,7 +6,7 @@ import cv2
 import numpy as np
 
 from officialeye.debug import DebugInformationContainer
-from officialeye.matching.flann_matcher import FlannKeypointMatcher
+from officialeye.match.flann_matcher import FlannKeypointMatcher
 from officialeye.utils.cli_utils import export_and_show_image
 from officialeye.region.feature import TemplateFeature
 from officialeye.region.keypoint import TemplateKeypoint
@@ -81,7 +81,7 @@ class Template:
 
         # output_path = "debug.png"
         # cv2.imwrite(output_path, img)
-        # click.secho(f"Pattern-matching success. Exported '{output_path}'.", bg="green", bold=True)
+        # click.secho(f"Pattern-match success. Exported '{output_path}'.", bg="green", bold=True)
 
         # homography = cv2.getPerspectiveTransform(np.float32(source_points), np.float32(destination_points))
         # target_transformed = cv2.warpPerspective(target, np.float32(homography), (self.width, self.height),

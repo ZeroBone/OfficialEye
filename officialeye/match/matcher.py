@@ -4,7 +4,7 @@ from abc import ABC
 import cv2
 
 from officialeye.debug import DebugInformationContainer
-from officialeye.matching.result import KeypointMatchingResult
+from officialeye.match.result import KeypointMatchingResult
 from officialeye.region.keypoint import TemplateKeypoint
 
 
