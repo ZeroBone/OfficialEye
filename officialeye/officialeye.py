@@ -3,24 +3,23 @@ import yaml
 from yaml.loader import SafeLoader
 # noinspection PyPackageRequirements
 import cv2
+
+from officialeye.context import get_oe_context
 from officialeye.template import Template
-
-
-class OEContext:
-    def __init__(self):
-        self.debug_mode = False
-
-
-context = OEContext()
 
 
 @click.group()
 @click.option("-d", "--debug", is_flag=True, show_default=True, default=False, help="Enable debug mode.")
-def cli(debug: bool):
-    global context
-    context.debug_mode = debug
-    if context.debug_mode:
+@click.option("--dedir", type=click.Path(exists=True), help="Specify debug export directory")
+@click.option("--edir", type=click.Path(exists=True), help="Specify export directory")
+def cli(debug: bool, dedir: str, edir: str):
+    get_oe_context().debug_mode = debug
+    if get_oe_context().debug_mode:
         click.secho("Warning: Debug mode enabled. Disable for production use to avoid performance issues.", bg="yellow", bold=True)
+    if dedir is not None:
+        get_oe_context().debug_export_directory = dedir
+    if edir is not None:
+        get_oe_context().export_directory = edir
 
 
 def load_template(path: str) -> Template:
@@ -40,6 +39,7 @@ def pattern(template_path: str):
     """Exports pattern as an image with features visualized."""
     template = load_template(template_path)
     template.generate_keypoint_visualization()
+    get_oe_context().dispose()
 
 
 @click.command()
@@ -48,6 +48,7 @@ def show(template_path: str):
     """Exports template as an image with features visualized."""
     template = load_template(template_path)
     template.show()
+    get_oe_context().dispose()
 
 
 @click.command()
@@ -55,10 +56,10 @@ def show(template_path: str):
 @click.argument("target_path", type=click.Path(exists=True))
 def apply(template_path: str, target_path: str):
     """Analyzes image using template, and prints debug info."""
-    global context
     template = load_template(template_path)
     target = cv2.imread(target_path, cv2.IMREAD_COLOR)
-    template.apply(target, debug_mode=context.debug_mode)
+    template.apply(target, debug_mode=get_oe_context().debug_mode)
+    get_oe_context().dispose()
 
 
 @click.command()
@@ -68,12 +69,14 @@ def analyze(name: str):
     click.secho(f"Hello {name}", bold=True, bg='green', fg='black')
     click.secho(
         "This is Command Line Interface which gives information of maker named Piyush.", bg="blue", fg="white")
+    get_oe_context().dispose()
 
 
 @click.command()
 def homepage():
     """Go to the officialeye"s Homepage on GitHub."""
     click.launch("https://github.com/ZeroBone/OfficialEye")
+    get_oe_context().dispose()
 
 
 cli.add_command(show)

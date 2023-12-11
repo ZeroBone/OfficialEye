@@ -1,14 +1,18 @@
 import click
-import tempfile
 # noinspection PyPackageRequirements
 import cv2
 
+from officialeye.context import get_oe_context
 
-def export_and_show_image(img):
 
-    with tempfile.NamedTemporaryFile(prefix="officialeye_", suffix=".png", delete=True) as fp:
-        cv2.imwrite(fp.name, img)
-        click.secho(f"Success. Exported '{fp.name}'.", bg="green", bold=True)
-        click.launch(fp.name, locate=False)
-        click.pause()
-        fp.close()
+def export_image(img: cv2.Mat, /, *, debug: bool = False, file_name: str = "") -> str:
+    export_file_path = get_oe_context().allocate_file_for_export(debug=debug, file_name=file_name)
+    cv2.imwrite(export_file_path, img)
+    click.secho(f"Success. Exported '{export_file_path}'.", bg="yellow" if debug else "green", bold=True)
+    return export_file_path
+
+
+def export_and_show_image(img: cv2.Mat, /, *, debug: bool = False, file_name: str = ""):
+    path = export_image(img, debug=debug, file_name=file_name)
+    click.launch(path, locate=False)
+    click.pause()

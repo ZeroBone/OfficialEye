@@ -5,7 +5,9 @@ from typing import List
 import click
 import cv2
 
+from officialeye.context import get_oe_context
 from officialeye.meta import APPLICATION_NAME
+from officialeye.utils.cli_utils import export_image
 
 
 class DebugImage:
@@ -32,18 +34,9 @@ class DebugInformationContainer:
 
     def export(self):
 
-        debug_directory = os.path.join(click.get_app_dir(APPLICATION_NAME), "debug")
-
-        if os.path.exists(debug_directory):
-            shutil.rmtree(debug_directory)
-            # os.rmdir(debug_directory)
-
-        os.makedirs(debug_directory, exist_ok=True)
-
+        debug_directory = get_oe_context().get_debug_export_directory()
         click.secho(f"Export directory: '{debug_directory}'.", bg="yellow", bold=True)
 
         for image_id, image in enumerate(self._images):
             export_filename = image.get_export_filename(image_id)
-            export_path = os.path.join(debug_directory, export_filename)
-            cv2.imwrite(export_path, image.img)
-            click.secho(f"Exported '{export_filename}'.", fg="yellow", bold=True)
+            export_image(image.img, debug=True, file_name=export_filename)
