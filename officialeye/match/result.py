@@ -17,12 +17,18 @@ class KeypointMatchingResult:
             self._matches_dict[match.keypoint_id] = []
         self._matches_dict[match.keypoint_id].append(match)
 
-    def matches(self):
+    def get_matches(self):
         for template_id in self._matches_dict:
             for match in self._matches_dict[template_id]:
                 yield match
 
-    def template_ids(self):
+    def get_total_match_count(self) -> int:
+        match_count = 0
+        for template_id in self._matches_dict:
+            match_count += len(self._matches_dict[template_id])
+        return match_count
+
+    def get_template_ids(self):
         for template_id in self._matches_dict:
             yield template_id
 
@@ -32,6 +38,6 @@ class KeypointMatchingResult:
 
     def debug_print(self):
         click.echo(f"Listing all matched points:")
-        for match in self.matches():
+        for match in self.get_matches():
             click.echo(f"> {match}")
 

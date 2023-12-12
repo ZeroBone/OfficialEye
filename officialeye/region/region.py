@@ -21,6 +21,9 @@ class TemplateRegion:
     def draw(self, img: cv2.Mat) -> cv2.Mat:
         raise NotImplementedError()
 
+    def get_left_corner(self) -> Tuple[int, int]:
+        return self.x, self.y
+
     def _draw(self, img: cv2.Mat, /, *, rect_color: Tuple[int, int, int], label_color=_LABEL_COLOR_DEFAULT) -> cv2.Mat:
         img = cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), rect_color, 4)
         label_origin = (self.x + 10, self.y + 30)
