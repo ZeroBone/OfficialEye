@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 
 from officialeye.context.singleton import oe_context
-from officialeye.debug import DebugInformationContainer
+from officialeye.debug.container import DebugContainer
 from officialeye.election.election import Election
 from officialeye.match.flann_matcher import FlannKeypointMatcher
 from officialeye.utils.cli_utils import export_and_show_image
@@ -103,7 +103,7 @@ class Template:
         with click.progressbar(length=len(self._keypoints) + 2, label="Matching") as bar:
 
             matcher = FlannKeypointMatcher(self.template_id, target,
-                                           debug=DebugInformationContainer() if debug_mode else None)
+                                           debug=DebugContainer() if debug_mode else None)
 
             bar.update(1)
 

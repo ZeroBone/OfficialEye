@@ -22,7 +22,7 @@ class DebugImage:
         return "%03d_%s.png" % (image_id, self.name)
 
 
-class DebugInformationContainer:
+class DebugContainer:
 
     def __init__(self):
         self._images: List[DebugImage] = []

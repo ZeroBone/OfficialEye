@@ -4,14 +4,18 @@ from typing import Dict
 import z3
 import numpy as np
 
+from officialeye.debug.container import DebugContainer
+from officialeye.debug.debuggable import Debuggable
 from officialeye.match.match import Match
 from officialeye.match.result import KeypointMatchingResult
 
 
-class Election:
+class Election(Debuggable):
 
-    def __init__(self, kmr: KeypointMatchingResult, /):
+    def __init__(self, kmr: KeypointMatchingResult, /, *, debug: DebugContainer = None):
+        super().__init__(debug=debug)
         self._kmr = kmr
+        self._debug = debug
 
         # create variables for components of the offset vector
         self._offset = np.array([[z3.Real("o_x"), z3.Real("o_y")]], dtype=z3.AstRef).T
@@ -52,9 +56,6 @@ class Election:
 
         target_point_x, target_point_y = match.get_target_point()
 
-        """return ((translated_template_point_x - target_point_x)**2 +
-                        (translated_template_point_y - target_point_y)**2 <= self._max_deviation * self._max_deviation)"""
-
         return z3.And(
             translated_template_point_x - target_point_x <= self._max_deviation,
             translated_template_point_x - target_point_x >= -self._max_deviation,
@@ -90,6 +91,8 @@ class Election:
         solver.add(votes_upper_bounds)
         solver.add(elected_implies_consistent)
         solver.add(total_votes_requirement)
+
+        # TODO: implement binary search
 
         result = solver.check()
         print(result)
