@@ -37,7 +37,7 @@ class KeypointMatchingResult:
             yield match
 
     def debug_print(self):
-        click.echo(f"Listing all matched points:")
+        click.secho(f"Listing all matched points:", fg="yellow")
         for match in self.get_matches():
-            click.echo(f"> {match}")
+            click.secho(f"> {match}", fg="yellow")
 

@@ -32,8 +32,8 @@ class DebugContainer:
 
     def export(self):
 
-        debug_directory = oe_context().get_debug_export_directory()
-        click.secho(f"Export directory: '{debug_directory}'.", bg="yellow", bold=True)
+        # debug_directory = oe_context().get_debug_export_directory()
+        # click.secho(f"Export directory: '{debug_directory}'.", bg="yellow", bold=True)
 
         for image_id, image in enumerate(self._images):
             export_filename = image.get_export_filename(image_id)

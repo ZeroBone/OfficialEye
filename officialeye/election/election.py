@@ -1,11 +1,13 @@
 from typing import Dict
 
+import click
 # noinspection PyPackageRequirements
 import z3
 import numpy as np
 
 from officialeye.debug.container import DebugContainer
 from officialeye.debug.debuggable import Debuggable
+from officialeye.election.result import ElectionResult
 from officialeye.match.match import Match
 from officialeye.match.result import KeypointMatchingResult
 
@@ -15,10 +17,10 @@ class Election(Debuggable):
     def __init__(self, kmr: KeypointMatchingResult, /, *, debug: DebugContainer = None):
         super().__init__(debug=debug)
         self._kmr = kmr
-        self._debug = debug
+        self._result = None
 
         # create variables for components of the offset vector
-        self._offset = np.array([[z3.Real("o_x"), z3.Real("o_y")]], dtype=z3.AstRef).T
+        self._offset_vec = np.array([[z3.Real("o_x"), z3.Real("o_y")]], dtype=z3.AstRef).T
         # create variables for components of the translation matrix
         self._transformation_matrix = np.array([
             [z3.Real("t_x_1"), z3.Real("t_x_2")],
@@ -33,11 +35,7 @@ class Election(Debuggable):
             self._match_votes[match] = z3.Int(f"votes_{match.get_debug_identifier()}")
 
         # configuration
-        self._max_deviation = 10
-        self._min_votes = int(0.5 * self._kmr.get_total_match_count())
-        self._min_votes = max(self._min_votes, 1)
-
-        print("Min votes: %d" % self._min_votes)
+        self._max_deviation = 2
 
     def _get_consistency_check(self, match: Match) -> z3.AstRef:
         """
@@ -49,7 +47,7 @@ class Election(Debuggable):
 
         template_point = np.array([match.get_template_point()]).T
 
-        translated_template_point = self._transformation_matrix @ (template_point - self._offset)
+        translated_template_point = self._transformation_matrix @ (template_point - self._offset_vec)
 
         translated_template_point_x = translated_template_point[0][0]
         translated_template_point_y = translated_template_point[1][0]
@@ -78,8 +76,7 @@ class Election(Debuggable):
             ) for match in self._kmr.get_matches()
         ))
 
-        total_votes_requirement = (z3.Sum(*(self._match_votes[match] for match in self._kmr.get_matches()))
-                                   >= self._min_votes)
+        total_votes = z3.Sum(*(self._match_votes[match] for match in self._kmr.get_matches()))
 
         """
         for match in self._kmr.matches():
@@ -90,14 +87,52 @@ class Election(Debuggable):
         solver.add(votes_lower_bounds)
         solver.add(votes_upper_bounds)
         solver.add(elected_implies_consistent)
-        solver.add(total_votes_requirement)
 
-        # TODO: implement binary search
+        total_votes_min = 1
+        total_votes_max = self._kmr.get_total_match_count()
 
-        result = solver.check()
-        print(result)
-        if result == z3.sat:
-            print(solver.model())
+        model = None
 
-    def get_result(self):
-        pass
+        while total_votes_min <= total_votes_max:
+            # we try to enforce the following amounts of votes
+            min_votes = (total_votes_min + total_votes_max) // 2
+
+            if self.in_debug_mode():
+                click.secho(f"Election system: Trying to enforce {min_votes} votes. Bounds:"
+                            f" [{total_votes_min}, {total_votes_max}]", fg="yellow")
+
+            solver.push()
+            solver.add(total_votes >= min_votes)
+
+            result = solver.check()
+            if result == z3.sat:
+                model = solver.model()
+                # try to increase the minimum vote count
+                model_vote_count_raw: z3.IntNumRef = model.eval(total_votes, model_completion=True)
+                model_vote_count = model_vote_count_raw.as_long()
+                assert model_vote_count >= min_votes
+                total_votes_min = model_vote_count + 1
+            else:
+                assert result == z3.unsat or result == z3.unknown
+                total_votes_max = min_votes - 1
+
+            solver.pop()
+
+        if model is not None:
+            evaluator = np.vectorize(lambda var: model.eval(var, model_completion=True))
+
+            # extract offset vector from model
+            offset_vec = evaluator(self._offset_vec)
+            # extract transformation matrix from model
+            transformation_matrix = evaluator(self._transformation_matrix)
+
+            self._result = ElectionResult(offset_vec, transformation_matrix)
+
+            # extract vote counts from model
+            for match in self._kmr.get_matches():
+                vote_count = model.eval(self._match_votes[match], model_completion=True)
+                self._result.add_match(match, vote_count)
+
+    def get_result(self) -> ElectionResult:
+        assert self._result is not None, "Result is unavailable"
+        return self._result

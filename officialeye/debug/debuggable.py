@@ -9,5 +9,5 @@ class Debuggable:
     def in_debug_mode(self, /) -> bool:
         return self._debug is not None
 
-    def debug_export(self):
-        self._debug.export()
+    def debug(self) -> DebugContainer:
+        return self._debug

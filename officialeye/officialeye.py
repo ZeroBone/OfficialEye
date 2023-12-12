@@ -38,6 +38,7 @@ def load_template(path: str) -> Template:
 @click.argument("template_path", type=click.Path(exists=True))
 def pattern(template_path: str):
     """Exports pattern as an image with features visualized."""
+    # TODO: consider removing this functionality
     template = load_template(template_path)
     template.generate_keypoint_visualization()
     oe_context().dispose()

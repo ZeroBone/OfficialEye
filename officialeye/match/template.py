@@ -9,6 +9,7 @@ import numpy as np
 from officialeye.context.singleton import oe_context
 from officialeye.debug.container import DebugContainer
 from officialeye.election.election import Election
+from officialeye.election.visualizer import ElectionResultVisualizer
 from officialeye.match.flann_matcher import FlannKeypointMatcher
 from officialeye.utils.cli_utils import export_and_show_image
 from officialeye.region.feature import TemplateFeature
@@ -114,13 +115,20 @@ class Template:
             keypoint_matching_result = matcher.match_finish()
 
         if debug_mode:
-            matcher.debug_export()
+            matcher.debug().export()
             keypoint_matching_result.debug_print()
 
         # run election to obtain correspondence between template and target regions
 
-        election = Election(keypoint_matching_result)
+        election = Election(keypoint_matching_result, debug=DebugContainer() if debug_mode else None)
         election.run()
+        election_result = election.get_result()
+
+        if debug_mode:
+            election_result_visualizer = ElectionResultVisualizer(election_result)
+            visualization = election_result_visualizer.render()
+            election.debug().add_image(visualization)
+            election.debug().export()
 
         # output_path = "debug.png"
         # cv2.imwrite(output_path, img)
