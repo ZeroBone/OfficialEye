@@ -4,7 +4,7 @@ from yaml.loader import SafeLoader
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.context import oe_context
+from officialeye.context.singleton import oe_context
 from officialeye.template import Template
 
 
@@ -15,7 +15,8 @@ from officialeye.template import Template
 def cli(debug: bool, dedir: str, edir: str):
     oe_context().debug_mode = debug
     if oe_context().debug_mode:
-        click.secho("Warning: Debug mode enabled. Disable for production use to avoid performance issues.", bg="yellow", bold=True)
+        click.secho("Warning: Debug mode enabled. Disable for production use to avoid performance issues.",
+                    bg="yellow", bold=True)
     if dedir is not None:
         oe_context().debug_export_directory = dedir
     if edir is not None:

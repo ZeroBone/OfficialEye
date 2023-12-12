@@ -1,3 +1,6 @@
+# needed to not break type annotations if we are not in type checking mode
+from __future__ import annotations
+
 import os
 import shutil
 import tempfile
@@ -6,10 +9,14 @@ from typing import List, Dict
 import click
 
 from officialeye.meta import APPLICATION_NAME
-from officialeye.template import Template
+
+# needed to avoid template.py - singleton.py - context.py - template.py circular import
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from officialeye.template import Template
 
 
-class OEContext:
+class Context:
 
     def __init__(self):
         self._export_counter = 1
@@ -81,11 +88,3 @@ class OEContext:
 
     def dispose(self):
         self._cleanup_temporary_files()
-
-
-_officialeye_context_ = OEContext()
-
-
-def oe_context() -> OEContext:
-    global _officialeye_context_
-    return _officialeye_context_

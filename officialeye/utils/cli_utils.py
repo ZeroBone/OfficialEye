@@ -2,7 +2,7 @@ import click
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.context import oe_context
+from officialeye.context.singleton import oe_context
 
 
 def export_image(img: cv2.Mat, /, *, debug: bool = False, file_name: str = "") -> str:

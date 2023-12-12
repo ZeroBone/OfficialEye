@@ -6,7 +6,7 @@ import click
 import cv2
 import numpy as np
 
-from officialeye.context import oe_context
+from officialeye.context.singleton import oe_context
 from officialeye.debug import DebugInformationContainer
 from officialeye.election.election import Election
 from officialeye.match.flann_matcher import FlannKeypointMatcher

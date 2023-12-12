@@ -1,12 +1,10 @@
-import os
-import shutil
 from typing import List
 
 import click
+# noinspection PyPackageRequirements
 import cv2
 
-from officialeye.context import oe_context
-from officialeye.meta import APPLICATION_NAME
+from officialeye.context.singleton import oe_context
 from officialeye.utils.cli_utils import export_image
 
 

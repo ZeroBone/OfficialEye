@@ -1,6 +1,6 @@
 from typing import Tuple
 
-from officialeye.context import oe_context
+from officialeye.context.singleton import oe_context
 
 
 class Match:
@@ -16,6 +16,7 @@ class Match:
         """Returns the region point in the coordinate system of the underlying template."""
         template = oe_context().get_template(self.template_id)
         keypoint = template.get_keypoint(self.keypoint_id)
+        # TODO
         return self.region_point
 
     def __eq__(self, o):
