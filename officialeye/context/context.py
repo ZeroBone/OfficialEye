@@ -13,7 +13,7 @@ from officialeye.meta import APPLICATION_NAME
 # needed to avoid template.py - singleton.py - context.py - template.py circular import
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from officialeye.template import Template
+    from officialeye.match.template import Template
 
 
 class Context:

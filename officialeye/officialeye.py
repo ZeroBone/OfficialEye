@@ -5,7 +5,7 @@ from yaml.loader import SafeLoader
 import cv2
 
 from officialeye.context.singleton import oe_context
-from officialeye.template import Template
+from officialeye.match.template import Template
 
 
 @click.group()
