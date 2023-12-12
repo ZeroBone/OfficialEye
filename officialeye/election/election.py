@@ -14,8 +14,9 @@ from officialeye.match.result import KeypointMatchingResult
 
 class Election(Debuggable):
 
-    def __init__(self, kmr: KeypointMatchingResult, /, *, debug: DebugContainer = None):
+    def __init__(self, template_id: str, kmr: KeypointMatchingResult, /, *, debug: DebugContainer = None):
         super().__init__(debug=debug)
+        self.template_id = template_id
         self._kmr = kmr
         self._result = None
 
@@ -126,7 +127,7 @@ class Election(Debuggable):
             # extract transformation matrix from model
             transformation_matrix = evaluator(self._transformation_matrix)
 
-            self._result = ElectionResult(offset_vec, transformation_matrix)
+            self._result = ElectionResult(self.template_id, offset_vec, transformation_matrix)
 
             # extract vote counts from model
             for match in self._kmr.get_matches():

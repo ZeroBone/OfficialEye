@@ -1,6 +1,7 @@
 from typing import Tuple
 
 from officialeye.context.singleton import oe_context
+from officialeye.region.keypoint import TemplateKeypoint
 
 
 class Match:
@@ -19,6 +20,9 @@ class Match:
         rg_x, rg_y = self._region_point
         kp_x, kp_y = keypoint.get_left_corner()
         return rg_x + kp_x, rg_y + kp_y
+
+    def get_keypoint(self) -> TemplateKeypoint:
+        return oe_context().get_template(self.template_id).get_keypoint(self.keypoint_id)
 
     def get_target_point(self) -> Tuple[int, int]:
         return self._target_point

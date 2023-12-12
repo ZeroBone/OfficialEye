@@ -68,10 +68,10 @@ class Template:
         path = os.path.join(path_to_template_dir, self._source)
         return os.path.normpath(path)
 
-    def load_source_image(self):
+    def load_source_image(self) -> cv2.Mat:
         return cv2.imread(self._get_source_image_path(), cv2.IMREAD_COLOR)
 
-    def _show(self, img):
+    def _show(self, img: cv2.Mat) -> cv2.Mat:
         for feature in self.features():
             img = feature.draw(img)
         for keypoint in self.keypoints():
@@ -120,7 +120,7 @@ class Template:
 
         # run election to obtain correspondence between template and target regions
 
-        election = Election(keypoint_matching_result, debug=DebugContainer() if debug_mode else None)
+        election = Election(self.template_id, keypoint_matching_result, debug=DebugContainer() if debug_mode else None)
         election.run()
         election_result = election.get_result()
 
@@ -129,7 +129,7 @@ class Template:
             # TODO
 
         if debug_mode:
-            election_result_visualizer = ElectionResultVisualizer(election_result)
+            election_result_visualizer = ElectionResultVisualizer(election_result, target)
             visualization = election_result_visualizer.render()
             election.debug().add_image(visualization)
             election.debug().export()
