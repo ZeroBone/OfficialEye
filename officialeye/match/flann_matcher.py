@@ -43,10 +43,11 @@ class FlannKeypointMatcher(KeypointMatcher):
                 pattern_point = keypoints_pattern[m.queryIdx].pt
                 target_point = keypoints_target[m.trainIdx].pt
 
+                # TODO: consider rounding values here, instead of simply stripping the floating-point part
                 pattern_point = (int(pattern_point[0]), int(pattern_point[1]))
                 target_point = (int(target_point[0]), int(target_point[1]))
 
-                match = Match(self.template_id, pattern_point, target_point)
+                match = Match(self.template_id, keypoint.region_id, pattern_point, target_point)
                 self._result.add_match(match)
 
         if self.in_debug_mode():
@@ -63,7 +64,7 @@ class FlannKeypointMatcher(KeypointMatcher):
                 matchesMask=matches_mask,
                 flags=cv2.DrawMatchesFlags_DEFAULT
             )
-            self._debug.add_image(debug_image, name=f"match_{keypoint.id}")
+            self._debug.add_image(debug_image, name=f"match_{keypoint.region_id}")
 
     def match_finish(self):
         return self._result

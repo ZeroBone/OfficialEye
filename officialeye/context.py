@@ -1,11 +1,12 @@
 import os
 import shutil
 import tempfile
-from typing import List
+from typing import List, Dict
 
 import click
 
 from officialeye.meta import APPLICATION_NAME
+from officialeye.template import Template
 
 
 class OEContext:
@@ -16,6 +17,17 @@ class OEContext:
         self.debug_mode = False
         self.debug_export_directory = None
         self.export_directory = None
+        # keys: template ids
+        # values: template
+        self._loaded_templates: Dict[str, Template] = {}
+
+    def on_template_loaded(self, template: Template, /):
+        assert template.template_id not in self._loaded_templates, "Template already loaded"
+        self._loaded_templates[template.template_id] = template
+
+    def get_template(self, template_id: str, /) -> Template:
+        assert template_id in self._loaded_templates, "Unknown template id"
+        return self._loaded_templates[template_id]
 
     def get_debug_export_directory(self) -> str:
         if self.debug_export_directory is not None:
@@ -74,6 +86,6 @@ class OEContext:
 _officialeye_context_ = OEContext()
 
 
-def get_oe_context() -> OEContext:
+def oe_context() -> OEContext:
     global _officialeye_context_
     return _officialeye_context_

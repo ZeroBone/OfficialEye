@@ -11,7 +11,7 @@ _LABEL_COLOR_DEFAULT = (0, 0, 0xff)
 class TemplateRegion:
     def __init__(self, feature_dict: dict, template, /):
         self._template = template
-        self.id = str(feature_dict["id"])
+        self.region_id = str(feature_dict["id"])
         self.x = int(feature_dict["x"])
         self.y = int(feature_dict["y"])
         self.w = int(feature_dict["w"])
@@ -24,7 +24,7 @@ class TemplateRegion:
     def _draw(self, img: cv2.Mat, /, *, rect_color: Tuple[int, int, int], label_color=_LABEL_COLOR_DEFAULT) -> cv2.Mat:
         img = cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), rect_color, 4)
         label_origin = (self.x + 10, self.y + 30)
-        img = cv2.putText(img, self.id, label_origin, cv2.FONT_HERSHEY_SIMPLEX, 1, label_color, 2, cv2.LINE_AA)
+        img = cv2.putText(img, self.region_id, label_origin, cv2.FONT_HERSHEY_SIMPLEX, 1, label_color, 2, cv2.LINE_AA)
         return img
 
     def to_image(self, *, grayscale: bool = False):
