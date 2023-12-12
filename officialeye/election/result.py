@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 import numpy as np
 
 from officialeye.match.match import Match
@@ -9,7 +11,7 @@ class ElectionResult:
         self.offset_vec = offset_vec
         self.transformation_matrix = transformation_matrix
 
-    def add_match(self, match: Match, vote_count: int, /):
-        # TODO
-        pass
+        self._matches: List[Tuple[Match, int]] = []
 
+    def add_match(self, match: Match, vote_count: int, /):
+        self._matches.append((match, vote_count))

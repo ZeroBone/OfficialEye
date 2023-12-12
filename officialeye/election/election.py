@@ -134,5 +134,4 @@ class Election(Debuggable):
                 self._result.add_match(match, vote_count)
 
     def get_result(self) -> ElectionResult:
-        assert self._result is not None, "Result is unavailable"
         return self._result

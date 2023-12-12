@@ -10,7 +10,7 @@ from officialeye.context.singleton import oe_context
 from officialeye.debug.container import DebugContainer
 from officialeye.election.election import Election
 from officialeye.election.visualizer import ElectionResultVisualizer
-from officialeye.match.flann_matcher import FlannKeypointMatcher
+from officialeye.match.matchers.flann import FlannKeypointMatcher
 from officialeye.utils.cli_utils import export_and_show_image
 from officialeye.region.feature import TemplateFeature
 from officialeye.region.keypoint import TemplateKeypoint
@@ -123,6 +123,10 @@ class Template:
         election = Election(keypoint_matching_result, debug=DebugContainer() if debug_mode else None)
         election.run()
         election_result = election.get_result()
+
+        if election_result is None:
+            print("ELECTION FAILED")
+            # TODO
 
         if debug_mode:
             election_result_visualizer = ElectionResultVisualizer(election_result)
