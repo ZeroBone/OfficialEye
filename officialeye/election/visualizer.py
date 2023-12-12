@@ -60,6 +60,8 @@ class ElectionResultVisualizer:
             for keypoint_id in self._relevant_keypoint_ids
         ])
 
+        assert keypoints_palette.shape[1] == self._palette_width
+
         if keypoints_palette.shape[0] > self._target.shape[0]:
             # the height of the palette is greater than the height of the target image
             # pad the target image from below, to ensure that the height is at least the height of the palette
@@ -76,4 +78,33 @@ class ElectionResultVisualizer:
             padding = np.full((padding_height, keypoints_palette.shape[1], 3), 0xff, dtype=np.uint8)
             keypoints_palette = np.concatenate((keypoints_palette, padding), axis=0)
 
-        return cv2.hconcat([keypoints_palette, img])
+        visualization = cv2.hconcat([keypoints_palette, img])
+
+        for match, vote_count in self._result.get_matches():
+            # compute the location of the match in the palette part of the visualization
+            match_palette_location = match.get_template_point()
+
+            _padding_width = self._palette_width - self.get_template().get_keypoint(match.keypoint_id).w
+            match_palette_location = (match_palette_location[0] + _padding_width, match_palette_location[1])
+
+            for keypoint_id in self._relevant_keypoint_ids:
+                if keypoint_id == match.keypoint_id:
+                    break
+                # in the palette, there is a keypoint above the keypoint corresponding to the current match
+                # therefore, we need to adjust the palette location
+                match_palette_location = (match_palette_location[0],
+                                          match_palette_location[1] + self.get_template().get_keypoint(keypoint_id).h)
+
+            # compute the location of the match in the target image part of the visualization
+            match_target_location = match.get_target_point()
+            match_target_location = (match_target_location[0] + self._palette_width, match_target_location[1])
+
+            # draw a line visualizing the match
+            if vote_count >= 1:
+                match_color = (0, 0xff, 0)  # green
+            else:
+                match_color = (0, 0, 0xff)  # red
+
+            visualization = cv2.line(visualization, match_palette_location, match_target_location, match_color, 2)
+
+        return visualization

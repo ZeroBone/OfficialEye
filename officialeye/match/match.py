@@ -14,6 +14,9 @@ class Match:
         self._target_point = target_point
 
     def get_template_point(self) -> Tuple[int, int]:
+        return self._region_point
+
+    def get_original_template_point(self) -> Tuple[int, int]:
         """Returns the region point in the coordinate system of the underlying template."""
         template = oe_context().get_template(self.template_id)
         keypoint = template.get_keypoint(self.keypoint_id)

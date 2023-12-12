@@ -46,7 +46,7 @@ class Election(Debuggable):
         In other words, targetpoint = M * (templatepoint - offset), where offset is a vector and M is a 2x2 matrix
         """
 
-        template_point = np.array([match.get_template_point()]).T
+        template_point = np.array([match.get_original_template_point()]).T
 
         translated_template_point = self._transformation_matrix @ (template_point - self._offset_vec)
 
@@ -131,7 +131,7 @@ class Election(Debuggable):
 
             # extract vote counts from model
             for match in self._kmr.get_matches():
-                vote_count = model.eval(self._match_votes[match], model_completion=True)
+                vote_count = model.eval(self._match_votes[match], model_completion=True).as_long()
                 self._result.add_match(match, vote_count)
 
     def get_result(self) -> ElectionResult:

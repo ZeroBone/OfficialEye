@@ -12,13 +12,16 @@ class ElectionResult:
         self.offset_vec = offset_vec
         self.transformation_matrix = transformation_matrix
 
-        self.matches: List[Tuple[Match, int]] = []
+        self._matches: List[Tuple[Match, int]] = []
 
     def add_match(self, match: Match, vote_count: int, /):
-        self.matches.append((match, vote_count))
+        self._matches.append((match, vote_count))
 
     def get_relevant_keypoint_ids(self) -> Set[str]:
         rk = set()
-        for match, _ in self.matches:
+        for match, _ in self._matches:
             rk.add(match.get_keypoint().region_id)
         return rk
+
+    def get_matches(self) -> List[Tuple[Match, int]]:
+        return self._matches
