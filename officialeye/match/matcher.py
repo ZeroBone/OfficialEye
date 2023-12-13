@@ -1,5 +1,6 @@
 import abc
 from abc import ABC
+
 # noinspection PyPackageRequirements
 import cv2
 

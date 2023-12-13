@@ -1,8 +1,8 @@
 import click
-import yaml
-from yaml.loader import SafeLoader
 # noinspection PyPackageRequirements
 import cv2
+import yaml
+from yaml.loader import SafeLoader
 
 from officialeye.context.singleton import oe_context
 from officialeye.match.template import Template

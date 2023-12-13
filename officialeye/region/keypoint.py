@@ -3,7 +3,6 @@ import cv2
 
 from officialeye.region.region import TemplateRegion
 
-
 _KEYPOINT_RECT_COLOR = (0, 0, 0xff)
 
 

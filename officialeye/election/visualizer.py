@@ -85,19 +85,18 @@ class ElectionResultVisualizer:
             match_palette_location = match.get_template_point()
 
             _padding_width = self._palette_width - self.get_template().get_keypoint(match.keypoint_id).w
-            match_palette_location = (match_palette_location[0] + _padding_width, match_palette_location[1])
+            match_palette_location[0] += _padding_width
 
             for keypoint_id in self._relevant_keypoint_ids:
                 if keypoint_id == match.keypoint_id:
                     break
                 # in the palette, there is a keypoint above the keypoint corresponding to the current match
                 # therefore, we need to adjust the palette location
-                match_palette_location = (match_palette_location[0],
-                                          match_palette_location[1] + self.get_template().get_keypoint(keypoint_id).h)
+                match_palette_location[1] += self.get_template().get_keypoint(keypoint_id).h
 
             # compute the location of the match in the target image part of the visualization
             match_target_location = match.get_target_point()
-            match_target_location = (match_target_location[0] + self._palette_width, match_target_location[1])
+            match_target_location[0] += self._palette_width
 
             # draw a line visualizing the match
             if vote_count >= 1:

@@ -3,7 +3,6 @@ import cv2
 
 from officialeye.region.region import TemplateRegion
 
-
 _FEATURE_RECT_COLOR = (0, 0xff, 0)
 
 

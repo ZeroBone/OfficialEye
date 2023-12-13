@@ -11,9 +11,9 @@ from officialeye.debug.container import DebugContainer
 from officialeye.election.election import Election
 from officialeye.election.visualizer import ElectionResultVisualizer
 from officialeye.match.matchers.flann import FlannKeypointMatcher
-from officialeye.utils.cli_utils import export_and_show_image
 from officialeye.region.feature import TemplateFeature
 from officialeye.region.keypoint import TemplateKeypoint
+from officialeye.utils.cli_utils import export_and_show_image
 
 
 class Template:
@@ -124,10 +124,10 @@ class Template:
 
         # extract the features from the target image
         for feature in self.features():
-            feature_tl = feature.get_top_left()
-            feature_tr = feature.get_top_right()
-            feature_bl = feature.get_bottom_left()
-            feature_br = feature.get_bottom_right()
+            feature_tl = feature.get_top_left_vec()
+            feature_tr = feature.get_top_right_vec()
+            feature_bl = feature.get_bottom_left_vec()
+            feature_br = feature.get_bottom_right_vec()
 
             target_tl = election_result.template_point_to_target_point(feature_tl)
             target_tr = election_result.template_point_to_target_point(feature_tr)

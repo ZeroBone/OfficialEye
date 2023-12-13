@@ -1,9 +1,9 @@
 from typing import Dict
 
 import click
+import numpy as np
 # noinspection PyPackageRequirements
 import z3
-import numpy as np
 
 from officialeye.debug.container import DebugContainer
 from officialeye.debug.debuggable import Debuggable

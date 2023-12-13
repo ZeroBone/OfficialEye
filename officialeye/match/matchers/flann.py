@@ -1,11 +1,11 @@
 # noinspection PyPackageRequirements
 import cv2
+import numpy as np
 
 from officialeye.match.match import Match
 from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.result import KeypointMatchingResult
 from officialeye.region.keypoint import TemplateKeypoint
-
 
 FLANN_INDEX_KDTREE = 1
 
@@ -44,8 +44,8 @@ class FlannKeypointMatcher(KeypointMatcher):
                 target_point = keypoints_target[m.trainIdx].pt
 
                 # maybe one should consider rounding values here, instead of simply stripping the floating-point part
-                pattern_point = (int(pattern_point[0]), int(pattern_point[1]))
-                target_point = (int(target_point[0]), int(target_point[1]))
+                pattern_point = np.array(pattern_point, dtype=int)
+                target_point = np.array(target_point, dtype=int)
 
                 match = Match(self.template_id, keypoint.region_id, pattern_point, target_point)
                 self._result.add_match(match)

@@ -5,13 +5,13 @@ import os
 import shutil
 import tempfile
 from typing import List, Dict
+# needed to avoid template.py - singleton.py - context.py - template.py circular import
+from typing import TYPE_CHECKING
 
 import click
 
 from officialeye.meta import APPLICATION_NAME
 
-# needed to avoid template.py - singleton.py - context.py - template.py circular import
-from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from officialeye.match.template import Template
 
