@@ -37,7 +37,8 @@ class Election(Debuggable):
 
         # configuration
         # TODO: consider including this parameter in the binary search too
-        self._max_deviation = 5
+        # maximum offset (in pixels) between the match and match provided by the translation
+        self._maximum_transformation_error = 5
 
     def _get_consistency_check(self, match: Match) -> z3.AstRef:
         """
@@ -57,10 +58,10 @@ class Election(Debuggable):
         target_point_x, target_point_y = match.get_target_point()
 
         return z3.And(
-            translated_template_point_x - target_point_x <= self._max_deviation,
-            translated_template_point_x - target_point_x >= -self._max_deviation,
-            translated_template_point_y - target_point_y <= self._max_deviation,
-            translated_template_point_y - target_point_y >= -self._max_deviation,
+            translated_template_point_x - target_point_x <= self._maximum_transformation_error,
+            translated_template_point_x - target_point_x >= -self._maximum_transformation_error,
+            translated_template_point_y - target_point_y <= self._maximum_transformation_error,
+            translated_template_point_y - target_point_y >= -self._maximum_transformation_error,
         )
 
     def run(self):

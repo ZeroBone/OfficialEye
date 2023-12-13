@@ -43,7 +43,7 @@ class FlannKeypointMatcher(KeypointMatcher):
                 pattern_point = keypoints_pattern[m.queryIdx].pt
                 target_point = keypoints_target[m.trainIdx].pt
 
-                # TODO: consider rounding values here, instead of simply stripping the floating-point part
+                # maybe one should consider rounding values here, instead of simply stripping the floating-point part
                 pattern_point = (int(pattern_point[0]), int(pattern_point[1]))
                 target_point = (int(target_point[0]), int(target_point[1]))
 
