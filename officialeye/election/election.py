@@ -1,3 +1,5 @@
+import math
+
 from typing import Dict
 
 import click
@@ -14,8 +16,13 @@ from officialeye.match.result import KeypointMatchingResult
 
 class Election(Debuggable):
 
-    def __init__(self, template_id: str, kmr: KeypointMatchingResult, /, *, debug: DebugContainer = None):
+    def __init__(self, template_id: str, kmr: KeypointMatchingResult, /, *,
+                 debug: DebugContainer = None, min_vote_percentage: float = .25):
         super().__init__(debug=debug)
+
+        assert min_vote_percentage <= 1.0
+        assert min_vote_percentage >= 0.0
+
         self.template_id = template_id
         self._kmr = kmr
         self._result = None
@@ -36,17 +43,20 @@ class Election(Debuggable):
             self._match_votes[match] = z3.Int(f"votes_{match.get_debug_identifier()}")
 
         # configuration
-        # TODO: consider including this parameter in the binary search too
-        # maximum offset (in pixels) between the match and match provided by the translation
-        self._maximum_transformation_error = 10
+        self._min_votes_required = math.ceil(min_vote_percentage * self._kmr.get_total_match_count())
+        self._min_votes_required = max(self._min_votes_required, 1)
+        if self.in_debug_mode():
+            click.secho(f"Election system: Minimum votes required: {self._min_votes_required}", fg="yellow")
 
-    def _get_consistency_check(self, match: Match) -> z3.AstRef:
+    def _get_consistency_check(self, match: Match, transformation_error_max: int, /) -> z3.AstRef:
         """
         Generates a z3 formula asserting the consistency of the match with the affine linear transformation model.
         Consistency does not mean ideal matching of coordinates; rather, the template position with the affine
         transformation applied to it, must roughly be equal the target position for consistency to hold
         In other words, targetpoint = M * (templatepoint - offset), where offset is a vector and M is a 2x2 matrix
         """
+
+        assert transformation_error_max >= 0
 
         template_point = np.array([match.get_original_template_point()]).T
 
@@ -58,11 +68,21 @@ class Election(Debuggable):
         target_point_x, target_point_y = match.get_target_point()
 
         return z3.And(
-            translated_template_point_x - target_point_x <= self._maximum_transformation_error,
-            translated_template_point_x - target_point_x >= -self._maximum_transformation_error,
-            translated_template_point_y - target_point_y <= self._maximum_transformation_error,
-            translated_template_point_y - target_point_y >= -self._maximum_transformation_error,
+            translated_template_point_x - target_point_x <= transformation_error_max,
+            translated_template_point_x - target_point_x >= -transformation_error_max,
+            translated_template_point_y - target_point_y <= transformation_error_max,
+            translated_template_point_y - target_point_y >= -transformation_error_max,
         )
+
+    def _generate_election_implies_consistency_check(self, transformation_error_max: int, /):
+        return z3.And(*(
+            z3.Implies(
+                # receiving at least one vote means getting elected
+                self._match_votes[match] >= 1,
+                # consistency check
+                self._get_consistency_check(match, transformation_error_max)
+            ) for match in self._kmr.get_matches()
+        ))
 
     def run(self):
 
@@ -70,53 +90,83 @@ class Election(Debuggable):
 
         votes_upper_bounds = z3.And(*(self._match_votes[match] <= 1 for match in self._kmr.get_matches()))
 
-        elected_implies_consistent = z3.And(*(
-            z3.Implies(
-                # receiving at least one vote means getting elected
-                self._match_votes[match] >= 1,
-                # consistency check
-                self._get_consistency_check(match)
-            ) for match in self._kmr.get_matches()
-        ))
-
         total_votes = z3.Sum(*(self._match_votes[match] for match in self._kmr.get_matches()))
 
         solver = z3.Solver()
         solver.add(votes_lower_bounds)
         solver.add(votes_upper_bounds)
-        solver.add(elected_implies_consistent)
 
-        total_votes_min = 1
-        total_votes_max = self._kmr.get_total_match_count()
+        # transformation error is the maximum offset (in pixels) between the match and match provided by the translation
+        transformation_error_bound_min = 0
+        transformation_error_bound_max = 0x80
 
         model = None
+        # upper bound on transformation error, corresponding to the model
+        model_transformation_error_bound = None
 
-        while total_votes_min <= total_votes_max:
-            # we try to enforce the following amounts of votes
-            min_votes = (total_votes_min + total_votes_max) // 2
+        while transformation_error_bound_min <= transformation_error_bound_max:
+
+            model_found_in_current_iter = False
+
+            transformation_error_bound_cur = (transformation_error_bound_min + transformation_error_bound_max) // 2
 
             if self.in_debug_mode():
-                click.secho(f"Election system: Trying to enforce {min_votes} votes. Bounds:"
-                            f" [{total_votes_min}, {total_votes_max}]", fg="yellow")
+                click.secho(f"Election system: --- [New iteration of transformation error optimization cycle] ---", fg="yellow")
+                click.secho(f"Election system: Current bound on transformation error: {transformation_error_bound_cur}", fg="yellow")
+
+            elected_implies_consistent = self._generate_election_implies_consistency_check(transformation_error_bound_cur)
 
             solver.push()
-            solver.add(total_votes >= min_votes)
+            solver.add(elected_implies_consistent)
 
-            result = solver.check()
-            if result == z3.sat:
-                model = solver.model()
-                # try to increase the minimum vote count
-                model_vote_count_raw: z3.IntNumRef = model.eval(total_votes, model_completion=True)
-                model_vote_count = model_vote_count_raw.as_long()
-                assert model_vote_count >= min_votes
-                total_votes_min = model_vote_count + 1
+            total_votes_min = self._min_votes_required
+            total_votes_max = self._kmr.get_total_match_count()
+
+            while total_votes_min <= total_votes_max:
+                # we try to enforce the following amounts of votes
+                min_votes = (total_votes_min + total_votes_max) // 2
+
+                if self.in_debug_mode():
+                    click.secho(f"Election system: Trying to enforce {min_votes} votes. Bounds:"
+                                f" [{total_votes_min}, {total_votes_max}]", fg="yellow")
+
+                solver.push()
+                solver.add(total_votes >= min_votes)
+
+                result = solver.check()
+                if result == z3.sat:
+                    model = solver.model()
+                    model_transformation_error_bound = transformation_error_bound_cur
+                    model_found_in_current_iter = True
+                    # try to increase the minimum vote count
+                    model_vote_count_raw: z3.IntNumRef = model.eval(total_votes, model_completion=True)
+                    model_vote_count = model_vote_count_raw.as_long()
+                    assert model_vote_count >= min_votes
+                    total_votes_min = model_vote_count + 1
+                else:
+                    assert result == z3.unsat or result == z3.unknown
+                    total_votes_max = min_votes - 1
+
+                solver.pop()
+
+            if model_found_in_current_iter:
+                # good, try to improve the bound on the transformation error further
+                # specifically, we decrease the upper bound
+                transformation_error_bound_max = transformation_error_bound_cur - 1
+                if self.in_debug_mode():
+                    click.secho(f"Election system: Strengthening the transformation error bound.", fg="green")
             else:
-                assert result == z3.unsat or result == z3.unknown
-                total_votes_max = min_votes - 1
+                transformation_error_bound_min = transformation_error_bound_cur + 1
+                if self.in_debug_mode():
+                    click.secho(f"Election system: Weakening the transformation error bound.", fg="red")
+
+            if self.in_debug_mode():
+                click.secho(f"Election system: --- [Transformation error optimization cycle finished] ---", fg="yellow")
 
             solver.pop()
 
         if model is not None:
+
             evaluator = np.vectorize(lambda var: float(model.eval(var, model_completion=True).as_fraction()))
 
             # extract offset vector from model
@@ -127,9 +177,18 @@ class Election(Debuggable):
             self._result = ElectionResult(self.template_id, offset_vec, transformation_matrix)
 
             # extract vote counts from model
+            elected_matches_count = 0
             for match in self._kmr.get_matches():
                 vote_count = model.eval(self._match_votes[match], model_completion=True).as_long()
                 self._result.add_match(match, vote_count)
+                if vote_count >= 1:
+                    elected_matches_count += 1
+
+            if self.in_debug_mode():
+                click.secho(f"Election system: --- [Result] ---", fg="yellow")
+                click.secho(f"Matches elected: {elected_matches_count} "
+                            f"({elected_matches_count / self._kmr.get_total_match_count()}%)", fg="yellow")
+                click.secho(f"Upper bound on transformation error (the lower the better): {model_transformation_error_bound}", fg="yellow")
 
     def get_result(self) -> ElectionResult:
         return self._result
