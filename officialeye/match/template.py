@@ -73,9 +73,9 @@ class Template:
 
     def _show(self, img: cv2.Mat) -> cv2.Mat:
         for feature in self.features():
-            img = feature.draw(img)
+            img = feature.visualize(img)
         for keypoint in self.keypoints():
-            img = keypoint.draw(img)
+            img = keypoint.visualize(img)
         return img
 
     def show(self):
@@ -134,18 +134,37 @@ class Template:
             election.debug().add_image(visualization)
             election.debug().export()
 
-        # output_path = "debug.png"
-        # cv2.imwrite(output_path, img)
-        # click.secho(f"Pattern-match success. Exported '{output_path}'.", bg="green", bold=True)
+        application_image = self.load_source_image()
 
-        # homography = cv2.getPerspectiveTransform(np.float32(source_points), np.float32(destination_points))
-        # target_transformed = cv2.warpPerspective(target, np.float32(homography), (self.width, self.height),
-        # flags=cv2.INTER_LINEAR)
-        # target_transformed = self._show(target_transformed)
+        # extract the features from the target image
+        for feature in self.features():
+            feature_tl = feature.get_top_left()
+            feature_tr = feature.get_top_right()
+            feature_bl = feature.get_bottom_left()
+            feature_br = feature.get_bottom_right()
 
-        # output_path = "transformed.png"
-        # cv2.imwrite(output_path, target_transformed)
-        # click.secho(f"Success. Exported '{output_path}'.", bg="green", bold=True)
+            target_tl = election_result.template_point_to_target_point(feature_tl)
+            target_tr = election_result.template_point_to_target_point(feature_tr)
+            target_bl = election_result.template_point_to_target_point(feature_bl)
+            target_br = election_result.template_point_to_target_point(feature_br)
+
+            source_points = [target_tl.T[0], target_tr.T[0], target_br.T[0], target_bl.T[0]]
+            # destination_points = [feature_tl, feature_tr, feature_br, feature_bl]
+            destination_points = [[0, 0], [feature.w, 0], [feature.w, feature.h], [0, feature.h]]
+
+            homography = cv2.getPerspectiveTransform(np.float32(source_points), np.float32(destination_points))
+            target_transformed = cv2.warpPerspective(
+                target,
+                np.float32(homography),
+                # (self.width, self.height),
+                (feature.w, feature.h),
+                flags=cv2.INTER_LINEAR
+            )
+
+            # export_and_show_image(target_transformed)
+            feature.insert_into_image(application_image, target_transformed)
+
+        export_and_show_image(application_image)
 
     def __str__(self):
         return f"{self.name} ({self._source}, {len(self._features)} features)"

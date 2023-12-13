@@ -36,7 +36,8 @@ class Election(Debuggable):
             self._match_votes[match] = z3.Int(f"votes_{match.get_debug_identifier()}")
 
         # configuration
-        self._max_deviation = 2
+        # TODO: consider including this parameter in the binary search too
+        self._max_deviation = 5
 
     def _get_consistency_check(self, match: Match) -> z3.AstRef:
         """
@@ -120,7 +121,7 @@ class Election(Debuggable):
             solver.pop()
 
         if model is not None:
-            evaluator = np.vectorize(lambda var: model.eval(var, model_completion=True))
+            evaluator = np.vectorize(lambda var: float(model.eval(var, model_completion=True).as_fraction()))
 
             # extract offset vector from model
             offset_vec = evaluator(self._offset_vec)
