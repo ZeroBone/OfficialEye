@@ -45,13 +45,19 @@ def show(template_path: str):
 
 
 @click.command()
-@click.argument("template_path", type=click.Path(exists=True))
 @click.argument("target_path", type=click.Path(exists=True))
-def apply(template_path: str, target_path: str):
-    """Analyzes image using template, and prints debug info."""
-    template = load_template(template_path)
+@click.argument("template_paths", type=click.Path(exists=True), nargs=-1)
+def analyze(target_path: str, template_paths: str):
+    """Applies one or more templates to an image."""
+
+    # load target image
     target = cv2.imread(target_path, cv2.IMREAD_COLOR)
-    template.apply(target, debug_mode=oe_context().debug_mode)
+
+    # apply the templates to the image
+    for template_path in template_paths:
+        template = load_template(template_path)
+        template.analyze(target, debug_mode=oe_context().debug_mode)
+
     oe_context().dispose()
 
 
@@ -64,7 +70,7 @@ def homepage():
 
 
 cli.add_command(show)
-cli.add_command(apply)
+cli.add_command(analyze)
 cli.add_command(homepage)
 
 if __name__ == "__main__":

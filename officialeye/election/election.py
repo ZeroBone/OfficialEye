@@ -38,7 +38,7 @@ class Election(Debuggable):
         # configuration
         # TODO: consider including this parameter in the binary search too
         # maximum offset (in pixels) between the match and match provided by the translation
-        self._maximum_transformation_error = 5
+        self._maximum_transformation_error = 10
 
     def _get_consistency_check(self, match: Match) -> z3.AstRef:
         """
@@ -80,11 +80,6 @@ class Election(Debuggable):
         ))
 
         total_votes = z3.Sum(*(self._match_votes[match] for match in self._kmr.get_matches()))
-
-        """
-        for match in self._kmr.matches():
-            print(match.get_template_point(), match.get_target_point())
-        """
 
         solver = z3.Solver()
         solver.add(votes_lower_bounds)

@@ -83,7 +83,7 @@ class Template:
         img = self._show(img)
         export_and_show_image(img)
 
-    def apply(self, target, /, *, debug_mode: bool = False):
+    def analyze(self, target, /, *, debug_mode: bool = False):
         # find all patterns in the target image
         # img = target.copy()
 
