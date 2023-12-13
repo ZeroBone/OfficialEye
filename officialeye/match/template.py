@@ -83,20 +83,6 @@ class Template:
         img = self._show(img)
         export_and_show_image(img)
 
-    def _generate_keypoint_visualization(self):
-        kp_vis = np.full((self.height, self.width), 0xff, dtype=np.uint8)
-
-        for kp in self.keypoints():
-            kp_img = kp.to_image()
-            kp_vis[kp.y:kp.y+kp.h, kp.x:kp.x+kp.w] = kp_img
-
-        return kp_vis
-
-    def generate_keypoint_visualization(self, /):
-        mp = self._generate_keypoint_visualization()
-        mp = cv2.Mat(mp)
-        export_and_show_image(mp)
-
     def apply(self, target, /, *, debug_mode: bool = False):
         # find all patterns in the target image
         # img = target.copy()

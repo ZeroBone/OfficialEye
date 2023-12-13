@@ -6,6 +6,7 @@ import cv2
 
 from officialeye.context.singleton import oe_context
 from officialeye.match.template import Template
+from officialeye.meta import APPLICATION_GITHUB
 
 
 @click.group()
@@ -36,16 +37,6 @@ def load_template(path: str) -> Template:
 
 @click.command()
 @click.argument("template_path", type=click.Path(exists=True))
-def pattern(template_path: str):
-    """Exports pattern as an image with features visualized."""
-    # TODO: consider removing this functionality
-    template = load_template(template_path)
-    template.generate_keypoint_visualization()
-    oe_context().dispose()
-
-
-@click.command()
-@click.argument("template_path", type=click.Path(exists=True))
 def show(template_path: str):
     """Exports template as an image with features visualized."""
     template = load_template(template_path)
@@ -65,27 +56,16 @@ def apply(template_path: str, target_path: str):
 
 
 @click.command()
-@click.option('--name', prompt='Identify youself by name')
-def analyze(name: str):
-    """Analyzes image using one of the templates specified."""
-    click.secho(f"Hello {name}", bold=True, bg='green', fg='black')
-    click.secho(
-        "This is Command Line Interface which gives information of maker named Piyush.", bg="blue", fg="white")
-    oe_context().dispose()
-
-
-@click.command()
 def homepage():
-    """Go to the officialeye"s Homepage on GitHub."""
-    click.launch("https://github.com/ZeroBone/OfficialEye")
+    """Go to the officialeye's official GitHub homepage."""
+    click.secho(f"Opening {APPLICATION_GITHUB}", bg="blue", fg="white")
+    click.launch(APPLICATION_GITHUB)
     oe_context().dispose()
 
 
 cli.add_command(show)
 cli.add_command(apply)
 cli.add_command(homepage)
-cli.add_command(analyze)
-cli.add_command(pattern)
 
 if __name__ == "__main__":
     cli()
