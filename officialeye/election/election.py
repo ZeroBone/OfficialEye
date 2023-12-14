@@ -17,11 +17,11 @@ from officialeye.match.result import KeypointMatchingResult
 class Election(Debuggable):
 
     def __init__(self, template_id: str, kmr: KeypointMatchingResult, /, *,
-                 debug: DebugContainer = None, min_vote_percentage: float = .25):
+                 debug: DebugContainer = None, min_vote_fraction: float = 0.05):
         super().__init__(debug=debug)
 
-        assert min_vote_percentage <= 1.0
-        assert min_vote_percentage >= 0.0
+        assert min_vote_fraction <= 1.0
+        assert min_vote_fraction >= 0.0
 
         self.template_id = template_id
         self._kmr = kmr
@@ -43,10 +43,11 @@ class Election(Debuggable):
             self._match_votes[match] = z3.Int(f"votes_{match.get_debug_identifier()}")
 
         # configuration
-        self._min_votes_required = math.ceil(min_vote_percentage * self._kmr.get_total_match_count())
+        self._min_votes_required = math.ceil(min_vote_fraction * self._kmr.get_total_match_count())
         self._min_votes_required = max(self._min_votes_required, 1)
         if self.in_debug_mode():
-            click.secho(f"Election system: Minimum votes required: {self._min_votes_required}", fg="yellow")
+            click.secho(f"Total match count: {self._kmr.get_total_match_count()}", fg="yellow")
+            click.secho(f"Minimum votes required: {self._min_votes_required}", fg="yellow")
 
     def _get_consistency_check(self, match: Match, transformation_error_max: int, /) -> z3.AstRef:
         """
@@ -93,6 +94,7 @@ class Election(Debuggable):
         total_votes = z3.Sum(*(self._match_votes[match] for match in self._kmr.get_matches()))
 
         solver = z3.Solver()
+        solver.set("timeout", 500)
         solver.add(votes_lower_bounds)
         solver.add(votes_upper_bounds)
 
@@ -111,8 +113,8 @@ class Election(Debuggable):
             transformation_error_bound_cur = (transformation_error_bound_min + transformation_error_bound_max) // 2
 
             if self.in_debug_mode():
-                click.secho(f"Election system: --- [New iteration of transformation error optimization cycle] ---", fg="yellow")
-                click.secho(f"Election system: Current bound on transformation error: {transformation_error_bound_cur}", fg="yellow")
+                click.secho(f"--- [New iteration of transformation error optimization cycle] ---", fg="yellow")
+                click.secho(f"Current bound on transformation error: {transformation_error_bound_cur}", fg="yellow")
 
             elected_implies_consistent = self._generate_election_implies_consistency_check(transformation_error_bound_cur)
 
@@ -127,7 +129,7 @@ class Election(Debuggable):
                 min_votes = (total_votes_min + total_votes_max) // 2
 
                 if self.in_debug_mode():
-                    click.secho(f"Election system: Trying to enforce {min_votes} votes. Bounds:"
+                    click.secho(f"Trying to enforce {min_votes} votes. Bounds:"
                                 f" [{total_votes_min}, {total_votes_max}]", fg="yellow")
 
                 solver.push()
@@ -143,8 +145,12 @@ class Election(Debuggable):
                     model_vote_count = model_vote_count_raw.as_long()
                     assert model_vote_count >= min_votes
                     total_votes_min = model_vote_count + 1
+                elif result == z3.unknown:
+                    total_votes_max = min_votes - 1
+                    if self.in_debug_mode():
+                        click.secho("Warning! Z3 returned unknown.", fg="red")
                 else:
-                    assert result == z3.unsat or result == z3.unknown
+                    assert result == z3.unsat
                     total_votes_max = min_votes - 1
 
                 solver.pop()
@@ -154,14 +160,14 @@ class Election(Debuggable):
                 # specifically, we decrease the upper bound
                 transformation_error_bound_max = transformation_error_bound_cur - 1
                 if self.in_debug_mode():
-                    click.secho(f"Election system: Strengthening the transformation error bound.", fg="green")
+                    click.secho(f"Strengthening the transformation error bound.", fg="green")
             else:
                 transformation_error_bound_min = transformation_error_bound_cur + 1
                 if self.in_debug_mode():
-                    click.secho(f"Election system: Weakening the transformation error bound.", fg="red")
+                    click.secho(f"Weakening the transformation error bound.", fg="red")
 
             if self.in_debug_mode():
-                click.secho(f"Election system: --- [Transformation error optimization cycle finished] ---", fg="yellow")
+                click.secho(f"--- [Transformation error optimization cycle finished] ---", fg="yellow")
 
             solver.pop()
 
@@ -187,7 +193,7 @@ class Election(Debuggable):
             if self.in_debug_mode():
                 click.secho(f"Election system: --- [Result] ---", fg="yellow")
                 click.secho(f"Matches elected: {elected_matches_count} "
-                            f"({elected_matches_count / self._kmr.get_total_match_count()}%)", fg="yellow")
+                            f"({elected_matches_count / self._kmr.get_total_match_count() * 100}%)", fg="yellow")
                 click.secho(f"Upper bound on transformation error (the lower the better): {model_transformation_error_bound}", fg="yellow")
 
     def get_result(self) -> ElectionResult:

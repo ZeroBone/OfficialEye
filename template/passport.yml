@@ -7,21 +7,16 @@ keypoints:
     y: 50
     w: 170
     h: 170
-  photo_security_corner:
+  photo_security_top:
+    x: 100
+    y: 180
+    w: 570
+    h: 100
+  photo_security_left:
     x: 100
     y: 180
     w: 100
-    h: 100
-  photo_security_bottom:
-    x: 90
-    y: 660
-    w: 100
-    h: 100
-  photo_security_right:
-    x: 570
-    y: 180
-    w: 100
-    h: 100
+    h: 580
 features:
   last_name:
     x: 808
@@ -64,17 +59,17 @@ features:
     w: 475
     h: 600
   id_1:
-    x: 1760
+    x: 1730
     y: 256
-    w: 80
+    w: 120
     h: 132
   id_2:
-    x: 1760
+    x: 1730
     y: 420
-    w: 80
+    w: 120
     h: 132
   id_3:
-    x: 1760
+    x: 1730
     y: 580
-    w: 80
+    w: 120
     h: 300
