@@ -1,12 +1,10 @@
 import click
 # noinspection PyPackageRequirements
 import cv2
-import yaml
-from yaml.loader import SafeLoader
 
 from officialeye.context.singleton import oe_context
-from officialeye.match.template import Template
 from officialeye.meta import APPLICATION_GITHUB
+from officialeye.template.parser import load_template
 
 
 @click.group()
@@ -22,17 +20,6 @@ def cli(debug: bool, dedir: str, edir: str):
         oe_context().debug_export_directory = dedir
     if edir is not None:
         oe_context().export_directory = edir
-
-
-def load_template(path: str) -> Template:
-    # click.echo(f"Loading template '{click.format_filename(template_name)}'")
-
-    with open(path) as f:
-        data = yaml.load(f, Loader=SafeLoader)
-
-    template = Template(data, path)
-    click.secho(f"Loaded feature: {template}", fg="green", bold=True)
-    return template
 
 
 @click.command()

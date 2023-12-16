@@ -13,7 +13,7 @@ import click
 from officialeye.meta import APPLICATION_NAME
 
 if TYPE_CHECKING:
-    from officialeye.match.template import Template
+    from officialeye.template.template import Template
 
 
 class Context:

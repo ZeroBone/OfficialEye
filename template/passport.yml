@@ -1,3 +1,4 @@
+version: "v1.0.0"
 id: "passport"
 name: "Passport"
 source: "../template_sources/passport.png"
@@ -17,6 +18,16 @@ keypoints:
     y: 180
     w: 100
     h: 580
+#keypoint_groups:
+#  photo_security:
+#    - photo_security_top
+#    - photo_security_left
+#matching_constraints:
+#  # The 'min_weight' constraint enforces
+#  min_weight:
+#    keypoints:
+#      - keypoint_id_2
+#    value: 1
 features:
   last_name:
     x: 808

@@ -19,10 +19,9 @@ from officialeye.utils.cli_utils import export_and_show_image
 class Template:
     def __init__(self, yaml_dict: dict, path_to_template: str, /):
         self._path_to_template = path_to_template
-        self.template_id = str(yaml_dict["id"])
-
-        self.name = str(yaml_dict["name"])
-        self._source = str(yaml_dict["source"])
+        self.template_id = yaml_dict["id"]
+        self.name = yaml_dict["name"]
+        self._source = yaml_dict["source"]
 
         self.height, self.width, _ = self.load_source_image().shape
 
