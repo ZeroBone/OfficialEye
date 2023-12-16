@@ -3,17 +3,16 @@ import click
 import cv2
 
 from officialeye.context.singleton import oe_context
-from officialeye.meta import APPLICATION_GITHUB, APPLICATION_CLI_LOGO, APPLICATION_VERSION
+from officialeye.meta import OFFICIALEYE_GITHUB, OFFICIALEYE_CLI_LOGO, OFFICIALEYE_VERSION, OFFICIALEYE_EYE, print_logo
 from officialeye.template.parser import load_template
 
 
 @click.group()
 @click.option("-d", "--debug", is_flag=True, show_default=True, default=False, help="Enable debug mode.")
-@click.option("--dedir", type=click.Path(exists=True), help="Specify debug export directory")
-@click.option("--edir", type=click.Path(exists=True), help="Specify export directory")
+@click.option("--dedir", type=click.Path(exists=True, file_okay=True, readable=True), help="Specify debug export directory")
+@click.option("--edir", type=click.Path(exists=True, file_okay=True, readable=True), help="Specify export directory")
 def cli(debug: bool, dedir: str, edir: str):
-
-    click.secho(APPLICATION_CLI_LOGO, fg="red")
+    print_logo()
 
     oe_context().debug_mode = debug
     if oe_context().debug_mode:
@@ -26,7 +25,7 @@ def cli(debug: bool, dedir: str, edir: str):
 
 
 @click.command()
-@click.argument("template_path", type=click.Path(exists=True))
+@click.argument("template_path", type=click.Path(exists=True, file_okay=True, readable=True))
 def show(template_path: str):
     """Exports template as an image with features visualized."""
     template = load_template(template_path)
@@ -35,8 +34,8 @@ def show(template_path: str):
 
 
 @click.command()
-@click.argument("target_path", type=click.Path(exists=True))
-@click.argument("template_paths", type=click.Path(exists=True), nargs=-1)
+@click.argument("target_path", type=click.Path(exists=True, file_okay=True, readable=True))
+@click.argument("template_paths", type=click.Path(exists=True, file_okay=True, readable=True), nargs=-1)
 def analyze(target_path: str, template_paths: str):
     """Applies one or more templates to an image."""
 
@@ -54,15 +53,15 @@ def analyze(target_path: str, template_paths: str):
 @click.command()
 def homepage():
     """Go to the officialeye's official GitHub homepage."""
-    click.secho(f"Opening {APPLICATION_GITHUB}", bg="blue", fg="white")
-    click.launch(APPLICATION_GITHUB)
+    click.secho(f"Opening {OFFICIALEYE_GITHUB}", bg="blue", fg="white")
+    click.launch(OFFICIALEYE_GITHUB)
     oe_context().dispose()
 
 
 @click.command()
 def version():
     """Go to the officialeye's official GitHub homepage."""
-    click.echo(f"Version: v{APPLICATION_VERSION}")
+    click.echo(f"Version: v{OFFICIALEYE_VERSION}")
     oe_context().dispose()
 
 

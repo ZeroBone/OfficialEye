@@ -10,10 +10,11 @@ from officialeye.context.singleton import oe_context
 from officialeye.debug.container import DebugContainer
 from officialeye.election.election import Election
 from officialeye.election.visualizer import ElectionResultVisualizer
+from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.matchers.flann import FlannKeypointMatcher
 from officialeye.region.feature import TemplateFeature
 from officialeye.region.keypoint import TemplateKeypoint
-from officialeye.utils.cli_utils import export_and_show_image
+from officialeye.utils.cli_utils import export_and_show_image, print_error
 
 
 class Template:
@@ -36,6 +37,8 @@ class Template:
             assert keypoint.region_id not in self._features, "Duplicate region id of keypoint"
             self._keypoints[keypoint.region_id] = keypoint
 
+        self._matching = yaml_dict["matching"]
+
         for feature_id in yaml_dict["features"]:
             feature_dict = yaml_dict["features"][feature_id]
             feature_dict["id"] = feature_id
@@ -45,6 +48,19 @@ class Template:
             self._features[feature.region_id] = feature
 
         oe_context().on_template_loaded(self)
+
+    def get_matching_engine(self) -> str:
+        return self._matching["engine"]
+
+    def load_keypoint_matcher(self, target_img: cv2.Mat, **kwargs) -> KeypointMatcher:
+        matching_engine = self.get_matching_engine()
+
+        if matching_engine == FlannKeypointMatcher.ENGINE_ID:
+            return FlannKeypointMatcher(self.template_id, target_img, **kwargs)
+
+        print_error("while loading keypoint matcher", f"unknown matching engine '{matching_engine}'")
+
+        exit(5)
 
     def features(self):
         for feature_id in self._features:
@@ -88,8 +104,7 @@ class Template:
 
         with click.progressbar(length=len(self._keypoints) + 2, label="Matching") as bar:
 
-            matcher = FlannKeypointMatcher(self.template_id, target,
-                                           debug=DebugContainer() if debug_mode else None)
+            matcher = self.load_keypoint_matcher(target, debug=DebugContainer() if debug_mode else None)
 
             bar.update(1)
 

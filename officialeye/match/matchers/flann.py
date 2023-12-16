@@ -11,6 +11,9 @@ FLANN_INDEX_KDTREE = 1
 
 
 class FlannKeypointMatcher(KeypointMatcher):
+
+    ENGINE_ID = "flann"
+
     def __init__(self, template_id: str, img: cv2.Mat, /, **kwargs):
         super().__init__(template_id, img, **kwargs)
         self._ratio_thresh = 0.7

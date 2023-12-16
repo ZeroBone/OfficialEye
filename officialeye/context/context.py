@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING
 
 import click
 
-from officialeye.meta import APPLICATION_NAME
+from officialeye.meta import OFFICIALEYE_NAME
 
 if TYPE_CHECKING:
     from officialeye.template.template import Template
@@ -40,7 +40,7 @@ class Context:
         if self.debug_export_directory is not None:
             return self.debug_export_directory
 
-        debug_directory = os.path.join(click.get_app_dir(APPLICATION_NAME), "debug")
+        debug_directory = os.path.join(click.get_app_dir(OFFICIALEYE_NAME), "debug")
 
         if os.path.exists(debug_directory):
             shutil.rmtree(debug_directory)

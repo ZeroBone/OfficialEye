@@ -18,12 +18,15 @@ keypoints:
     y: 180
     w: 100
     h: 580
-# matching_constraints:
-#   # The 'min_weight' constraint enforces the specified keypoints to achieve at least a certain amount of matches
-#   min_weight:
-#     keypoints:
-#       - rf_symbol
-#     bound: 1
+matching:
+  engine: flann
+  constraints:
+    # The 'min_weight' constraint enforces the specified keypoints to achieve at least a certain amount of matches
+    min_weight:
+      keypoints:
+        - rf_symbol
+        - photo_security_left
+      bound: 1
 features:
   last_name:
     x: 808

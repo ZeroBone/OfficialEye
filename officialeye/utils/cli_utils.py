@@ -16,3 +16,10 @@ def export_and_show_image(img: cv2.Mat, /, *, debug: bool = False, file_name: st
     path = export_image(img, debug=debug, file_name=file_name)
     click.launch(path, locate=False)
     click.pause()
+
+
+def print_error(error: str, problem: str):
+    click.secho("Error ", bold=True, nl=False, err=True)
+    click.echo(error, err=True)
+    click.secho("Problem", bold=True, nl=False, err=True)
+    click.echo(f": {problem}")
