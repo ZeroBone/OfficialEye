@@ -1,13 +1,16 @@
 import click
 import yamale
+import yaml
 from yamale import YamaleError
+from yaml import SafeLoader
+from yaml.parser import ParserError
 
 from officialeye.template.template import Template
 
 _OE_TEMPLATE_SCHEMA_DEF = """
 version: str(min=1, max=32, matches=r"^[a-zA-Z0-9_.]*$")
 id: str(min=1, max=32, matches=r"^[a-zA-Z0-9_]*$")
-name: str(min=1, max=64, matches=r"^[a-zA-Z0-9_]*$")
+name: str(min=1, max=64, matches=r"^[a-zA-Z0-9_ ]*$")
 source: str(min=1, max=256)
 keypoints: map(include("keypoint"), min=1, key=str(min=1, max=32, matches=r"^[a-zA-Z0-9_]*$"))
 features: map(include("feature"), min=1, key=str(min=1, max=32, matches=r"^[a-zA-Z0-9_]*$"))
@@ -33,21 +36,30 @@ def load_template(path: str) -> Template:
 
     # click.echo(f"Loading template '{click.format_filename(template_name)}'")
 
-    """
-    with open(path) as f:
-        data = yaml.load(f, Loader=SafeLoader)
-    """
+    try:
+        with open(path) as f:
+            raw_data = yaml.load(f, Loader=SafeLoader)
+    except ParserError as err:
+        error_desc = "\n".join([
+            f"    {line}"
+            for line in str(err).replace("\r\n", "\n").split("\n")
+        ])
 
-    yamale_data = yamale.make_data(path)
+        error_text = f"Syntax Error in '{click.format_filename(path)}':\n{error_desc}"
+
+        click.secho(error_text, bg="red", bold=True)
+        exit(1)
+
+    yamale_data = [(raw_data, path)]
 
     try:
         yamale.validate(_oe_template_schema, yamale_data)
     except YamaleError as e:
-        print('Validation failed!\n')
-        for result in e.results:
-            print("Error validating data '%s' with '%s'\n\t" % (result.data, result.schema))
-            for error in result.errors:
-                print('%s' % error)
+        error_desc = "\n".join([
+            f"    {err}" for result in e.results for err in result.errors
+        ])
+        error_text = f"Syntax Error in '{click.format_filename(path)}':\n{error_desc}"
+        click.secho(error_text, bg="red", bold=True)
         exit(1)
 
     data = yamale_data[0][0]

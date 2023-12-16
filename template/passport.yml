@@ -1,5 +1,5 @@
 version: "v1.0.0"
-id: "passport"
+id: "passport "
 name: "Passport"
 source: "../template_sources/passport.png"
 keypoints:
