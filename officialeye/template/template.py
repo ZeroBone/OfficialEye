@@ -152,4 +152,4 @@ class Template:
         export_and_show_image(application_image)
 
     def __str__(self):
-        return f"{self.name} ({self._source}, {len(self._features)} features)"
+        return f"{self.name} ({self._source}, {len(self._keypoints)} keypoints, {len(self._features)} features)"

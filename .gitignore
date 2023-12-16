@@ -1,5 +1,7 @@
 # OfficialEye
 *.png
+build
+dist
 
 # IDE
 .idea

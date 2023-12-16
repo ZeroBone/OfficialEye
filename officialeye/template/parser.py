@@ -1,68 +1,71 @@
 import click
-import yamale
-import yaml
-from yamale import YamaleError
-from yaml import SafeLoader
-from yaml.parser import ParserError
-
+import strictyaml as yml
 from officialeye.template.template import Template
 
-_OE_TEMPLATE_SCHEMA_DEF = """
-version: str(min=1, max=32, matches=r"^[a-zA-Z0-9_.]*$")
-id: str(min=1, max=32, matches=r"^[a-zA-Z0-9_]*$")
-name: str(min=1, max=64, matches=r"^[a-zA-Z0-9_ ]*$")
-source: str(min=1, max=256)
-keypoints: map(include("keypoint"), min=1, key=str(min=1, max=32, matches=r"^[a-zA-Z0-9_]*$"))
-features: map(include("feature"), min=1, key=str(min=1, max=32, matches=r"^[a-zA-Z0-9_]*$"))
----
-keypoint:
-  x: int(min=0, max=1000000)
-  y: int(min=0, max=1000000)
-  w: int(min=1, max=1000000)
-  h: int(min=1, max=1000000)
-feature:
-  x: int(min=0, max=1000000)
-  y: int(min=0, max=1000000)
-  w: int(min=1, max=1000000)
-  h: int(min=1, max=1000000)
-"""
+_oe_template_schema_keypoint_validator = yml.Map({
+    "x": yml.Int(),
+    "y": yml.Int(),
+    "w": yml.Int(),
+    "h": yml.Int()
+})
 
-# _oe_template_schema_path = os.path.join(os.path.dirname(os.path.realpath(__file__)), "schema.yml")
-_oe_template_schema = yamale.make_schema(content=_OE_TEMPLATE_SCHEMA_DEF)
+_oe_template_schema_feature_validator = yml.Map({
+    "x": yml.Int(),
+    "y": yml.Int(),
+    "w": yml.Int(),
+    "h": yml.Int()
+})
+
+_oe_template_schema = yml.Map({
+    "version": yml.Regex(r"^[a-zA-Z0-9_.]{,64}$"),
+    "id": yml.Regex(r"^[a-z_][a-zA-Z0-9_]{,31}$"),
+    "name": yml.Regex(r"^[a-zA-Z0-9_]{,64}$"),
+    "source": yml.Str(),
+    "keypoints": yml.MapPattern(yml.Str(), _oe_template_schema_keypoint_validator),
+    "features": yml.MapPattern(yml.Str(), _oe_template_schema_feature_validator)
+})
+
+
+def _print_error_message(err: yml.StrictYAMLError, template_path: str):
+
+    click.secho("Error ", bold=True, nl=False, err=True)
+
+    if err.context is not None:
+        click.echo(err.context, err=True)
+    else:
+        click.echo("while parsing", err=True)
+
+    if err.context_mark is not None and (
+            err.problem is None
+            or err.problem_mark is None
+            or err.context_mark.name != err.problem_mark.name
+            or err.context_mark.line != err.problem_mark.line
+            or err.context_mark.column != err.problem_mark.column
+    ):
+        click.echo(str(err.context_mark).replace("<unicode string>", template_path), err=True)
+
+    if err.problem is not None:
+        click.secho("Problem", bold=True, nl=False, err=True)
+        click.echo(f": {err.problem}")
+
+    if err.problem_mark is not None:
+        click.echo(str(err.problem_mark).replace("<unicode string>", template_path), err=True)
 
 
 def load_template(path: str) -> Template:
     global _oe_template_schema
 
-    # click.echo(f"Loading template '{click.format_filename(template_name)}'")
+    with open(path) as fh:
+        raw_data = fh.read()
 
     try:
-        with open(path) as f:
-            raw_data = yaml.load(f, Loader=SafeLoader)
-    except ParserError as err:
-        error_desc = "\n".join([
-            f"    {line}"
-            for line in str(err).replace("\r\n", "\n").split("\n")
-        ])
+        yaml_document = yml.load(raw_data, schema=_oe_template_schema)
+    except yml.StrictYAMLError as err:
+        # click.echo(click.style('ATTENTION', blink=True, bold=True), err=True)
+        _print_error_message(err, path)
+        exit(4)
 
-        error_text = f"Syntax Error in '{click.format_filename(path)}':\n{error_desc}"
-
-        click.secho(error_text, bg="red", bold=True)
-        exit(1)
-
-    yamale_data = [(raw_data, path)]
-
-    try:
-        yamale.validate(_oe_template_schema, yamale_data)
-    except YamaleError as e:
-        error_desc = "\n".join([
-            f"    {err}" for result in e.results for err in result.errors
-        ])
-        error_text = f"Syntax Error in '{click.format_filename(path)}':\n{error_desc}"
-        click.secho(error_text, bg="red", bold=True)
-        exit(1)
-
-    data = yamale_data[0][0]
+    data = yaml_document.data
 
     template = Template(data, path)
     click.secho(f"Loaded feature: {template}", fg="green", bold=True)

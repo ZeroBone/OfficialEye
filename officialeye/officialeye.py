@@ -3,7 +3,7 @@ import click
 import cv2
 
 from officialeye.context.singleton import oe_context
-from officialeye.meta import APPLICATION_GITHUB
+from officialeye.meta import APPLICATION_GITHUB, APPLICATION_CLI_LOGO, APPLICATION_VERSION
 from officialeye.template.parser import load_template
 
 
@@ -12,6 +12,9 @@ from officialeye.template.parser import load_template
 @click.option("--dedir", type=click.Path(exists=True), help="Specify debug export directory")
 @click.option("--edir", type=click.Path(exists=True), help="Specify export directory")
 def cli(debug: bool, dedir: str, edir: str):
+
+    click.secho(APPLICATION_CLI_LOGO, fg="red")
+
     oe_context().debug_mode = debug
     if oe_context().debug_mode:
         click.secho("Warning: Debug mode enabled. Disable for production use to avoid performance issues.",
@@ -56,9 +59,17 @@ def homepage():
     oe_context().dispose()
 
 
+@click.command()
+def version():
+    """Go to the officialeye's official GitHub homepage."""
+    click.echo(f"Version: v{APPLICATION_VERSION}")
+    oe_context().dispose()
+
+
 cli.add_command(show)
 cli.add_command(analyze)
 cli.add_command(homepage)
+cli.add_command(version)
 
 if __name__ == "__main__":
     cli()

@@ -1,5 +1,5 @@
 version: "v1.0.0"
-id: "passport "
+id: "passport"
 name: "Passport"
 source: "../template_sources/passport.png"
 keypoints:
@@ -18,16 +18,12 @@ keypoints:
     y: 180
     w: 100
     h: 580
-#keypoint_groups:
-#  photo_security:
-#    - photo_security_top
-#    - photo_security_left
-#matching_constraints:
-#  # The 'min_weight' constraint enforces
-#  min_weight:
-#    keypoints:
-#      - keypoint_id_2
-#    value: 1
+# matching_constraints:
+#   # The 'min_weight' constraint enforces the specified keypoints to achieve at least a certain amount of matches
+#   min_weight:
+#     keypoints:
+#       - rf_symbol
+#     bound: 1
 features:
   last_name:
     x: 808
