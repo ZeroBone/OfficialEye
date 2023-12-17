@@ -1,7 +1,6 @@
 import os
 from typing import Dict
 
-import click
 # noinspection PyPackageRequirements
 import cv2
 import numpy as np
@@ -104,24 +103,18 @@ class Template:
         # find all patterns in the target image
         # img = target.copy()
 
-        with click.progressbar(length=len(self._keypoints) + 2, label="Matching") as bar:
+        matcher = self.load_keypoint_matcher(target, debug=DebugContainer() if debug_mode else None)
 
-            matcher = self.load_keypoint_matcher(target, debug=DebugContainer() if debug_mode else None)
+        for i, kp in enumerate(self.keypoints()):
+            matcher.match_keypoint(kp)
 
-            bar.update(1)
-
-            for i, kp in enumerate(self.keypoints()):
-                matcher.match_keypoint(kp)
-                bar.update(2 + i)
-
-            keypoint_matching_result = matcher.match_finish()
+        keypoint_matching_result = matcher.match_finish()
 
         if debug_mode:
             matcher.debug().export()
             keypoint_matching_result.debug_print()
 
         # run election to obtain correspondence between template and target regions
-
         election = Election(self.template_id, keypoint_matching_result, debug=DebugContainer() if debug_mode else None)
         election.run()
         election_result = election.get_result()

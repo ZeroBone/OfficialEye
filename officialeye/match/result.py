@@ -2,6 +2,7 @@ from typing import List, Dict
 
 import click
 
+from officialeye.context.singleton import oe_context
 from officialeye.match.match import Match
 
 
@@ -37,6 +38,8 @@ class KeypointMatchingResult:
             yield match
 
     def debug_print(self):
+        if oe_context().quiet_mode:
+            return
         click.secho(f"Listing all matched points:", fg="yellow")
         for match in self.get_matches():
             click.secho(f"> {match}", fg="yellow")

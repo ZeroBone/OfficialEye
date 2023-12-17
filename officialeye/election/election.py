@@ -7,6 +7,7 @@ import numpy as np
 # noinspection PyPackageRequirements
 import z3
 
+from officialeye.context.singleton import oe_context
 from officialeye.debug.container import DebugContainer
 from officialeye.debug.debuggable import Debuggable
 from officialeye.election.result import ElectionResult
@@ -45,7 +46,7 @@ class Election(Debuggable):
         # configuration
         self._min_votes_required = math.ceil(min_vote_fraction * self._kmr.get_total_match_count())
         self._min_votes_required = max(self._min_votes_required, 1)
-        if self.in_debug_mode():
+        if self.in_debug_mode() and not oe_context().quiet_mode:
             click.secho(f"Total match count: {self._kmr.get_total_match_count()}", fg="yellow")
             click.secho(f"Minimum votes required: {self._min_votes_required}", fg="yellow")
 
@@ -112,7 +113,7 @@ class Election(Debuggable):
 
             transformation_error_bound_cur = (transformation_error_bound_min + transformation_error_bound_max) // 2
 
-            if self.in_debug_mode():
+            if self.in_debug_mode() and not oe_context().quiet_mode:
                 click.secho(f"--- [New iteration of transformation error optimization cycle] ---", fg="yellow")
                 click.secho(f"Current bound on transformation error: {transformation_error_bound_cur}", fg="yellow")
 
@@ -128,7 +129,7 @@ class Election(Debuggable):
                 # we try to enforce the following amounts of votes
                 min_votes = (total_votes_min + total_votes_max) // 2
 
-                if self.in_debug_mode():
+                if self.in_debug_mode() and not oe_context().quiet_mode:
                     click.secho(f"Trying to enforce {min_votes} votes. Bounds:"
                                 f" [{total_votes_min}, {total_votes_max}]", fg="yellow")
 
@@ -147,7 +148,7 @@ class Election(Debuggable):
                     total_votes_min = model_vote_count + 1
                 elif result == z3.unknown:
                     total_votes_max = min_votes - 1
-                    if self.in_debug_mode():
+                    if self.in_debug_mode() and not oe_context().quiet_mode:
                         click.secho("Warning! Z3 returned unknown.", fg="red")
                 else:
                     assert result == z3.unsat
@@ -159,14 +160,14 @@ class Election(Debuggable):
                 # good, try to improve the bound on the transformation error further
                 # specifically, we decrease the upper bound
                 transformation_error_bound_max = transformation_error_bound_cur - 1
-                if self.in_debug_mode():
+                if self.in_debug_mode() and not oe_context().quiet_mode:
                     click.secho(f"Strengthening the transformation error bound.", fg="green")
             else:
                 transformation_error_bound_min = transformation_error_bound_cur + 1
-                if self.in_debug_mode():
+                if self.in_debug_mode() and not oe_context().quiet_mode:
                     click.secho(f"Weakening the transformation error bound.", fg="red")
 
-            if self.in_debug_mode():
+            if self.in_debug_mode() and not oe_context().quiet_mode:
                 click.secho(f"--- [Transformation error optimization cycle finished] ---", fg="yellow")
 
             solver.pop()
@@ -190,7 +191,7 @@ class Election(Debuggable):
                 if vote_count >= 1:
                     elected_matches_count += 1
 
-            if self.in_debug_mode():
+            if self.in_debug_mode() and not oe_context().quiet_mode:
                 click.secho(f"Election system: --- [Result] ---", fg="yellow")
                 click.secho(f"Matches elected: {elected_matches_count} "
                             f"({elected_matches_count / self._kmr.get_total_match_count() * 100}%)", fg="yellow")

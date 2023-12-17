@@ -22,6 +22,7 @@ class Context:
         self._export_counter = 1
         self._not_deleted_temporary_files: List[str] = []
         self.debug_mode = False
+        self.quiet_mode = False
         self.debug_export_directory = None
         self.export_directory = None
         # keys: template ids

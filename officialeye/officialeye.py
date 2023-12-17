@@ -3,19 +3,24 @@ import click
 import cv2
 
 from officialeye.context.singleton import oe_context
-from officialeye.meta import OFFICIALEYE_GITHUB, OFFICIALEYE_CLI_LOGO, OFFICIALEYE_VERSION, OFFICIALEYE_EYE, print_logo
+from officialeye.meta import OFFICIALEYE_GITHUB, OFFICIALEYE_VERSION, print_logo
 from officialeye.template.parser import load_template
 
 
 @click.group()
-@click.option("-d", "--debug", is_flag=True, show_default=True, default=False, help="Enable debug mode.")
+@click.option("-d", "--debug", is_flag=True, show_default=True, default=False, help="Enable debug mode")
 @click.option("--dedir", type=click.Path(exists=True, file_okay=True, readable=True), help="Specify debug export directory")
 @click.option("--edir", type=click.Path(exists=True, file_okay=True, readable=True), help="Specify export directory")
-def cli(debug: bool, dedir: str, edir: str):
-    print_logo()
+@click.option("-q", "--quiet", is_flag=True, show_default=True, default=False, help="Disable standard output messages")
+def cli(debug: bool, dedir: str, edir: str, quiet: bool):
 
     oe_context().debug_mode = debug
-    if oe_context().debug_mode:
+    oe_context().quiet_mode = quiet
+
+    if not quiet:
+        print_logo()
+
+    if oe_context().debug_mode and not oe_context().quiet_mode:
         click.secho("Warning: Debug mode enabled. Disable for production use to avoid performance issues.",
                     bg="yellow", bold=True)
     if dedir is not None:
@@ -53,7 +58,8 @@ def analyze(target_path: str, template_paths: str):
 @click.command()
 def homepage():
     """Go to the officialeye's official GitHub homepage."""
-    click.secho(f"Opening {OFFICIALEYE_GITHUB}", bg="blue", fg="white")
+    if not oe_context().quiet_mode:
+        click.secho(f"Opening {OFFICIALEYE_GITHUB}", bg="blue", fg="white")
     click.launch(OFFICIALEYE_GITHUB)
     oe_context().dispose()
 

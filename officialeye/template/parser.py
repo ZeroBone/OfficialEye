@@ -1,5 +1,7 @@
 import click
 import strictyaml as yml
+
+from officialeye.context.singleton import oe_context
 from officialeye.template.template import Template
 
 _oe_template_schema_keypoint_validator = yml.Map({
@@ -79,5 +81,8 @@ def load_template(path: str) -> Template:
     data = yaml_document.data
 
     template = Template(data, path)
-    click.secho(f"Loaded feature: {template}", fg="green", bold=True)
+
+    if not oe_context().quiet_mode:
+        click.secho(f"Loaded template: {template}", fg="green", bold=True)
+
     return template
