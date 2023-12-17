@@ -79,6 +79,8 @@ class Template:
         return self._keypoints[keypoint_id]
 
     def _get_source_image_path(self) -> str:
+        if os.path.isabs(self._source):
+            return self._source
         path_to_template_dir = os.path.dirname(self._path_to_template)
         path = os.path.join(path_to_template_dir, self._source)
         return os.path.normpath(path)
