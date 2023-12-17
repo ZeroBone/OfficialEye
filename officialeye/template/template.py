@@ -101,7 +101,6 @@ class Template:
 
     def analyze(self, target, /, *, debug_mode: bool = False):
         # find all patterns in the target image
-        # img = target.copy()
 
         matcher = self.load_keypoint_matcher(target, debug=DebugContainer() if debug_mode else None)
 
@@ -158,6 +157,10 @@ class Template:
 
             # export_and_show_image(target_transformed)
             feature.insert_into_image(application_image, target_transformed)
+
+        # visualize features on the image
+        for feature in self.features():
+            application_image = feature.visualize(application_image)
 
         export_and_show_image(application_image)
 
