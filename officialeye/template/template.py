@@ -7,8 +7,8 @@ import numpy as np
 
 from officialeye.context.singleton import oe_context
 from officialeye.debug.container import DebugContainer
-from officialeye.election.election import Election
-from officialeye.election.visualizer import ElectionResultVisualizer
+from officialeye.supervisor.supervisor import Supervisor
+from officialeye.supervisor.visualizer import ElectionResultVisualizer
 from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.matchers.flann import FlannKeypointMatcher
 from officialeye.region.feature import TemplateFeature
@@ -113,8 +113,8 @@ class Template:
             matcher.debug().export()
             keypoint_matching_result.debug_print()
 
-        # run election to obtain correspondence between template and target regions
-        election = Election(self.template_id, keypoint_matching_result, debug=DebugContainer() if debug_mode else None)
+        # run supervisor to obtain correspondence between template and target regions
+        election = Supervisor(self.template_id, keypoint_matching_result, debug=DebugContainer() if debug_mode else None)
         election.run()
         election_result = election.get_result()
 

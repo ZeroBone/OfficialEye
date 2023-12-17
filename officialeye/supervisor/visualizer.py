@@ -5,13 +5,13 @@ import cv2
 import numpy as np
 
 from officialeye.context.singleton import oe_context
-from officialeye.election.result import ElectionResult
+from officialeye.supervisor.result import SupervisionResult
 from officialeye.region.keypoint import TemplateKeypoint
 
 
 class ElectionResultVisualizer:
 
-    def __init__(self, result: ElectionResult, target: cv2.Mat):
+    def __init__(self, result: SupervisionResult, target: cv2.Mat):
         self._result = result
         self._target = target
 

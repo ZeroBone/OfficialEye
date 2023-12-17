@@ -10,15 +10,15 @@ import z3
 from officialeye.context.singleton import oe_context
 from officialeye.debug.container import DebugContainer
 from officialeye.debug.debuggable import Debuggable
-from officialeye.election.result import ElectionResult
+from officialeye.supervisor.result import SupervisionResult
 from officialeye.match.match import Match
 from officialeye.match.result import KeypointMatchingResult
 
 
-class Election(Debuggable):
+class Supervisor(Debuggable):
 
     def __init__(self, template_id: str, kmr: KeypointMatchingResult, /, *,
-                 debug: DebugContainer = None, min_vote_fraction: float = 0.05):
+                 debug: DebugContainer = None, min_vote_fraction: float = 0.5):
         super().__init__(debug=debug)
 
         assert min_vote_fraction <= 1.0
@@ -41,7 +41,7 @@ class Election(Debuggable):
         self._match_votes: Dict[Match, z3.ArithRef] = {}
 
         for match in self._kmr.get_matches():
-            self._match_votes[match] = z3.Int(f"votes_{match.get_debug_identifier()}")
+            self._match_votes[match] = z3.Real(f"votes_{match.get_debug_identifier()}")
 
         # configuration
         self._min_votes_required = math.ceil(min_vote_fraction * self._kmr.get_total_match_count())
@@ -88,16 +88,18 @@ class Election(Debuggable):
 
     def run(self):
 
-        votes_lower_bounds = z3.And(*(self._match_votes[match] >= 0 for match in self._kmr.get_matches()))
+        votes_bounds = z3.And(*(z3.Or(self._match_votes[match] == 0, self._match_votes[match] == 1) for match in self._kmr.get_matches()))
 
-        votes_upper_bounds = z3.And(*(self._match_votes[match] <= 1 for match in self._kmr.get_matches()))
+        # votes_lower_bounds = z3.And(*(self._match_votes[match] >= 0 for match in self._kmr.get_matches()))
+        # votes_upper_bounds = z3.And(*(self._match_votes[match] <= 1 for match in self._kmr.get_matches()))
 
         total_votes = z3.Sum(*(self._match_votes[match] for match in self._kmr.get_matches()))
 
         solver = z3.Solver()
         solver.set("timeout", 500)
-        solver.add(votes_lower_bounds)
-        solver.add(votes_upper_bounds)
+        # solver.add(votes_lower_bounds)
+        # solver.add(votes_upper_bounds)
+        solver.add(votes_bounds)
 
         # transformation error is the maximum offset (in pixels) between the match and match provided by the translation
         transformation_error_bound_min = 0
@@ -181,7 +183,7 @@ class Election(Debuggable):
             # extract transformation matrix from model
             transformation_matrix = evaluator(self._transformation_matrix)
 
-            self._result = ElectionResult(self.template_id, offset_vec, transformation_matrix)
+            self._result = SupervisionResult(self.template_id, offset_vec, transformation_matrix)
 
             # extract vote counts from model
             elected_matches_count = 0
@@ -197,5 +199,5 @@ class Election(Debuggable):
                             f"({elected_matches_count / self._kmr.get_total_match_count() * 100}%)", fg="yellow")
                 click.secho(f"Upper bound on transformation error (the lower the better): {model_transformation_error_bound}", fg="yellow")
 
-    def get_result(self) -> ElectionResult:
+    def get_result(self) -> SupervisionResult:
         return self._result

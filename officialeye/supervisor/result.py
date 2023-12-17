@@ -5,7 +5,7 @@ import numpy as np
 from officialeye.match.match import Match
 
 
-class ElectionResult:
+class SupervisionResult:
 
     def __init__(self, template_id: str, offset_vec: np.ndarray, transformation_matrix: np.ndarray):
         self.template_id = template_id
