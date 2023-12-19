@@ -80,7 +80,7 @@ class SupervisionResultVisualizer:
 
         visualization = cv2.hconcat([keypoints_palette, img])
 
-        for match, vote_count in self._result.get_matches():
+        for match in self._result.get_keypoint_matching_result().get_matches():
             # compute the location of the match in the palette part of the visualization
             match_palette_location = match.get_template_point()
 
@@ -99,7 +99,8 @@ class SupervisionResultVisualizer:
             match_target_location[0] += self._palette_width
 
             # draw a line visualizing the match
-            if vote_count >= 1:
+            # TODO: make this depend on the weight of the match
+            if True:  # vote_count >= 1:
                 match_color = (0, 0xff, 0)  # green
             else:
                 match_color = (0, 0, 0xff)  # red

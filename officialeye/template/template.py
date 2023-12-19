@@ -142,8 +142,7 @@ class Template:
             target_bl = supervision.template_point_to_target_point(feature_bl)
             target_br = supervision.template_point_to_target_point(feature_br)
 
-            source_points = [target_tl.T[0], target_tr.T[0], target_br.T[0], target_bl.T[0]]
-            # destination_points = [feature_tl, feature_tr, feature_br, feature_bl]
+            source_points = [target_tl, target_tr, target_br, target_bl]
             destination_points = [[0, 0], [feature.w, 0], [feature.w, feature.h], [0, feature.h]]
 
             homography = cv2.getPerspectiveTransform(np.float32(source_points), np.float32(destination_points))

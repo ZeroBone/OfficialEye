@@ -9,7 +9,7 @@ from officialeye.match.match import Match
 class KeypointMatchingResult:
 
     def __init__(self):
-        # keys: template ids
+        # keys: keypoint ids
         # values: matches with this template id
         self._matches_dict: Dict[str, List[Match]] = {}
 
@@ -19,22 +19,22 @@ class KeypointMatchingResult:
         self._matches_dict[match.keypoint_id].append(match)
 
     def get_matches(self):
-        for template_id in self._matches_dict:
-            for match in self._matches_dict[template_id]:
+        for keypoint_id in self._matches_dict:
+            for match in self._matches_dict[keypoint_id]:
                 yield match
 
     def get_total_match_count(self) -> int:
         match_count = 0
-        for template_id in self._matches_dict:
-            match_count += len(self._matches_dict[template_id])
+        for keypoint_id in self._matches_dict:
+            match_count += len(self._matches_dict[keypoint_id])
         return match_count
 
-    def get_template_ids(self):
-        for template_id in self._matches_dict:
-            yield template_id
+    def get_keypoint_ids(self):
+        for keypoint_id in self._matches_dict:
+            yield keypoint_id
 
-    def matches_for_template(self, template_id: str, /):
-        for match in self._matches_dict[template_id]:
+    def matches_for_keypoint(self, keypoint_id: str, /):
+        for match in self._matches_dict[keypoint_id]:
             yield match
 
     def debug_print(self):

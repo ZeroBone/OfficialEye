@@ -1,31 +1,45 @@
-from fractions import Fraction
-from typing import List, Tuple, Set
+from typing import Set
 
 import numpy as np
 
-from officialeye.match.match import Match
+from officialeye.match.result import KeypointMatchingResult
 
 
 class SupervisionResult:
 
-    def __init__(self, template_id: str, offset_vec: np.ndarray, transformation_matrix: np.ndarray):
+    def __init__(self, template_id: str, kmr: KeypointMatchingResult, delta: np.ndarray, delta_prime: np.ndarray, transformation_matrix: np.ndarray, /):
         self.template_id = template_id
-        self._offset_vec = offset_vec
+        self._kmr = kmr
+        self._delta = delta
+        self._delta_prime = delta_prime
         self._transformation_matrix = transformation_matrix
-
-        self._matches: List[Tuple[Match, Fraction]] = []
-
-    def add_match(self, match: Match, weight: Fraction, /):
-        self._matches.append((match, weight))
+        print("Delta:", self._delta)
+        print("Delta prime:", self._delta_prime)
 
     def template_point_to_target_point(self, template_point: np.ndarray) -> np.ndarray:
-        return self._transformation_matrix @ (template_point - self._offset_vec)
+        assert template_point.shape == (2,)
+        assert self._delta.shape == (2,)
+        assert self._delta_prime.shape == (2,)
+        return (self._transformation_matrix @ (template_point - self._delta)) + self._delta_prime
 
     def get_relevant_keypoint_ids(self) -> Set[str]:
         rk = set()
-        for match, _ in self._matches:
+        for match in self._kmr.get_matches():
             rk.add(match.get_keypoint().region_id)
+        assert len(rk) > 0
         return rk
 
-    def get_matches(self) -> List[Tuple[Match, Fraction]]:
-        return self._matches
+    def get_keypoint_matching_result(self) -> KeypointMatchingResult:
+        return self._kmr
+
+    def get_mse(self) -> float:
+        error = 0.0
+        for match in self._kmr.get_matches():
+            s = match.get_original_template_point()
+            # calculate prediction
+            p = self.template_point_to_target_point(s)
+            # calculate destination
+            d = match.get_target_point()
+            current_error = p - d
+            error += np.dot(current_error, current_error)
+        return error / self._kmr.get_total_match_count()

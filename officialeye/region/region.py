@@ -25,16 +25,16 @@ class TemplateRegion:
         return np.array([self.x, self.y])
 
     def get_top_left_vec(self) -> np.ndarray:
-        return np.array([[self.x, self.y]]).T
+        return np.array([self.x, self.y])
 
     def get_top_right_vec(self) -> np.ndarray:
-        return np.array([[self.x + self.w, self.y]]).T
+        return np.array([self.x + self.w, self.y])
 
     def get_bottom_left_vec(self) -> np.ndarray:
-        return np.array([[self.x, self.y + self.h]]).T
+        return np.array([self.x, self.y + self.h])
 
     def get_bottom_right_vec(self) -> np.ndarray:
-        return np.array([[self.x + self.w, self.y + self.h]]).T
+        return np.array([self.x + self.w, self.y + self.h])
 
     def _visualize(self, img: cv2.Mat, /, *,
                    rect_color: Tuple[int, int, int], label_color=_LABEL_COLOR_DEFAULT) -> cv2.Mat:

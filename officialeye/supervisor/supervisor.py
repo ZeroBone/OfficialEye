@@ -1,16 +1,19 @@
-from typing import Dict, Union
+from typing import Union
 
 import click
 import numpy as np
-# noinspection PyPackageRequirements
-import z3
 
 from officialeye.context.singleton import oe_context
 from officialeye.debug.container import DebugContainer
 from officialeye.debug.debuggable import Debuggable
 from officialeye.supervisor.result import SupervisionResult
-from officialeye.match.match import Match
 from officialeye.match.result import KeypointMatchingResult
+
+
+_IND_A = 0
+_IND_B = 1
+_IND_C = 2
+_IND_D = 3
 
 
 class Supervisor(Debuggable):
@@ -22,99 +25,66 @@ class Supervisor(Debuggable):
         self.template_id = template_id
         self._kmr = kmr
 
-        # create variables for components of the offset vector
-        self._offset_vec = np.array([[z3.Real("o_x"), z3.Real("o_y")]], dtype=z3.AstRef).T
-        # create variables for components of the translation matrix
-        self._transformation_matrix = np.array([
-            [z3.Real("t_x_1"), z3.Real("t_x_2")],
-            [z3.Real("t_y_1"), z3.Real("t_y_2")]
-        ], dtype=z3.AstRef)
-
-        # keys: matches (instances of Match)
-        # values: z3 integer variables representing the errors for each match, i.e. how consistent the match is with the affine transformation model
-        self._match_error: Dict[Match, z3.ArithRef] = {}
-
-        for match in self._kmr.get_matches():
-            self._match_error[match] = z3.Real(f"e_{match.get_debug_identifier()}")
+        self._delta_x = oe_context().get_template(self.template_id).width // 2
+        self._delta_y = oe_context().get_template(self.template_id).height // 2
 
         if self.in_debug_mode() and not oe_context().quiet_mode:
             click.secho(f"Total match count: {self._kmr.get_total_match_count()}", fg="yellow")
 
-    def _get_consistency_check(self, match: Match, /) -> z3.AstRef:
-        """
-        Generates a z3 formula asserting the consistency of the match with the affine linear transformation model.
-        Consistency does not mean ideal matching of coordinates; rather, the template position with the affine
-        transformation applied to it, must roughly be equal the target position for consistency to hold
-        In other words, targetpoint = M * (templatepoint - offset), where offset is a vector and M is a 2x2 matrix
-        """
-
-        template_point = np.array([match.get_original_template_point()]).T
-
-        translated_template_point = self._transformation_matrix @ (template_point - self._offset_vec)
-
-        translated_template_point_x = translated_template_point[0][0]
-        translated_template_point_y = translated_template_point[1][0]
-
-        target_point_x, target_point_y = match.get_target_point()
-
-        return z3.And(
-            translated_template_point_x - target_point_x <= self._match_error[match],
-            translated_template_point_x - target_point_x >= -self._match_error[match],
-            translated_template_point_y - target_point_y <= self._match_error[match],
-            translated_template_point_y - target_point_y >= -self._match_error[match],
-        )
-
     def run(self) -> Union[SupervisionResult, None]:
 
-        error_lower_bounds = z3.And(*(self._match_error[match] >= 0 for match in self._kmr.get_matches()))
-        total_error = z3.Sum(*(self._match_error[match] for match in self._kmr.get_matches()))
+        match_count = self._kmr.get_total_match_count()
 
-        solver = z3.Optimize()
-        solver.set("timeout", 30000)
+        best_result_error = np.inf
+        best_result = None
 
-        solver.add(error_lower_bounds)
+        for anchor_match in self._kmr.get_matches():
+            delta = anchor_match.get_original_template_point()
+            delta_prime = anchor_match.get_target_point()
 
-        for match in self._kmr.get_matches():
-            solver.add(self._get_consistency_check(match))
+            matrix = np.zeros((match_count << 1, 4), dtype=np.float64)
+            rhs = np.zeros(match_count << 1, dtype=np.float64)
 
-        solver.minimize(total_error)
+            for i, match in enumerate(self._kmr.get_matches()):
 
-        _result = solver.check()
+                first_constraint_id = i << 1
+                second_constraint_id = first_constraint_id + 1
 
-        if _result == z3.unsat:
-            if self.in_debug_mode() and not oe_context().quiet_mode:
-                click.secho("Warning! Z3 returned unsat.", fg="red")
-            return None
+                s = match.get_original_template_point()
+                d = match.get_target_point()
 
-        if _result == z3.unknown:
-            if self.in_debug_mode() and not oe_context().quiet_mode:
-                click.secho("Warning! Z3 returned unknown.", fg="red")
-            return None
+                matrix[first_constraint_id][_IND_A] = s[0] - delta[0]
+                matrix[first_constraint_id][_IND_B] = s[1] - delta[1]
+                rhs[first_constraint_id] = d[0] - delta_prime[0]
 
-        assert _result == z3.sat
+                matrix[second_constraint_id][_IND_C] = s[0] - delta[0]
+                matrix[second_constraint_id][_IND_D] = s[1] - delta[1]
+                rhs[second_constraint_id] = d[1] - delta_prime[1]
 
-        model = solver.model()
+            regression_matrix = matrix.T @ matrix
+            regression_matrix = np.linalg.inv(regression_matrix)
+            rhs_applied = matrix.T @ rhs
+            x = regression_matrix @ rhs_applied
 
-        evaluator = np.vectorize(lambda var: float(model.eval(var, model_completion=True).as_fraction()))
+            transformation_matrix = np.array([
+                [x[_IND_A], x[_IND_B]],
+                [x[_IND_C], x[_IND_D]]
+            ])
 
-        # extract offset vector from model
-        offset_vec = evaluator(self._offset_vec)
-        # extract transformation matrix from model
-        transformation_matrix = evaluator(self._transformation_matrix)
+            _result = SupervisionResult(self.template_id, self._kmr, delta, delta_prime, transformation_matrix)
+            _result_error = _result.get_mse()
 
-        _result = SupervisionResult(self.template_id, offset_vec, transformation_matrix)
+            # error = matrix @ x - rhs
+            # error_value = np.dot(error, error)
 
-        # extract vote counts from model
-        matches_chosen_count = 0
-        for match in self._kmr.get_matches():
-            match_error = model.eval(self._match_error[match], model_completion=True).as_fraction()
-            _result.add_match(match, match_error)
-            if match_error <= 10:
-                matches_chosen_count += 1
+            if _result_error < best_result_error:
+                if self.in_debug_mode() and not oe_context().quiet_mode:
+                    click.secho(f"Improving error value from {best_result_error} to {_result_error}", fg="green")
+                best_result_error = _result_error
+                best_result = _result
+            else:
+                # using this anchor is not advantageous, we get large error
+                if self.in_debug_mode() and not oe_context().quiet_mode:
+                    click.secho(f"Error: {_result_error}", fg="yellow")
 
-        if self.in_debug_mode() and not oe_context().quiet_mode:
-            click.secho(f"Supervision system: --- [Result] ---", fg="yellow")
-            click.secho(f"Matches chosen: {matches_chosen_count} "
-                        f"({matches_chosen_count / self._kmr.get_total_match_count() * 100}%)", fg="yellow")
-
-        return _result
+        return best_result
