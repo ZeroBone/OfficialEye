@@ -42,12 +42,15 @@ class OrthogonalRegressionSupervisor(Supervisor):
         In other words, targetpoint = M * (templatepoint - offset), where offset is a vector and M is a 2x2 matrix
         """
 
-        template_point = np.array([match.get_original_template_point()]).T
+        template_point = match.get_original_template_point()
+
+        assert delta.shape == (2,)
+        assert delta_prime.shape == (2,)
+        assert template_point.shape == (2,)
 
         translated_template_point = self._transformation_matrix @ (template_point - delta) + delta_prime
 
-        translated_template_point_x = translated_template_point[0][0]
-        translated_template_point_y = translated_template_point[1][0]
+        translated_template_point_x, translated_template_point_y = translated_template_point
 
         target_point_x, target_point_y = match.get_target_point()
 
