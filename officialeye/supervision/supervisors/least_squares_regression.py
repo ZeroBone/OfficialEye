@@ -14,9 +14,9 @@ _IND_C = 2
 _IND_D = 3
 
 
-class LeastSquaresLinearRegressionSupervisor(Supervisor):
+class LeastSquaresRegressionSupervisor(Supervisor):
 
-    ENGINE_ID = "least_squares_linear_regression"
+    ENGINE_ID = "least_squares_regression"
 
     def _run(self) -> List[SupervisionResult]:
         match_count = self._kmr.get_total_match_count()

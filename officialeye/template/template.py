@@ -8,8 +8,8 @@ import numpy as np
 from officialeye.context.singleton import oe_context
 from officialeye.debug.container import DebugContainer
 from officialeye.match.result import KeypointMatchingResult
-from officialeye.supervision.supervisors.least_squares_linear_regression import LeastSquaresLinearRegressionSupervisor
-from officialeye.supervision.supervisors.orthogonal_linear_regression import OrthogonalLinearRegressionSupervisor
+from officialeye.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor
+from officialeye.supervision.supervisors.orthogonal_regression import OrthogonalRegressionSupervisor
 from officialeye.supervision.visualizer import SupervisionResultVisualizer
 from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.matchers.flann import FlannKeypointMatcher
@@ -112,11 +112,11 @@ class Template:
         else:
             debug = None
 
-        if superivision_engine == LeastSquaresLinearRegressionSupervisor.ENGINE_ID:
-            return LeastSquaresLinearRegressionSupervisor(self.template_id, kmr, debug=debug)
+        if superivision_engine == LeastSquaresRegressionSupervisor.ENGINE_ID:
+            return LeastSquaresRegressionSupervisor(self.template_id, kmr, debug=debug)
 
-        if superivision_engine == OrthogonalLinearRegressionSupervisor.ENGINE_ID:
-            return OrthogonalLinearRegressionSupervisor(self.template_id, kmr, debug=debug)
+        if superivision_engine == OrthogonalRegressionSupervisor.ENGINE_ID:
+            return OrthogonalRegressionSupervisor(self.template_id, kmr, debug=debug)
 
         print_error("while loading supervisor", f"unknown supervision engine '{superivision_engine}'")
         exit(6)

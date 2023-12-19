@@ -14,9 +14,9 @@ from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor import Supervisor
 
 
-class OrthogonalLinearRegressionSupervisor(Supervisor):
+class OrthogonalRegressionSupervisor(Supervisor):
 
-    ENGINE_ID = "orthogonal_linear_regression"
+    ENGINE_ID = "orthogonal_regression"
 
     def __init__(self, template_id: str, kmr: KeypointMatchingResult, /, *, debug: DebugContainer = None):
         super().__init__(template_id, kmr, debug=debug)
