@@ -1,6 +1,4 @@
-import math
-
-from typing import Dict
+from typing import Dict, Union
 
 import click
 import numpy as np
@@ -18,15 +16,11 @@ from officialeye.match.result import KeypointMatchingResult
 class Supervisor(Debuggable):
 
     def __init__(self, template_id: str, kmr: KeypointMatchingResult, /, *,
-                 debug: DebugContainer = None, min_vote_fraction: float = 0.1):
+                 debug: DebugContainer = None):
         super().__init__(debug=debug)
-
-        assert min_vote_fraction <= 1.0
-        assert min_vote_fraction >= 0.0
 
         self.template_id = template_id
         self._kmr = kmr
-        self._result = None
 
         # create variables for components of the offset vector
         self._offset_vec = np.array([[z3.Real("o_x"), z3.Real("o_y")]], dtype=z3.AstRef).T
@@ -37,28 +31,22 @@ class Supervisor(Debuggable):
         ], dtype=z3.AstRef)
 
         # keys: matches (instances of Match)
-        # values: z3 integer variables representing how many votes there are for the specified match
-        self._match_weight: Dict[Match, z3.ArithRef] = {}
+        # values: z3 integer variables representing the errors for each match, i.e. how consistent the match is with the affine transformation model
+        self._match_error: Dict[Match, z3.ArithRef] = {}
 
         for match in self._kmr.get_matches():
-            self._match_weight[match] = z3.Real(f"weight_{match.get_debug_identifier()}")
+            self._match_error[match] = z3.Real(f"e_{match.get_debug_identifier()}")
 
-        # configuration
-        self._min_weight_required = math.ceil(min_vote_fraction * self._kmr.get_total_match_count())
-        self._min_weight_required = max(self._min_weight_required, 1)
         if self.in_debug_mode() and not oe_context().quiet_mode:
             click.secho(f"Total match count: {self._kmr.get_total_match_count()}", fg="yellow")
-            click.secho(f"Minimum votes required: {self._min_weight_required}", fg="yellow")
 
-    def _get_consistency_check(self, match: Match, transformation_error_max: int, /) -> z3.AstRef:
+    def _get_consistency_check(self, match: Match, /) -> z3.AstRef:
         """
         Generates a z3 formula asserting the consistency of the match with the affine linear transformation model.
         Consistency does not mean ideal matching of coordinates; rather, the template position with the affine
         transformation applied to it, must roughly be equal the target position for consistency to hold
         In other words, targetpoint = M * (templatepoint - offset), where offset is a vector and M is a 2x2 matrix
         """
-
-        assert transformation_error_max >= 0
 
         template_point = np.array([match.get_original_template_point()]).T
 
@@ -70,130 +58,63 @@ class Supervisor(Debuggable):
         target_point_x, target_point_y = match.get_target_point()
 
         return z3.And(
-            translated_template_point_x - target_point_x <= transformation_error_max,
-            translated_template_point_x - target_point_x >= -transformation_error_max,
-            translated_template_point_y - target_point_y <= transformation_error_max,
-            translated_template_point_y - target_point_y >= -transformation_error_max,
+            translated_template_point_x - target_point_x <= self._match_error[match],
+            translated_template_point_x - target_point_x >= -self._match_error[match],
+            translated_template_point_y - target_point_y <= self._match_error[match],
+            translated_template_point_y - target_point_y >= -self._match_error[match],
         )
 
-    def _generate_election_implies_consistency_check(self, transformation_error_max: int, /):
-        return z3.And(*(
-            z3.Implies(
-                # receiving at least one vote means getting elected
-                self._match_weight[match] >= 1,
-                # consistency check
-                self._get_consistency_check(match, transformation_error_max)
-            ) for match in self._kmr.get_matches()
-        ))
+    def run(self) -> Union[SupervisionResult, None]:
 
-    def run(self):
+        error_lower_bounds = z3.And(*(self._match_error[match] >= 0 for match in self._kmr.get_matches()))
+        total_error = z3.Sum(*(self._match_error[match] for match in self._kmr.get_matches()))
 
-        weight_bounds = z3.And(*(z3.Or(self._match_weight[match] == 0, self._match_weight[match] == 1) for match in self._kmr.get_matches()))
+        solver = z3.Optimize()
+        solver.set("timeout", 30000)
 
-        total_weight = z3.Sum(*(self._match_weight[match] for match in self._kmr.get_matches()))
+        solver.add(error_lower_bounds)
 
-        solver = z3.Solver()
-        solver.set("timeout", 5000)
+        for match in self._kmr.get_matches():
+            solver.add(self._get_consistency_check(match))
 
-        solver.add(weight_bounds)
+        solver.minimize(total_error)
 
-        # transformation error is the maximum offset (in pixels) between the match and match provided by the translation
-        transformation_error_bound_min = 0
-        transformation_error_bound_max = 0x80
+        _result = solver.check()
 
-        model = None
-        # upper bound on transformation error, corresponding to the model
-        model_transformation_error_bound = None
-
-        while transformation_error_bound_min <= transformation_error_bound_max:
-
-            model_found_in_current_iter = False
-
-            transformation_error_bound_cur = (transformation_error_bound_min + transformation_error_bound_max) // 2
-
+        if _result == z3.unsat:
             if self.in_debug_mode() and not oe_context().quiet_mode:
-                click.secho(f"--- [New iteration of transformation error optimization cycle] ---", fg="yellow")
-                click.secho(f"Current bound on transformation error: {transformation_error_bound_cur}", fg="yellow")
+                click.secho("Warning! Z3 returned unsat.", fg="red")
+            return None
 
-            elected_implies_consistent = self._generate_election_implies_consistency_check(transformation_error_bound_cur)
-
-            solver.push()
-            solver.add(elected_implies_consistent)
-
-            total_votes_min = self._min_weight_required
-            total_votes_max = self._kmr.get_total_match_count()
-
-            while total_votes_min <= total_votes_max:
-                # we try to enforce the following amounts of votes
-                min_votes = (total_votes_min + total_votes_max) // 2
-
-                if self.in_debug_mode() and not oe_context().quiet_mode:
-                    click.secho(f"Trying to enforce {min_votes} votes. Bounds:"
-                                f" [{total_votes_min}, {total_votes_max}]", fg="yellow")
-
-                solver.push()
-                solver.add(total_weight >= min_votes)
-
-                result = solver.check()
-                if result == z3.sat:
-                    model = solver.model()
-                    model_transformation_error_bound = transformation_error_bound_cur
-                    model_found_in_current_iter = True
-                    # try to increase the minimum vote count
-                    model_vote_count_raw: z3.IntNumRef = model.eval(total_weight, model_completion=True)
-                    model_vote_count = model_vote_count_raw.as_long()
-                    assert model_vote_count >= min_votes
-                    total_votes_min = model_vote_count + 1
-                elif result == z3.unknown:
-                    total_votes_max = min_votes - 1
-                    if self.in_debug_mode() and not oe_context().quiet_mode:
-                        click.secho("Warning! Z3 returned unknown.", fg="red")
-                else:
-                    assert result == z3.unsat
-                    total_votes_max = min_votes - 1
-
-                solver.pop()
-
-            if model_found_in_current_iter:
-                # good, try to improve the bound on the transformation error further
-                # specifically, we decrease the upper bound
-                transformation_error_bound_max = transformation_error_bound_cur - 1
-                if self.in_debug_mode() and not oe_context().quiet_mode:
-                    click.secho(f"Strengthening the transformation error bound.", fg="green")
-            else:
-                transformation_error_bound_min = transformation_error_bound_cur + 1
-                if self.in_debug_mode() and not oe_context().quiet_mode:
-                    click.secho(f"Weakening the transformation error bound.", fg="red")
-
+        if _result == z3.unknown:
             if self.in_debug_mode() and not oe_context().quiet_mode:
-                click.secho(f"--- [Transformation error optimization cycle finished] ---", fg="yellow")
+                click.secho("Warning! Z3 returned unknown.", fg="red")
+            return None
 
-            solver.pop()
+        assert _result == z3.sat
 
-        if model is not None:
+        model = solver.model()
 
-            evaluator = np.vectorize(lambda var: float(model.eval(var, model_completion=True).as_fraction()))
+        evaluator = np.vectorize(lambda var: float(model.eval(var, model_completion=True).as_fraction()))
 
-            # extract offset vector from model
-            offset_vec = evaluator(self._offset_vec)
-            # extract transformation matrix from model
-            transformation_matrix = evaluator(self._transformation_matrix)
+        # extract offset vector from model
+        offset_vec = evaluator(self._offset_vec)
+        # extract transformation matrix from model
+        transformation_matrix = evaluator(self._transformation_matrix)
 
-            self._result = SupervisionResult(self.template_id, offset_vec, transformation_matrix)
+        _result = SupervisionResult(self.template_id, offset_vec, transformation_matrix)
 
-            # extract vote counts from model
-            elected_matches_count = 0
-            for match in self._kmr.get_matches():
-                vote_count = model.eval(self._match_weight[match], model_completion=True).as_long()
-                self._result.add_match(match, vote_count)
-                if vote_count >= 1:
-                    elected_matches_count += 1
+        # extract vote counts from model
+        matches_chosen_count = 0
+        for match in self._kmr.get_matches():
+            match_error = model.eval(self._match_error[match], model_completion=True).as_fraction()
+            _result.add_match(match, match_error)
+            if match_error <= 10:
+                matches_chosen_count += 1
 
-            if self.in_debug_mode() and not oe_context().quiet_mode:
-                click.secho(f"Election system: --- [Result] ---", fg="yellow")
-                click.secho(f"Matches elected: {elected_matches_count} "
-                            f"({elected_matches_count / self._kmr.get_total_match_count() * 100}%)", fg="yellow")
-                click.secho(f"Upper bound on transformation error (the lower the better): {model_transformation_error_bound}", fg="yellow")
+        if self.in_debug_mode() and not oe_context().quiet_mode:
+            click.secho(f"Supervision system: --- [Result] ---", fg="yellow")
+            click.secho(f"Matches chosen: {matches_chosen_count} "
+                        f"({matches_chosen_count / self._kmr.get_total_match_count() * 100}%)", fg="yellow")
 
-    def get_result(self) -> SupervisionResult:
-        return self._result
+        return _result

@@ -9,7 +9,7 @@ from officialeye.supervisor.result import SupervisionResult
 from officialeye.region.keypoint import TemplateKeypoint
 
 
-class ElectionResultVisualizer:
+class SupervisionResultVisualizer:
 
     def __init__(self, result: SupervisionResult, target: cv2.Mat):
         self._result = result
