@@ -13,8 +13,6 @@ class SupervisionResult:
         self._delta = delta
         self._delta_prime = delta_prime
         self._transformation_matrix = transformation_matrix
-        print("Delta:", self._delta)
-        print("Delta prime:", self._delta_prime)
 
     def template_point_to_target_point(self, template_point: np.ndarray) -> np.ndarray:
         assert template_point.shape == (2,)
