@@ -101,10 +101,9 @@ class OrthogonalLinearRegressionSupervisor(Supervisor):
             transformation_matrix = evaluator(self._transformation_matrix)
 
             _result = SupervisionResult(self.template_id, self._kmr, delta, delta_prime, transformation_matrix)
-            _result_mse = _result.get_mse()
 
             if self.in_debug_mode() and not oe_context().quiet_mode:
-                click.secho(f"Error: {_result_mse}", fg="yellow")
+                click.secho(f"Error: {_result.get_mse()}", fg="yellow")
 
             _results.append(_result)
 
