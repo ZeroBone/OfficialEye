@@ -114,19 +114,19 @@ class Template:
             keypoint_matching_result.debug_print()
 
         # run supervisor to obtain correspondence between template and target regions
-        election = Supervisor(self.template_id, keypoint_matching_result, debug=DebugContainer() if debug_mode else None)
-        election.run()
-        election_result = election.get_result()
+        supervisor = Supervisor(self.template_id, keypoint_matching_result, debug=DebugContainer() if debug_mode else None)
+        supervisor.run()
+        supervision = supervisor.get_result()
 
-        if election_result is None:
+        if supervision is None:
             print("ELECTION FAILED")
             # TODO
 
         if debug_mode:
-            election_result_visualizer = ElectionResultVisualizer(election_result, target)
+            election_result_visualizer = ElectionResultVisualizer(supervision, target)
             visualization = election_result_visualizer.render()
-            election.debug().add_image(visualization)
-            election.debug().export()
+            supervisor.debug().add_image(visualization)
+            supervisor.debug().export()
 
         application_image = self.load_source_image()
 
@@ -137,10 +137,10 @@ class Template:
             feature_bl = feature.get_bottom_left_vec()
             feature_br = feature.get_bottom_right_vec()
 
-            target_tl = election_result.template_point_to_target_point(feature_tl)
-            target_tr = election_result.template_point_to_target_point(feature_tr)
-            target_bl = election_result.template_point_to_target_point(feature_bl)
-            target_br = election_result.template_point_to_target_point(feature_br)
+            target_tl = supervision.template_point_to_target_point(feature_tl)
+            target_tr = supervision.template_point_to_target_point(feature_tr)
+            target_bl = supervision.template_point_to_target_point(feature_bl)
+            target_br = supervision.template_point_to_target_point(feature_br)
 
             source_points = [target_tl.T[0], target_tr.T[0], target_br.T[0], target_bl.T[0]]
             # destination_points = [feature_tl, feature_tr, feature_br, feature_bl]

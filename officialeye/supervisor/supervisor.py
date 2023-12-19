@@ -18,7 +18,7 @@ from officialeye.match.result import KeypointMatchingResult
 class Supervisor(Debuggable):
 
     def __init__(self, template_id: str, kmr: KeypointMatchingResult, /, *,
-                 debug: DebugContainer = None, min_vote_fraction: float = 0.5):
+                 debug: DebugContainer = None, min_vote_fraction: float = 0.1):
         super().__init__(debug=debug)
 
         assert min_vote_fraction <= 1.0
@@ -38,17 +38,17 @@ class Supervisor(Debuggable):
 
         # keys: matches (instances of Match)
         # values: z3 integer variables representing how many votes there are for the specified match
-        self._match_votes: Dict[Match, z3.ArithRef] = {}
+        self._match_weight: Dict[Match, z3.ArithRef] = {}
 
         for match in self._kmr.get_matches():
-            self._match_votes[match] = z3.Real(f"votes_{match.get_debug_identifier()}")
+            self._match_weight[match] = z3.Real(f"weight_{match.get_debug_identifier()}")
 
         # configuration
-        self._min_votes_required = math.ceil(min_vote_fraction * self._kmr.get_total_match_count())
-        self._min_votes_required = max(self._min_votes_required, 1)
+        self._min_weight_required = math.ceil(min_vote_fraction * self._kmr.get_total_match_count())
+        self._min_weight_required = max(self._min_weight_required, 1)
         if self.in_debug_mode() and not oe_context().quiet_mode:
             click.secho(f"Total match count: {self._kmr.get_total_match_count()}", fg="yellow")
-            click.secho(f"Minimum votes required: {self._min_votes_required}", fg="yellow")
+            click.secho(f"Minimum votes required: {self._min_weight_required}", fg="yellow")
 
     def _get_consistency_check(self, match: Match, transformation_error_max: int, /) -> z3.AstRef:
         """
@@ -80,7 +80,7 @@ class Supervisor(Debuggable):
         return z3.And(*(
             z3.Implies(
                 # receiving at least one vote means getting elected
-                self._match_votes[match] >= 1,
+                self._match_weight[match] >= 1,
                 # consistency check
                 self._get_consistency_check(match, transformation_error_max)
             ) for match in self._kmr.get_matches()
@@ -88,15 +88,16 @@ class Supervisor(Debuggable):
 
     def run(self):
 
-        votes_bounds = z3.And(*(z3.Or(self._match_votes[match] == 0, self._match_votes[match] == 1) for match in self._kmr.get_matches()))
+        votes_bounds = z3.And(*(z3.Or(self._match_weight[match] == 0, self._match_weight[match] == 1) for match in self._kmr.get_matches()))
 
         # votes_lower_bounds = z3.And(*(self._match_votes[match] >= 0 for match in self._kmr.get_matches()))
         # votes_upper_bounds = z3.And(*(self._match_votes[match] <= 1 for match in self._kmr.get_matches()))
 
-        total_votes = z3.Sum(*(self._match_votes[match] for match in self._kmr.get_matches()))
+        total_votes = z3.Sum(*(self._match_weight[match] for match in self._kmr.get_matches()))
 
         solver = z3.Solver()
-        solver.set("timeout", 500)
+        solver.set("timeout", 5000)
+
         # solver.add(votes_lower_bounds)
         # solver.add(votes_upper_bounds)
         solver.add(votes_bounds)
@@ -124,7 +125,7 @@ class Supervisor(Debuggable):
             solver.push()
             solver.add(elected_implies_consistent)
 
-            total_votes_min = self._min_votes_required
+            total_votes_min = self._min_weight_required
             total_votes_max = self._kmr.get_total_match_count()
 
             while total_votes_min <= total_votes_max:
@@ -188,7 +189,7 @@ class Supervisor(Debuggable):
             # extract vote counts from model
             elected_matches_count = 0
             for match in self._kmr.get_matches():
-                vote_count = model.eval(self._match_votes[match], model_completion=True).as_long()
+                vote_count = model.eval(self._match_weight[match], model_completion=True).as_long()
                 self._result.add_match(match, vote_count)
                 if vote_count >= 1:
                     elected_matches_count += 1
