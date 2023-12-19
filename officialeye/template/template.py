@@ -7,7 +7,9 @@ import numpy as np
 
 from officialeye.context.singleton import oe_context
 from officialeye.debug.container import DebugContainer
-from officialeye.supervision.supervisor import Supervisor
+from officialeye.match.result import KeypointMatchingResult
+from officialeye.supervision.supervisors.least_squares_linear_regression import LeastSquaresLinearRegressionSupervisor
+from officialeye.supervision.supervisors.orthogonal_linear_regression import OrthogonalLinearRegressionSupervisor
 from officialeye.supervision.visualizer import SupervisionResultVisualizer
 from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.matchers.flann import FlannKeypointMatcher
@@ -37,6 +39,7 @@ class Template:
             self._keypoints[keypoint.region_id] = keypoint
 
         self._matching = yaml_dict["matching"]
+        self._supervision = yaml_dict["supervision"]
 
         for feature_id in yaml_dict["features"]:
             feature_dict = yaml_dict["features"][feature_id]
@@ -51,6 +54,9 @@ class Template:
     def get_matching_engine(self) -> str:
         return self._matching["engine"]
 
+    def get_supervision_engine(self) -> str:
+        return self._supervision["engine"]
+
     def load_keypoint_matcher(self, target_img: cv2.Mat, **kwargs) -> KeypointMatcher:
         matching_engine = self.get_matching_engine()
 
@@ -58,7 +64,6 @@ class Template:
             return FlannKeypointMatcher(self.template_id, target_img, **kwargs)
 
         print_error("while loading keypoint matcher", f"unknown matching engine '{matching_engine}'")
-
         exit(5)
 
     def features(self):
@@ -99,6 +104,23 @@ class Template:
         img = self._show(img)
         export_and_show_image(img)
 
+    def _load_supervisor(self, kmr: KeypointMatchingResult):
+        superivision_engine = self.get_supervision_engine()
+
+        if oe_context().debug_mode:
+            debug = DebugContainer()
+        else:
+            debug = None
+
+        if superivision_engine == LeastSquaresLinearRegressionSupervisor.ENGINE_ID:
+            return LeastSquaresLinearRegressionSupervisor(self.template_id, kmr, debug=debug)
+
+        if superivision_engine == OrthogonalLinearRegressionSupervisor.ENGINE_ID:
+            return OrthogonalLinearRegressionSupervisor(self.template_id, kmr, debug=debug)
+
+        print_error("while loading supervisor", f"unknown supervision engine '{superivision_engine}'")
+        exit(6)
+
     def analyze(self, target, /, *, debug_mode: bool = False):
         # find all patterns in the target image
 
@@ -109,18 +131,17 @@ class Template:
 
         keypoint_matching_result = matcher.match_finish()
 
-        if debug_mode:
+        if oe_context().debug_mode:
             matcher.debug().export()
             keypoint_matching_result.debug_print()
 
         # run supervision to obtain correspondence between template and target regions
-        supervisor = Supervisor(self.template_id, keypoint_matching_result, debug=DebugContainer() if debug_mode else None)
+        supervisor = self._load_supervisor(keypoint_matching_result)
         supervision = supervisor.run()
 
         if supervision is None:
-            print("!!!!!!!!!!!!!!!!!! SUPERVISION FAILED !!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-            # TODO
-            return
+            print_error("while running supervisor", f"could not establish correspondence of the image with the template")
+            exit(7)
 
         if debug_mode:
             supervision_result_visualizer = SupervisionResultVisualizer(supervision, target)

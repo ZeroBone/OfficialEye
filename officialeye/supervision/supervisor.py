@@ -1,6 +1,6 @@
 import abc
 from abc import ABC
-from typing import Union
+from typing import List, Union
 
 import click
 
@@ -27,5 +27,25 @@ class Supervisor(ABC, Debuggable):
             click.secho(f"Total match count: {self._kmr.get_total_match_count()}", fg="yellow")
 
     @abc.abstractmethod
-    def run(self) -> Union[SupervisionResult, None]:
+    def _run(self) -> List[SupervisionResult]:
         raise NotImplementedError()
+
+    def run(self) -> Union[SupervisionResult, None]:
+        results = self._run()
+
+        if len(results) == 0:
+            return None
+
+        best_result = results[0]
+        best_result_mse = best_result.get_mse()
+
+        for result in results:
+            result_mse = result.get_mse()
+            if result_mse < best_result_mse:
+                best_result_mse = result_mse
+                best_result = result
+
+        if self.in_debug_mode() and not oe_context().quiet_mode:
+            click.secho(f"Best result has MSE {best_result_mse}", fg="yellow")
+
+        return best_result

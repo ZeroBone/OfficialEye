@@ -27,7 +27,11 @@ _oe_template_schema = yml.Map({
     "source": yml.Str(),
     "keypoints": yml.MapPattern(_oe_template_schema_region_id, _oe_template_schema_keypoint_validator),
     "matching": yml.Map({
+        "engine": yml.Regex(r"^[a-zA-Z0-9_]{1,32}$")
+    }),
+    "supervision": yml.Map({
         "engine": yml.Regex(r"^[a-zA-Z0-9_]{1,32}$"),
+        # TODO: implement the enforcing of these constraints
         "constraints": yml.Map({
             yml.Optional("min_weight"): yml.Map({
                 "keypoints": yml.UniqueSeq(_oe_template_schema_region_id),

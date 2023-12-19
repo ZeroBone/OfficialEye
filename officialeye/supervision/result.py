@@ -7,9 +7,15 @@ from officialeye.match.result import KeypointMatchingResult
 
 class SupervisionResult:
 
-    def __init__(self, template_id: str, kmr: KeypointMatchingResult, delta: np.ndarray, delta_prime: np.ndarray, transformation_matrix: np.ndarray, /):
+    def __init__(self, template_id: str, kmr: KeypointMatchingResult,
+                 delta: np.ndarray, delta_prime: np.ndarray, transformation_matrix: np.ndarray, /):
         self.template_id = template_id
         self._kmr = kmr
+
+        assert delta.shape == (2,)
+        assert delta_prime.shape == (2,)
+        assert transformation_matrix.shape == (2, 2)
+
         self._delta = delta
         self._delta_prime = delta_prime
         self._transformation_matrix = transformation_matrix
