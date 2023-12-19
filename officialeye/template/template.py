@@ -7,8 +7,8 @@ import numpy as np
 
 from officialeye.context.singleton import oe_context
 from officialeye.debug.container import DebugContainer
-from officialeye.supervisor.supervisor import Supervisor
-from officialeye.supervisor.visualizer import SupervisionResultVisualizer
+from officialeye.supervision.supervisor import Supervisor
+from officialeye.supervision.visualizer import SupervisionResultVisualizer
 from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.matchers.flann import FlannKeypointMatcher
 from officialeye.region.feature import TemplateFeature
@@ -113,7 +113,7 @@ class Template:
             matcher.debug().export()
             keypoint_matching_result.debug_print()
 
-        # run supervisor to obtain correspondence between template and target regions
+        # run supervision to obtain correspondence between template and target regions
         supervisor = Supervisor(self.template_id, keypoint_matching_result, debug=DebugContainer() if debug_mode else None)
         supervision = supervisor.run()
 

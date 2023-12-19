@@ -5,7 +5,7 @@ import cv2
 import numpy as np
 
 from officialeye.context.singleton import oe_context
-from officialeye.supervisor.result import SupervisionResult
+from officialeye.supervision.result import SupervisionResult
 from officialeye.region.keypoint import TemplateKeypoint
 
 
