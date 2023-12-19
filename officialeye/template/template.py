@@ -8,6 +8,7 @@ import numpy as np
 from officialeye.context.singleton import oe_context
 from officialeye.debug.container import DebugContainer
 from officialeye.match.result import KeypointMatchingResult
+from officialeye.supervision.supervisors.combinatorial import CombinatorialSupervisor
 from officialeye.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor
 from officialeye.supervision.supervisors.orthogonal_regression import OrthogonalRegressionSupervisor
 from officialeye.supervision.visualizer import SupervisionResultVisualizer
@@ -117,6 +118,9 @@ class Template:
 
         if superivision_engine == OrthogonalRegressionSupervisor.ENGINE_ID:
             return OrthogonalRegressionSupervisor(self.template_id, kmr, debug=debug)
+
+        if superivision_engine == CombinatorialSupervisor.ENGINE_ID:
+            return CombinatorialSupervisor(self.template_id, kmr, debug=debug)
 
         print_error("while loading supervisor", f"unknown supervision engine '{superivision_engine}'")
         exit(6)

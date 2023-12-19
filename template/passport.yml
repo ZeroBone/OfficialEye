@@ -21,8 +21,8 @@ keypoints:
 matching:
   engine: flann
 supervision:
-  # Available engines: orthogonal_regression, least_squares_regression
-  engine: orthogonal_regression
+  # Available engines: orthogonal_regression, least_squares_regression, combinatorial
+  engine: combinatorial
   constraints:
     # The 'min_weight' constraint enforces the specified keypoints to achieve at least a certain amount of matches
     min_weight:
