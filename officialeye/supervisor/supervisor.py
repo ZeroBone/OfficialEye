@@ -88,19 +88,14 @@ class Supervisor(Debuggable):
 
     def run(self):
 
-        votes_bounds = z3.And(*(z3.Or(self._match_weight[match] == 0, self._match_weight[match] == 1) for match in self._kmr.get_matches()))
+        weight_bounds = z3.And(*(z3.Or(self._match_weight[match] == 0, self._match_weight[match] == 1) for match in self._kmr.get_matches()))
 
-        # votes_lower_bounds = z3.And(*(self._match_votes[match] >= 0 for match in self._kmr.get_matches()))
-        # votes_upper_bounds = z3.And(*(self._match_votes[match] <= 1 for match in self._kmr.get_matches()))
-
-        total_votes = z3.Sum(*(self._match_weight[match] for match in self._kmr.get_matches()))
+        total_weight = z3.Sum(*(self._match_weight[match] for match in self._kmr.get_matches()))
 
         solver = z3.Solver()
         solver.set("timeout", 5000)
 
-        # solver.add(votes_lower_bounds)
-        # solver.add(votes_upper_bounds)
-        solver.add(votes_bounds)
+        solver.add(weight_bounds)
 
         # transformation error is the maximum offset (in pixels) between the match and match provided by the translation
         transformation_error_bound_min = 0
@@ -137,7 +132,7 @@ class Supervisor(Debuggable):
                                 f" [{total_votes_min}, {total_votes_max}]", fg="yellow")
 
                 solver.push()
-                solver.add(total_votes >= min_votes)
+                solver.add(total_weight >= min_votes)
 
                 result = solver.check()
                 if result == z3.sat:
@@ -145,7 +140,7 @@ class Supervisor(Debuggable):
                     model_transformation_error_bound = transformation_error_bound_cur
                     model_found_in_current_iter = True
                     # try to increase the minimum vote count
-                    model_vote_count_raw: z3.IntNumRef = model.eval(total_votes, model_completion=True)
+                    model_vote_count_raw: z3.IntNumRef = model.eval(total_weight, model_completion=True)
                     model_vote_count = model_vote_count_raw.as_long()
                     assert model_vote_count >= min_votes
                     total_votes_min = model_vote_count + 1
