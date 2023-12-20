@@ -40,7 +40,8 @@ class KeypointMatchingResult:
     def debug_print(self):
         if oe_context().quiet_mode:
             return
-        click.secho(f"Listing all matched points:", fg="yellow")
-        for match in self.get_matches():
-            click.secho(f"> {match}", fg="yellow")
+        click.secho(f"Found {self.get_total_match_count()} matches!", fg="yellow")
+        # click.secho(f"Listing all matched points:", fg="yellow")
+        # for match in self.get_matches():
+        #    click.secho(f"> {match}", fg="yellow")
 

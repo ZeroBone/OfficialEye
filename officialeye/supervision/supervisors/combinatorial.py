@@ -25,6 +25,8 @@ class CombinatorialSupervisor(Supervisor):
             [z3.Real("c"), z3.Real("d")]
         ], dtype=z3.AstRef)
 
+        self._transformation_error_bound = z3.Real("err_bound")
+
         # keys: matches (instances of Match)
         # values: z3 integer variables representing the errors for each match, i.e. how consistent the match is with the affine transformation model
         self._match_weight: Dict[Match, z3.ArithRef] = {}
@@ -33,6 +35,7 @@ class CombinatorialSupervisor(Supervisor):
             self._match_weight[match] = z3.Real(f"w_{match.get_debug_identifier()}")
 
         self._minimum_weight_to_enforce = self._kmr.get_total_match_count() * 0.1
+        self._max_transformation_error = 20
 
     def _get_consistency_check(self, match: Match, delta: np.ndarray, delta_prime: np.ndarray, transformation_error_max: int, /) -> z3.AstRef:
         """
@@ -50,7 +53,7 @@ class CombinatorialSupervisor(Supervisor):
         assert delta_prime.shape == (2,)
         assert template_point.shape == (2,)
 
-        translated_template_point = (self._transformation_matrix @ (template_point - delta)) + delta_prime
+        translated_template_point = self._transformation_matrix @ (template_point - delta) + delta_prime
         translated_template_point_x, translated_template_point_y = translated_template_point
 
         target_point_x, target_point_y = match.get_target_point()
@@ -68,6 +71,10 @@ class CombinatorialSupervisor(Supervisor):
 
         weights_lower_bounds = z3.And(*(self._match_weight[match] >= 0 for match in self._kmr.get_matches()))
         weights_upper_bounds = z3.And(*(self._match_weight[match] <= 1 for match in self._kmr.get_matches()))
+        transformation_error_bounds = z3.And(
+            self._transformation_error_bound >= 0,
+            self._transformation_error_bound <= self._max_transformation_error
+        )
 
         total_weight = z3.Sum(*(self._match_weight[match] for match in self._kmr.get_matches()))
 
@@ -77,9 +84,14 @@ class CombinatorialSupervisor(Supervisor):
 
         solver.add(weights_lower_bounds)
         solver.add(weights_upper_bounds)
+        solver.add(transformation_error_bounds)
         solver.add(total_weight >= self._minimum_weight_to_enforce)
 
-        solver.maximize(total_weight)
+        # for every pixel of error, this amount of weight will get subtracted
+        # in other words, how much weight does erroring by one pixel correspond to?
+        balance_factor = 1
+
+        solver.maximize(total_weight - balance_factor * self._transformation_error_bound)
 
         for anchor_match in self._kmr.get_matches():
             delta = anchor_match.get_original_template_point()
@@ -91,7 +103,7 @@ class CombinatorialSupervisor(Supervisor):
                 solver.add(z3.Implies(
                     self._match_weight[match] > 0,
                     # consistency check
-                    self._get_consistency_check(match, delta, delta_prime, 10)
+                    self._get_consistency_check(match, delta, delta_prime, 5)
                 ))
 
             result = solver.check()
@@ -113,6 +125,9 @@ class CombinatorialSupervisor(Supervisor):
             # extract total weight from model
             model_total_weight = model_evaluator(total_weight)
 
+            # extract upper bound on transformation error from model
+            model_transformation_error_bound = model_evaluator(self._transformation_error_bound)
+
             # extract transformation matrix from model
             transformation_matrix = model_evaluator(self._transformation_matrix)
 
@@ -124,7 +139,9 @@ class CombinatorialSupervisor(Supervisor):
                 _result.set_match_weight(match, match_weight)
 
             if self.in_debug_mode() and not oe_context().quiet_mode:
-                click.secho(f"Total weight: {model_total_weight} Error: {_result.get_mse()}", fg="yellow")
+                click.secho(f"Error: {_result.get_mse()} "
+                            f"Total weight: {model_total_weight} "
+                            f"Maximum transformation error: {model_transformation_error_bound}", fg="yellow")
 
             _results.append(_result)
 
