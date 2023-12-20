@@ -89,7 +89,7 @@ class CombinatorialSupervisor(Supervisor):
 
         # for every pixel of error, this amount of weight will get subtracted
         # in other words, how much weight does erroring by one pixel correspond to?
-        balance_factor = 1
+        balance_factor = 10
 
         solver.maximize(total_weight - balance_factor * self._transformation_error_bound)
 
@@ -110,11 +110,13 @@ class CombinatorialSupervisor(Supervisor):
             if result == z3.unsat:
                 if self.in_debug_mode() and not oe_context().quiet_mode:
                     click.secho("Warning! Z3 returned unsat.", fg="red")
+                solver.pop()
                 continue
 
             if result == z3.unknown:
                 if self.in_debug_mode() and not oe_context().quiet_mode:
                     click.secho("Warning! Z3 returned unknown.", fg="red")
+                solver.pop()
                 continue
 
             assert result == z3.sat
@@ -146,6 +148,5 @@ class CombinatorialSupervisor(Supervisor):
             _results.append(_result)
 
             solver.pop()
-            break
 
         return _results
