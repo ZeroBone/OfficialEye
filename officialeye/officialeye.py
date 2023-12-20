@@ -8,16 +8,20 @@ from officialeye.template.parser import load_template
 
 
 @click.group()
-@click.option("-d", "--debug", is_flag=True, show_default=True, default=False, help="Enable debug mode")
-@click.option("--dedir", type=click.Path(exists=True, file_okay=True, readable=True), help="Specify debug export directory")
-@click.option("--edir", type=click.Path(exists=True, file_okay=True, readable=True), help="Specify export directory")
-@click.option("-q", "--quiet", is_flag=True, show_default=True, default=False, help="Disable standard output messages")
-def cli(debug: bool, dedir: str, edir: str, quiet: bool):
+@click.option("-d", "--debug", is_flag=True, show_default=True, default=False, help="Enable debug mode.")
+@click.option("--dedir", type=click.Path(exists=True, file_okay=True, readable=True), help="Specify debug export directory.")
+@click.option("--edir", type=click.Path(exists=True, file_okay=True, readable=True), help="Specify export directory.")
+@click.option("-q", "--quiet", is_flag=True, show_default=True, default=False, help="Disable standard output messages.")
+@click.option("-v", "--verbose", is_flag=True, show_default=True, default=False, help="Enable verbose logging.")
+@click.option("-dl", "--disable-logo", is_flag=True, show_default=True, default=False, help="Disable the officialeye logo.")
+def cli(debug: bool, dedir: str, edir: str, quiet: bool, verbose: bool, disable_logo: bool):
 
     oe_context().debug_mode = debug
     oe_context().quiet_mode = quiet
+    oe_context().verbose_mode = verbose
+    oe_context().disable_logo = disable_logo
 
-    if not quiet:
+    if not quiet and not disable_logo:
         print_logo()
 
     if oe_context().debug_mode and not oe_context().quiet_mode:

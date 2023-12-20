@@ -23,6 +23,8 @@ class Context:
         self._not_deleted_temporary_files: List[str] = []
         self.debug_mode = False
         self.quiet_mode = False
+        self.verbose_mode = False
+        self.disable_logo = False
         self.debug_export_directory = None
         self.export_directory = None
         # keys: template ids
