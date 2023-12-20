@@ -21,6 +21,7 @@ class TemplateRegion:
     def visualize(self, img: cv2.Mat) -> cv2.Mat:
         raise NotImplementedError()
 
+    # TODO: remove this method, and migrate usage to get_top_left_vec (the methods are identical)
     def get_left_corner(self) -> np.ndarray:
         return np.array([self.x, self.y])
 

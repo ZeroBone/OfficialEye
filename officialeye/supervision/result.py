@@ -17,8 +17,12 @@ class SupervisionResult:
         assert delta_prime.shape == (2,)
         assert transformation_matrix.shape == (2, 2)
 
+        # offset in the template's coordinates
         self._delta = delta
+        # offset in the target image's coordinates
         self._delta_prime = delta_prime
+        self.dpo = delta_prime.copy()
+
         self._transformation_matrix = transformation_matrix
 
         # keys: matches
@@ -39,7 +43,7 @@ class SupervisionResult:
         assert template_point.shape == (2,)
         assert self._delta.shape == (2,)
         assert self._delta_prime.shape == (2,)
-        return (self._transformation_matrix @ (template_point - self._delta)) + self._delta_prime
+        return self._transformation_matrix @ (template_point - self._delta) + self._delta_prime
 
     def get_relevant_keypoint_ids(self) -> Set[str]:
         rk = set()

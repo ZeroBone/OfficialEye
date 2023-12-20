@@ -28,7 +28,7 @@ class Match:
         return oe_context().get_template(self.template_id).get_keypoint(self.keypoint_id)
 
     def get_target_point(self) -> np.ndarray:
-        return self._target_point
+        return self._target_point.copy()
 
     def __eq__(self, o):
         if not isinstance(o, Match):

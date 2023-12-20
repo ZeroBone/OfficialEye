@@ -32,6 +32,8 @@ class CombinatorialSupervisor(Supervisor):
         for match in self._kmr.get_matches():
             self._match_weight[match] = z3.Real(f"w_{match.get_debug_identifier()}")
 
+        self._minimum_weight_to_enforce = self._kmr.get_total_match_count() * 0.1
+
     def _get_consistency_check(self, match: Match, delta: np.ndarray, delta_prime: np.ndarray, transformation_error_max: int, /) -> z3.AstRef:
         """
         Generates a z3 formula asserting the consistency of the match with the affine linear transformation model.
@@ -48,7 +50,7 @@ class CombinatorialSupervisor(Supervisor):
         assert delta_prime.shape == (2,)
         assert template_point.shape == (2,)
 
-        translated_template_point = self._transformation_matrix @ (template_point - delta) + delta_prime
+        translated_template_point = (self._transformation_matrix @ (template_point - delta)) + delta_prime
         translated_template_point_x, translated_template_point_y = translated_template_point
 
         target_point_x, target_point_y = match.get_target_point()
@@ -75,6 +77,7 @@ class CombinatorialSupervisor(Supervisor):
 
         solver.add(weights_lower_bounds)
         solver.add(weights_upper_bounds)
+        solver.add(total_weight >= self._minimum_weight_to_enforce)
 
         solver.maximize(total_weight)
 
@@ -88,7 +91,7 @@ class CombinatorialSupervisor(Supervisor):
                 solver.add(z3.Implies(
                     self._match_weight[match] > 0,
                     # consistency check
-                    self._get_consistency_check(match, delta, delta_prime, 5)
+                    self._get_consistency_check(match, delta, delta_prime, 10)
                 ))
 
             result = solver.check()
@@ -113,6 +116,7 @@ class CombinatorialSupervisor(Supervisor):
             # extract transformation matrix from model
             transformation_matrix = model_evaluator(self._transformation_matrix)
 
+            # _result = SupervisionResult(self.template_id, self._kmr, delta.copy(), delta_prime.copy(), transformation_matrix)
             _result = SupervisionResult(self.template_id, self._kmr, delta, delta_prime, transformation_matrix)
 
             for match in self._kmr.get_matches():
@@ -125,5 +129,6 @@ class CombinatorialSupervisor(Supervisor):
             _results.append(_result)
 
             solver.pop()
+            break
 
         return _results
