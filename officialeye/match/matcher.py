@@ -12,8 +12,8 @@ from officialeye.region.keypoint import TemplateKeypoint
 
 class KeypointMatcher(ABC, Debuggable):
 
-    def __init__(self, template_id: str, img: cv2.Mat, /, *, debug: DebugContainer = None):
-        super().__init__(debug=debug)
+    def __init__(self, template_id: str, img: cv2.Mat, /):
+        super().__init__()
         self.template_id = template_id
         self._img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 

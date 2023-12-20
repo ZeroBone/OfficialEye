@@ -6,7 +6,6 @@ import numpy as np
 import z3
 
 from officialeye.context.singleton import oe_context
-from officialeye.debug.container import DebugContainer
 from officialeye.match.match import Match
 from officialeye.match.result import KeypointMatchingResult
 
@@ -18,8 +17,8 @@ class OrthogonalRegressionSupervisor(Supervisor):
 
     ENGINE_ID = "orthogonal_regression"
 
-    def __init__(self, template_id: str, kmr: KeypointMatchingResult, /, *, debug: DebugContainer = None):
-        super().__init__(template_id, kmr, debug=debug)
+    def __init__(self, template_id: str, kmr: KeypointMatchingResult, /):
+        super().__init__(template_id, kmr)
 
         # create variables for components of the translation matrix
         self._transformation_matrix = np.array([
@@ -49,7 +48,6 @@ class OrthogonalRegressionSupervisor(Supervisor):
         assert template_point.shape == (2,)
 
         translated_template_point = self._transformation_matrix @ (template_point - delta) + delta_prime
-
         translated_template_point_x, translated_template_point_y = translated_template_point
 
         target_point_x, target_point_y = match.get_target_point()
@@ -73,6 +71,7 @@ class OrthogonalRegressionSupervisor(Supervisor):
             total_error = z3.Sum(*(self._match_error[match] for match in self._kmr.get_matches()))
 
             solver = z3.Optimize()
+            # TODO: make the timeout configurable
             solver.set("timeout", 30000)
 
             solver.add(error_lower_bounds)

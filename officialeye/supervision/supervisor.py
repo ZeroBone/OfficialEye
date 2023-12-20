@@ -5,7 +5,6 @@ from typing import List, Union
 import click
 
 from officialeye.context.singleton import oe_context
-from officialeye.debug.container import DebugContainer
 from officialeye.debug.debuggable import Debuggable
 from officialeye.supervision.result import SupervisionResult
 from officialeye.match.result import KeypointMatchingResult
@@ -13,9 +12,8 @@ from officialeye.match.result import KeypointMatchingResult
 
 class Supervisor(ABC, Debuggable):
 
-    def __init__(self, template_id: str, kmr: KeypointMatchingResult, /, *,
-                 debug: DebugContainer = None):
-        super().__init__(debug=debug)
+    def __init__(self, template_id: str, kmr: KeypointMatchingResult, /):
+        super().__init__()
 
         self.template_id = template_id
         self._kmr = kmr

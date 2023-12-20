@@ -62,7 +62,7 @@ class Template:
         matching_engine = self.get_matching_engine()
 
         if matching_engine == FlannKeypointMatcher.ENGINE_ID:
-            return FlannKeypointMatcher(self.template_id, target_img, **kwargs)
+            return FlannKeypointMatcher(self.template_id, target_img)
 
         print_error("while loading keypoint matcher", f"unknown matching engine '{matching_engine}'")
         exit(5)
@@ -108,19 +108,14 @@ class Template:
     def _load_supervisor(self, kmr: KeypointMatchingResult):
         superivision_engine = self.get_supervision_engine()
 
-        if oe_context().debug_mode:
-            debug = DebugContainer()
-        else:
-            debug = None
-
         if superivision_engine == LeastSquaresRegressionSupervisor.ENGINE_ID:
-            return LeastSquaresRegressionSupervisor(self.template_id, kmr, debug=debug)
+            return LeastSquaresRegressionSupervisor(self.template_id, kmr)
 
         if superivision_engine == OrthogonalRegressionSupervisor.ENGINE_ID:
-            return OrthogonalRegressionSupervisor(self.template_id, kmr, debug=debug)
+            return OrthogonalRegressionSupervisor(self.template_id, kmr)
 
         if superivision_engine == CombinatorialSupervisor.ENGINE_ID:
-            return CombinatorialSupervisor(self.template_id, kmr, debug=debug)
+            return CombinatorialSupervisor(self.template_id, kmr)
 
         print_error("while loading supervisor", f"unknown supervision engine '{superivision_engine}'")
         exit(6)
