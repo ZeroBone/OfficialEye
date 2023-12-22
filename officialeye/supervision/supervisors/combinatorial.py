@@ -35,7 +35,9 @@ class CombinatorialSupervisor(Supervisor):
         for match in self._kmr.get_matches():
             self._match_weight[match] = z3.Real(f"w_{match.get_debug_identifier()}")
 
+        # TODO: make the 0.1 coeff configurable
         self._minimum_weight_to_enforce = self._kmr.get_total_match_count() * 0.1
+        # TODO: make this configurable
         self._max_transformation_error = 20
 
     def _get_consistency_check(self, match: Match, delta: np.ndarray, delta_prime: np.ndarray, transformation_error_max: int, /) -> z3.AstRef:
@@ -90,6 +92,7 @@ class CombinatorialSupervisor(Supervisor):
 
         # for every pixel of error, this amount of weight will get subtracted
         # in other words, how much weight does erroring by one pixel correspond to?
+        # TODO: make this configurable
         balance_factor = 10
 
         solver.maximize(total_weight - balance_factor * self._transformation_error_bound)
@@ -132,8 +135,9 @@ class CombinatorialSupervisor(Supervisor):
             model = solver.model()
             model_evaluator = np.vectorize(lambda var: float(model.eval(var, model_completion=True).as_fraction()))
 
-            # extract total weight from model
+            # extract total weight and maximization target from model
             model_total_weight = model_evaluator(total_weight)
+            model_score = model_evaluator(total_weight - balance_factor * self._transformation_error_bound)
 
             # extract upper bound on transformation error from model
             model_transformation_error_bound = model_evaluator(self._transformation_error_bound)
@@ -141,16 +145,17 @@ class CombinatorialSupervisor(Supervisor):
             # extract transformation matrix from model
             transformation_matrix = model_evaluator(self._transformation_matrix)
 
-            # _result = SupervisionResult(self.template_id, self._kmr, delta.copy(), delta_prime.copy(), transformation_matrix)
             _result = SupervisionResult(self.template_id, self._kmr, delta, delta_prime, transformation_matrix)
+            _result.set_score(model_score)
 
             for match in self._kmr.get_matches():
                 match_weight = model_evaluator(self._match_weight[match])
                 _result.set_match_weight(match, match_weight)
 
             if self.in_debug_mode() and not oe_context().quiet_mode:
-                click.secho(f"Error: {_result.get_mse()} "
+                click.secho(f"Error: {_result.get_weighted_mse()} "
                             f"Total weight: {model_total_weight} "
+                            f"Score: {model_score} "
                             f"Maximum transformation error: {model_transformation_error_bound}", fg="yellow")
 
             _results.append(_result)

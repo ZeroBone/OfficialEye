@@ -58,6 +58,9 @@ class Template:
     def get_supervision_engine(self) -> str:
         return self._supervision["engine"]
 
+    def get_supervision_result(self) -> str:
+        return self._supervision["result"]
+
     def load_keypoint_matcher(self, target_img: cv2.Mat, **kwargs) -> KeypointMatcher:
         matching_engine = self.get_matching_engine()
 

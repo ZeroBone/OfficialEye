@@ -58,7 +58,7 @@ class LeastSquaresRegressionSupervisor(Supervisor):
             _result = SupervisionResult(self.template_id, self._kmr, delta, delta_prime, transformation_matrix)
 
             if self.in_debug_mode() and not oe_context().quiet_mode:
-                click.secho(f"Current MSE: {_result.get_mse()}", fg="yellow")
+                click.secho(f"Current MSE: {_result.get_weighted_mse()}", fg="yellow")
 
             _results.append(_result)
 

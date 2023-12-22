@@ -31,13 +31,13 @@ _oe_template_schema = yml.Map({
     }),
     "supervision": yml.Map({
         "engine": yml.Regex(r"^[a-zA-Z0-9_]{1,32}$"),
-        # TODO: implement the enforcing of these constraints
-        "constraints": yml.Map({
-            yml.Optional("min_weight"): yml.Map({
-                "keypoints": yml.UniqueSeq(_oe_template_schema_region_id),
-                "bound": yml.Int()
-            })
-        })
+        "result": yml.Regex(r"^(first|random|best_mse|best_score)$")
+        # "constraints": yml.Map({
+        #     yml.Optional("min_weight"): yml.Map({
+        #         "keypoints": yml.UniqueSeq(_oe_template_schema_region_id),
+        #         "bound": yml.Int()
+        #     })
+        # })
     }),
     "features": yml.MapPattern(yml.Str(), _oe_template_schema_feature_validator)
 })

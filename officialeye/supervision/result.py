@@ -1,3 +1,4 @@
+import sys
 from typing import Set, Dict
 
 import numpy as np
@@ -31,6 +32,16 @@ class SupervisionResult:
         # by default, the weight is 1
         self._match_weights: Dict[Match, float] = {}
 
+        # an optional value the supervision engine can set, representing how confident the engine is that the result is of high quality
+        self._score = 0.0
+
+    def get_score(self) -> float:
+        return self._score
+
+    def set_score(self, new_score: float, /):
+        assert new_score >= 0
+        self._score = new_score
+
     def get_match_weight(self, match: Match, /) -> float:
         if match in self._match_weights:
             return self._match_weights[match]
@@ -55,9 +66,18 @@ class SupervisionResult:
     def get_keypoint_matching_result(self) -> KeypointMatchingResult:
         return self._kmr
 
-    def get_mse(self, /, *, weighted: bool = True) -> float:
+    def get_weighted_mse(self, /) -> float:
         error = 0.0
+        singificant_match_count = 0
         for match in self._kmr.get_matches():
+
+            match_weight = self.get_match_weight(match)
+
+            if match_weight < sys.float_info.epsilon:
+                continue
+
+            singificant_match_count += 1
+
             s = match.get_original_template_point()
             # calculate prediction
             p = self.template_point_to_target_point(s)
@@ -65,10 +85,6 @@ class SupervisionResult:
             d = match.get_target_point()
             current_error = p - d
             current_error_value = np.dot(current_error, current_error)
+            error += current_error_value * match_weight
 
-            if weighted:
-                error += current_error_value * self.get_match_weight(match)
-            else:
-                error += current_error_value
-
-        return error / self._kmr.get_total_match_count()
+        return error / singificant_match_count

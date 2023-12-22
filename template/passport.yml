@@ -23,13 +23,14 @@ matching:
 supervision:
   # Available engines: orthogonal_regression, least_squares_regression, combinatorial
   engine: combinatorial
-  constraints:
-    # The 'min_weight' constraint enforces the specified keypoints to achieve at least a certain amount of matches
-    min_weight:
-      keypoints:
-        - rf_symbol
-        - photo_security_left
-      bound: 1
+  # The supervision engine may produce multiple results
+  # Using this option, you can speficy how the final result should be chosen
+  # Available choice strategies: first, best_mse, best_score
+  # The `first` strategy simply returns the first result produced
+  # The `random` strategy chooses a random result produced
+  # The `best_mse` strategy finds the result which has the lowest mean squared error when translating template points to target points
+  # The `best_score` strategy returns the result with the highest score (what `score` represents depends on the supervision engine)
+  result: best_score
 features:
   last_name:
     x: 808
