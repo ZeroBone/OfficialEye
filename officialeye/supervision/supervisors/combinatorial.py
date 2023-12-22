@@ -1,3 +1,4 @@
+import random
 from typing import List, Dict
 
 import click
@@ -93,7 +94,14 @@ class CombinatorialSupervisor(Supervisor):
 
         solver.maximize(total_weight - balance_factor * self._transformation_error_bound)
 
-        for anchor_match in self._kmr.get_matches():
+        for keypoint_id in self._kmr.get_keypoint_ids():
+            keypoint_matches = list(self._kmr.matches_for_keypoint(keypoint_id))
+
+            if len(keypoint_matches) == 0:
+                continue
+
+            anchor_match = keypoint_matches[random.randint(0, len(keypoint_matches) - 1)]
+
             delta = anchor_match.get_original_template_point()
             delta_prime = anchor_match.get_target_point()
 
