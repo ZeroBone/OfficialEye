@@ -3,33 +3,14 @@ import click
 OFFICIALEYE_NAME = "OfficialEye"
 OFFICIALEYE_GITHUB = "https://github.com/ZeroBone/OfficialEye"
 OFFICIALEYE_VERSION = "1.0.1"
-OFFICIALEYE_CLI_LOGO = """
- ▒█████    █████▒ █████▒██▓ ▄████▄   ██▓ ▄▄▄       ██▓       ▓█████▓██   ██▓▓█████ 
-▒██▒  ██▒▓██   ▒▓██   ▒▓██▒▒██▀ ▀█  ▓██▒▒████▄    ▓██▒       ▓█   ▀ ▒██  ██▒▓█   ▀ 
-▒██░  ██▒▒████ ░▒████ ░▒██▒▒▓█    ▄ ▒██▒▒██  ▀█▄  ▒██░       ▒███    ▒██ ██░▒███   
-▒██   ██░░▓█▒  ░░▓█▒  ░░██░▒▓▓▄ ▄██▒░██░░██▄▄▄▄██ ▒██░       ▒▓█  ▄  ░ ▐██▓░▒▓█  ▄ 
-░ ████▓▒░░▒█░   ░▒█░   ░██░▒ ▓███▀ ░░██░ ▓█   ▓██▒░██████▒   ░▒████▒ ░ ██▒▓░░▒████▒
-░ ▒░▒░▒░  ▒ ░    ▒ ░   ░▓  ░ ░▒ ▒  ░░▓   ▒▒   ▓▒█░░ ▒░▓  ░   ░░ ▒░ ░  ██▒▒▒ ░░ ▒░ ░
-  ░ ▒ ▒░  ░      ░      ▒ ░  ░  ▒    ▒ ░  ▒   ▒▒ ░░ ░ ▒  ░    ░ ░  ░▓██ ░▒░  ░ ░  ░
-░ ░ ░ ▒   ░ ░    ░ ░    ▒ ░░         ▒ ░  ░   ▒     ░ ░         ░   ▒ ▒ ░░     ░   
-    ░ ░                 ░  ░ ░       ░        ░  ░    ░  ░      ░  ░░ ░        ░  ░
-                           ░                                        ░ ░            
-"""
-OFFICIALEYE_EYE = """
-  ▒████████  
- ▒██▒     ██▒
-▒██░  ██░  ██▒
- ▒██      ██░
-  ░ ████▓▒░
-  ░ ▒░▒░▒░ 
-    ░ ▒ ▒░ 
-  ░ ░ ░ ▒  
-      ░ ░
+OFFICIALEYE_CLI_LOGO = """   ____  _________      _       __   ______         
+  / __ \\/ __/ __(_)____(_)___ _/ /  / ____/_  _____ 
+ / / / / /_/ /_/ / ___/ / __ `/ /  / __/ / / / / _ \\
+/ /_/ / __/ __/ / /__/ / /_/ / /  / /___/ /_/ /  __/
+\\____/_/ /_/ /_/\\___/_/\\__,_/_/  /_____/\\__, /\\___/ 
+                                       /____/                   
 """
 
 
 def print_logo():
-    for logo_line, eye_line in zip(OFFICIALEYE_CLI_LOGO.splitlines(), OFFICIALEYE_EYE.splitlines()):
-        click.secho(logo_line, fg="red", nl=False)
-        click.echo("    ", nl=False)
-        click.secho(eye_line, fg="blue", blink=True)
+    click.secho(OFFICIALEYE_CLI_LOGO, fg="red")
