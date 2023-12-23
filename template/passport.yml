@@ -23,6 +23,10 @@ matching:
 supervision:
   # Available engines: orthogonal_regression, least_squares_regression, combinatorial
   engine: combinatorial
+  # config:
+  #   # Here you can speficy engine-specific configurations
+  #   combinatorial: {}
+
   # The supervision engine may produce multiple results
   # Using this option, you can speficy how the final result should be chosen
   # Available choice strategies: first, best_mse, best_score

@@ -10,9 +10,9 @@ from officialeye.region.keypoint import TemplateKeypoint
 FLANN_INDEX_KDTREE = 1
 
 
-class FlannKeypointMatcher(KeypointMatcher):
+class SiftFlannKeypointMatcher(KeypointMatcher):
 
-    ENGINE_ID = "flann"
+    ENGINE_ID = "sift_flann"
 
     def __init__(self, template_id: str, img: cv2.Mat, /):
         super().__init__(template_id, img)

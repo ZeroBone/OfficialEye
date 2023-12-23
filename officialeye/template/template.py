@@ -13,7 +13,7 @@ from officialeye.supervision.supervisors.least_squares_regression import LeastSq
 from officialeye.supervision.supervisors.orthogonal_regression import OrthogonalRegressionSupervisor
 from officialeye.supervision.visualizer import SupervisionResultVisualizer
 from officialeye.match.matcher import KeypointMatcher
-from officialeye.match.matchers.flann import FlannKeypointMatcher
+from officialeye.match.matchers.sift_flann import SiftFlannKeypointMatcher
 from officialeye.region.feature import TemplateFeature
 from officialeye.region.keypoint import TemplateKeypoint
 from officialeye.utils.cli_utils import export_and_show_image, print_error
@@ -64,8 +64,8 @@ class Template:
     def load_keypoint_matcher(self, target_img: cv2.Mat, **kwargs) -> KeypointMatcher:
         matching_engine = self.get_matching_engine()
 
-        if matching_engine == FlannKeypointMatcher.ENGINE_ID:
-            return FlannKeypointMatcher(self.template_id, target_img)
+        if matching_engine == SiftFlannKeypointMatcher.ENGINE_ID:
+            return SiftFlannKeypointMatcher(self.template_id, target_img)
 
         print_error("while loading keypoint matcher", f"unknown matching engine '{matching_engine}'")
         exit(5)
