@@ -5,6 +5,7 @@ import cv2
 from officialeye.context.singleton import oe_context
 from officialeye.meta import OFFICIALEYE_GITHUB, OFFICIALEYE_VERSION, print_logo
 from officialeye.template.parser import load_template
+from officialeye.utils.logger import oe_info, oe_warn
 
 
 @click.group()
@@ -24,13 +25,14 @@ def cli(debug: bool, dedir: str, edir: str, quiet: bool, verbose: bool, disable_
     if not quiet and not disable_logo:
         print_logo()
 
-    if oe_context().debug_mode and not oe_context().quiet_mode:
-        click.secho("Warning: Debug mode enabled. Disable for production use to avoid performance issues.",
-                    bg="yellow", bold=True)
     if dedir is not None:
         oe_context().debug_export_directory = dedir
+
     if edir is not None:
         oe_context().export_directory = edir
+
+    if oe_context().debug_mode:
+        oe_warn("Debug mode enabled. Disable for production use to avoid performance issues.")
 
 
 @click.command()
@@ -62,16 +64,15 @@ def analyze(target_path: str, template_paths: str):
 @click.command()
 def homepage():
     """Go to the officialeye's official GitHub homepage."""
-    if not oe_context().quiet_mode:
-        click.secho(f"Opening {OFFICIALEYE_GITHUB}", bg="blue", fg="white")
+    oe_info(f"Opening {OFFICIALEYE_GITHUB}")
     click.launch(OFFICIALEYE_GITHUB)
     oe_context().dispose()
 
 
 @click.command()
 def version():
-    """Go to the officialeye's official GitHub homepage."""
-    click.echo(f"Version: v{OFFICIALEYE_VERSION}")
+    """Print the version of OfficialEye."""
+    oe_info(f"Version: v{OFFICIALEYE_VERSION}")
     oe_context().dispose()
 
 

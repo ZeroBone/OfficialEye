@@ -1,16 +1,15 @@
 import random
 from typing import List, Dict
 
-import click
 import numpy as np
 # noinspection PyPackageRequirements
 import z3
 
-from officialeye.context.singleton import oe_context
 from officialeye.match.match import Match
 from officialeye.match.result import KeypointMatchingResult
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor import Supervisor
+from officialeye.utils.logger import oe_warn, oe_debug
 
 
 class CombinatorialSupervisor(Supervisor):
@@ -119,14 +118,12 @@ class CombinatorialSupervisor(Supervisor):
 
             result = solver.check()
             if result == z3.unsat:
-                if self.in_debug_mode() and not oe_context().quiet_mode:
-                    click.secho("Warning! Z3 returned unsat.", fg="red")
+                oe_warn("Could not satisfy imposed constraints.")
                 solver.pop()
                 continue
 
             if result == z3.unknown:
-                if self.in_debug_mode() and not oe_context().quiet_mode:
-                    click.secho("Warning! Z3 returned unknown.", fg="red")
+                oe_warn("Could not evaluate imposed constraints.")
                 solver.pop()
                 continue
 
@@ -152,11 +149,10 @@ class CombinatorialSupervisor(Supervisor):
                 match_weight = model_evaluator(self._match_weight[match])
                 _result.set_match_weight(match, match_weight)
 
-            if self.in_debug_mode() and not oe_context().quiet_mode:
-                click.secho(f"Error: {_result.get_weighted_mse()} "
-                            f"Total weight: {model_total_weight} "
-                            f"Score: {model_score} "
-                            f"Maximum transformation error: {model_transformation_error_bound}", fg="yellow")
+            oe_debug(f"Error: {_result.get_weighted_mse()} "
+                     f"Total weight: {model_total_weight} "
+                     f"Score: {model_score} "
+                     f"Maximum transformation error: {model_transformation_error_bound}", fg="yellow")
 
             _results.append(_result)
 

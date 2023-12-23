@@ -1,16 +1,14 @@
 from typing import Dict, List
 
-import click
 import numpy as np
 # noinspection PyPackageRequirements
 import z3
 
-from officialeye.context.singleton import oe_context
 from officialeye.match.match import Match
 from officialeye.match.result import KeypointMatchingResult
-
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor import Supervisor
+from officialeye.utils.logger import oe_debug
 
 
 class OrthogonalRegressionSupervisor(Supervisor):
@@ -84,13 +82,11 @@ class OrthogonalRegressionSupervisor(Supervisor):
             _result = solver.check()
 
             if _result == z3.unsat:
-                if self.in_debug_mode() and not oe_context().quiet_mode:
-                    click.secho("Warning! Z3 returned unsat.", fg="red")
+                oe_debug("Z3 returned unsat.")
                 return []
 
             if _result == z3.unknown:
-                if self.in_debug_mode() and not oe_context().quiet_mode:
-                    click.secho("Warning! Z3 returned unknown.", fg="red")
+                oe_debug("Z3 returned unknown.")
                 return []
 
             assert _result == z3.sat
@@ -104,8 +100,7 @@ class OrthogonalRegressionSupervisor(Supervisor):
 
             _result = SupervisionResult(self.template_id, self._kmr, delta, delta_prime, transformation_matrix)
 
-            if self.in_debug_mode() and not oe_context().quiet_mode:
-                click.secho(f"Error: {_result.get_weighted_mse()}", fg="yellow")
+            oe_debug(f"Error: {_result.get_weighted_mse()}")
 
             _results.append(_result)
 

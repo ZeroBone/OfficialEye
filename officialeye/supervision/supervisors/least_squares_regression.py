@@ -1,12 +1,10 @@
 from typing import List
 
-import click
 import numpy as np
 
-from officialeye.context.singleton import oe_context
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor import Supervisor
-
+from officialeye.utils.logger import oe_debug
 
 _IND_A = 0
 _IND_B = 1
@@ -57,8 +55,7 @@ class LeastSquaresRegressionSupervisor(Supervisor):
 
             _result = SupervisionResult(self.template_id, self._kmr, delta, delta_prime, transformation_matrix)
 
-            if self.in_debug_mode() and not oe_context().quiet_mode:
-                click.secho(f"Current MSE: {_result.get_weighted_mse()}", fg="yellow")
+            oe_debug(f"Current MSE: {_result.get_weighted_mse()}", fg="yellow")
 
             _results.append(_result)
 

@@ -4,7 +4,6 @@ from abc import ABC
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.debug.container import DebugContainer
 from officialeye.debug.debuggable import Debuggable
 from officialeye.match.result import KeypointMatchingResult
 from officialeye.region.keypoint import TemplateKeypoint

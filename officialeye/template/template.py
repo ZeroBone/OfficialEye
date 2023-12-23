@@ -7,15 +7,15 @@ import numpy as np
 
 from officialeye.context.singleton import oe_context
 from officialeye.debug.container import DebugContainer
+from officialeye.match.matcher import KeypointMatcher
+from officialeye.match.matchers.sift_flann import SiftFlannKeypointMatcher
 from officialeye.match.result import KeypointMatchingResult
+from officialeye.region.feature import TemplateFeature
+from officialeye.region.keypoint import TemplateKeypoint
 from officialeye.supervision.supervisors.combinatorial import CombinatorialSupervisor
 from officialeye.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor
 from officialeye.supervision.supervisors.orthogonal_regression import OrthogonalRegressionSupervisor
 from officialeye.supervision.visualizer import SupervisionResultVisualizer
-from officialeye.match.matcher import KeypointMatcher
-from officialeye.match.matchers.sift_flann import SiftFlannKeypointMatcher
-from officialeye.region.feature import TemplateFeature
-from officialeye.region.keypoint import TemplateKeypoint
 from officialeye.utils.cli_utils import export_and_show_image, print_error
 
 

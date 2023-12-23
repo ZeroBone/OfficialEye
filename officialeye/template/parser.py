@@ -1,8 +1,7 @@
-import click
 import strictyaml as yml
 
-from officialeye.context.singleton import oe_context
 from officialeye.template.template import Template
+from officialeye.utils.logger import oe_error, oe_info
 
 _oe_template_schema_keypoint_validator = yml.Map({
     "x": yml.Int(),
@@ -45,12 +44,12 @@ _oe_template_schema = yml.Map({
 
 def _print_error_message(err: yml.StrictYAMLError, template_path: str):
 
-    click.secho("Error ", bold=True, nl=False, err=True)
+    oe_error("Error ", bold=True, nl=False)
 
     if err.context is not None:
-        click.echo(err.context, err=True)
+        oe_error(err.context, prefix=False)
     else:
-        click.echo("while parsing", err=True)
+        oe_error("while parsing", prefix=False)
 
     if err.context_mark is not None and (
             err.problem is None
@@ -59,14 +58,14 @@ def _print_error_message(err: yml.StrictYAMLError, template_path: str):
             or err.context_mark.line != err.problem_mark.line
             or err.context_mark.column != err.problem_mark.column
     ):
-        click.echo(str(err.context_mark).replace("<unicode string>", template_path), err=True)
+        oe_error(str(err.context_mark).replace("<unicode string>", template_path), prefix=False)
 
     if err.problem is not None:
-        click.secho("Problem", bold=True, nl=False, err=True)
-        click.echo(f": {err.problem}")
+        oe_error("Problem", prefix=False, bold=True, nl=False)
+        oe_error(f": {err.problem}", prefix=False)
 
     if err.problem_mark is not None:
-        click.echo(str(err.problem_mark).replace("<unicode string>", template_path), err=True)
+        oe_error(str(err.problem_mark).replace("<unicode string>", template_path), prefix=False)
 
 
 def load_template(path: str) -> Template:
@@ -78,7 +77,6 @@ def load_template(path: str) -> Template:
     try:
         yaml_document = yml.load(raw_data, schema=_oe_template_schema)
     except yml.StrictYAMLError as err:
-        # click.echo(click.style('ATTENTION', blink=True, bold=True), err=True)
         _print_error_message(err, path)
         exit(4)
 
@@ -86,7 +84,7 @@ def load_template(path: str) -> Template:
 
     template = Template(data, path)
 
-    if not oe_context().quiet_mode:
-        click.secho(f"Loaded template: {template}", fg="green", bold=True)
+    oe_info(f"Loaded template: ", nl=False)
+    oe_info(str(template), prefix=False, bold=True)
 
     return template

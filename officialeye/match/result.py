@@ -1,9 +1,7 @@
 from typing import List, Dict
 
-import click
-
-from officialeye.context.singleton import oe_context
 from officialeye.match.match import Match
+from officialeye.utils.logger import oe_debug, oe_debug_verbose
 
 
 class KeypointMatchingResult:
@@ -38,12 +36,9 @@ class KeypointMatchingResult:
             yield match
 
     def debug_print(self):
-        if oe_context().quiet_mode:
-            return
-        click.secho(f"Found {self.get_total_match_count()} matched points!", fg="yellow")
+        oe_debug(f"Found {self.get_total_match_count()} matched points!", fg="yellow")
 
-        if oe_context().verbose_mode:
-            click.secho(f"Listing matched points:", fg="yellow")
-            for match in self.get_matches():
-                click.secho(f"> {match}", fg="yellow")
+        oe_debug_verbose(f"Listing matched points:", fg="yellow")
+        for match in self.get_matches():
+            oe_debug_verbose(f"> {match}", fg="yellow")
 

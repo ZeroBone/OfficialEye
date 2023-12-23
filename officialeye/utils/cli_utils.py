@@ -3,13 +3,13 @@ import click
 import cv2
 
 from officialeye.context.singleton import oe_context
+from officialeye.utils.logger import oe_error, oe_info
 
 
 def export_image(img: cv2.Mat, /, *, debug: bool = False, file_name: str = "") -> str:
     export_file_path = oe_context().allocate_file_for_export(debug=debug, file_name=file_name)
     cv2.imwrite(export_file_path, img)
-    if not oe_context().quiet_mode:
-        click.secho(f"Success. Exported '{export_file_path}'.", bg="yellow" if debug else "green", bold=True)
+    oe_info(f"Exported '{export_file_path}'.", bg="yellow" if debug else "green", bold=True)
     return export_file_path
 
 
@@ -20,7 +20,7 @@ def export_and_show_image(img: cv2.Mat, /, *, debug: bool = False, file_name: st
 
 
 def print_error(error: str, problem: str):
-    click.secho("Error ", bold=True, nl=False, err=True)
-    click.echo(error, err=True)
-    click.secho("Problem", bold=True, nl=False, err=True)
-    click.echo(f": {problem}")
+    oe_error("Error ", bold=True, nl=False)
+    oe_error(error, prefix=False)
+    oe_error("Problem", bold=True, nl=False)
+    oe_error(f": {problem}", prefix=False)
