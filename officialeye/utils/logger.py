@@ -27,7 +27,7 @@ def oe_debug(msg, *args, prefix: bool = True, **kwargs):
     if oe_context().quiet_mode:
         return
     if prefix:
-        click.secho("DEBUG", bold=True, bg="gray", nl=False)
+        click.secho("DEBUG", bold=True, bg="yellow", nl=False)
         click.echo(" ", nl=False)
     click.secho(msg, *args, **kwargs)
 
@@ -40,7 +40,7 @@ def oe_debug_verbose(msg, *args, prefix: bool = True, **kwargs):
     if not oe_context().verbose_mode:
         return
     if prefix:
-        click.secho("DEBUG", bold=True, bg="gray", nl=False)
+        click.secho("DEBUG", bold=True, bg="yellow", nl=False)
         click.echo(" ", nl=False)
     click.secho(msg, *args, **kwargs)
 

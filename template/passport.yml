@@ -19,7 +19,7 @@ keypoints:
     w: 100
     h: 580
 matching:
-  engine: flann
+  engine: sift_flann
 supervision:
   # Available engines: orthogonal_regression, least_squares_regression, combinatorial
   engine: combinatorial
