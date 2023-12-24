@@ -13,7 +13,7 @@ def export_image(img: cv2.Mat, /, *, file_name: str = "") -> str:
     return export_file_path
 
 
-def export_and_show_image(img: cv2.Mat, /, *, debug: bool = False, file_name: str = ""):
+def export_and_show_image(img: cv2.Mat, /, *, file_name: str = ""):
     path = export_image(img, file_name=file_name)
     click.launch(path, locate=False)
     click.pause()
