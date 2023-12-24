@@ -32,4 +32,4 @@ class DebugContainer:
 
         for image_id, image in enumerate(self._images):
             export_filename = image.get_export_filename(image_id)
-            export_image(image.img, debug=True, file_name=export_filename)
+            export_image(image.img, file_name=export_filename)

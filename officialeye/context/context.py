@@ -68,9 +68,9 @@ class Context:
 
         return os.path.join(self.get_debug_export_directory(), file_name)
 
-    def allocate_file_for_export(self, /, *, file_name: str = "", debug: bool = False) -> str:
+    def allocate_file_for_export(self, /, *, file_name: str = "") -> str:
 
-        if debug:
+        if self.debug_mode:
             return self._allocate_file_for_debug_export(file_name=file_name)
 
         if self.export_directory is None:
