@@ -1,5 +1,6 @@
 # OfficialEye
 *.png
+*.jpg
 build
 dist
 
