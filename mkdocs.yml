@@ -1,5 +1,8 @@
 site_name: OfficialEye
 site_url: https://officialeye.zerobone.net/
+site_author: Alexander Mayorov
+repo_name: ZeroBone/OfficialEye
+repo_url: https://github.com/ZeroBone/OfficialEye
 theme:
   name: material
   features:
@@ -14,26 +17,36 @@ theme:
     - content.code.copy
   language: en
   palette:
-    - scheme: default
+    - media: "(prefers-color-scheme)"
       toggle:
-        icon: material/toggle-switch-off-outline
-        name: Switch to dark mode
-      primary: teal
-      accent: purple
-    - scheme: slate
+        icon: material/link
+        name: Switch to light mode
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
       toggle:
         icon: material/toggle-switch
-        name: Switch to light mode
-      primary: teal
-      accent: lime
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/toggle-switch-off
+        name: Switch to system preference
+  font:
+    text: Roboto
+    code: Roboto Mono
 
 plugins:
   - social
 
 extra:
   social:
-    - icon: fontawesome/brands/github-alt
+    - icon: fontawesome/brands/github
       link: https://github.com/ZeroBone/OfficialEye
+  generator: false
 
 markdown_extensions:
   - pymdownx.highlight:
@@ -51,6 +64,9 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
+
+nav:
+  - Home: index.md
 
 copyright: |
   Copyright &copy; 2023 <a href="https://github.com/ZeroBone" target="_blank" rel="noopener">Alexander Mayorov</a>
