@@ -6,7 +6,6 @@ import cv2
 import numpy as np
 
 from officialeye.context.singleton import oe_context
-from officialeye.debug.container import DebugContainer
 from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.matchers.sift_flann import SiftFlannKeypointMatcher
 from officialeye.match.result import KeypointMatchingResult
@@ -65,7 +64,7 @@ class Template:
     def get_supervision_config(self) -> dict:
         return self._supervision["config"]
 
-    def load_keypoint_matcher(self, target_img: cv2.Mat, **kwargs) -> KeypointMatcher:
+    def load_keypoint_matcher(self, target_img: cv2.Mat, /) -> KeypointMatcher:
         matching_engine = self.get_matching_engine()
 
         if matching_engine == SiftFlannKeypointMatcher.ENGINE_ID:
@@ -130,7 +129,7 @@ class Template:
     def analyze(self, target, /):
         # find all patterns in the target image
 
-        matcher = self.load_keypoint_matcher(target, debug=DebugContainer() if oe_context().debug_mode else None)
+        matcher = self.load_keypoint_matcher(target)
 
         for i, kp in enumerate(self.keypoints()):
             matcher.match_keypoint(kp)
