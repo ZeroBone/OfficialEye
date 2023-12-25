@@ -78,7 +78,7 @@ markdown_extensions:
 
 nav:
   - Home: index.md
-  - Tutorial: tutorial.md
+  - "Getting Started": getting-started.md
   - Documentation: documentation.md
   - API: api.md
 
