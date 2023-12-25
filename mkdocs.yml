@@ -1,22 +1,31 @@
 site_name: OfficialEye
 site_url: https://officialeye.zerobone.net/
 site_author: Alexander Mayorov
+docs_dir: docs
 repo_name: ZeroBone/OfficialEye
 repo_url: https://github.com/ZeroBone/OfficialEye
 theme:
   name: material
   features:
+    - content.action.edit
+    - content.code.annotate
+    - content.code.copy
+    - content.tabs.link
     - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.tracking
     - navigation.sections
-    - toc.integrate
     - navigation.top
+    - navigation.path
+    - search.share
     - search.suggest
     - search.highlight
-    - content.tabs.link
-    - content.code.annotation
-    - content.code.copy
+    - content.tooltips
+    - toc.follow
+    - navigation.instant
+    - navigation.instant.prefetch
   language: en
-  palette:
+  palette_old:
     - media: "(prefers-color-scheme)"
       toggle:
         icon: material/link
@@ -35,12 +44,34 @@ theme:
       toggle:
         icon: material/toggle-switch-off
         name: Switch to system preference
+  palette:
+    # Dark mode
+    - scheme: slate
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: material/lightbulb
+        name: Switch to light mode
+    # Light mode
+    - scheme: default
+      primary: indigo
+      accent: teal
+      toggle:
+        icon: fontawesome/solid/moon
+        name: Switch to dark mode
   font:
     text: Roboto
     code: Roboto Mono
 
 plugins:
   - social
+  - search:
+      separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - minify:
+      enabled: !ENV [CI, false]
+      minify_html: true
+  - privacy:
+      enabled: !ENV [CI, false]
 
 extra:
   social:

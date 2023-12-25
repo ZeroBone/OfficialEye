@@ -5,5 +5,5 @@ click~=8.1.7
 strictyaml~=1.7.3
 z3-solver
 mkdocs-material
-pillow
-cairosvg
+mkdocs-material[imaging]
+mkdocs-minify-plugin
