@@ -20,6 +20,7 @@ from officialeye.utils.cli_utils import export_and_show_image, print_error
 
 
 class Template:
+
     def __init__(self, yaml_dict: dict, path_to_template: str, /):
         self._path_to_template = path_to_template
         self.template_id = yaml_dict["id"]
@@ -126,10 +127,10 @@ class Template:
         print_error("while loading supervisor", f"unknown supervision engine '{superivision_engine}'")
         exit(6)
 
-    def analyze(self, target, /, *, debug_mode: bool = False):
+    def analyze(self, target, /):
         # find all patterns in the target image
 
-        matcher = self.load_keypoint_matcher(target, debug=DebugContainer() if debug_mode else None)
+        matcher = self.load_keypoint_matcher(target, debug=DebugContainer() if oe_context().debug_mode else None)
 
         for i, kp in enumerate(self.keypoints()):
             matcher.match_keypoint(kp)
@@ -148,7 +149,7 @@ class Template:
             print_error("while running supervisor", f"could not establish correspondence of the image with the template")
             exit(7)
 
-        if debug_mode:
+        if oe_context().debug_mode:
             supervision_result_visualizer = SupervisionResultVisualizer(supervision, target)
             visualization = supervision_result_visualizer.render()
             supervisor.debug().add_image(visualization)

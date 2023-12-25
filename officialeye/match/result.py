@@ -36,9 +36,9 @@ class KeypointMatchingResult:
             yield match
 
     def debug_print(self):
-        oe_debug(f"Found {self.get_total_match_count()} matched points!", fg="yellow")
+        oe_debug(f"Found {self.get_total_match_count()} matched points!")
 
-        oe_debug_verbose(f"Listing matched points:", fg="yellow")
+        oe_debug_verbose(f"Listing matched points:")
         for match in self.get_matches():
-            oe_debug_verbose(f"> {match}", fg="yellow")
+            oe_debug_verbose(f"> {match}")
 

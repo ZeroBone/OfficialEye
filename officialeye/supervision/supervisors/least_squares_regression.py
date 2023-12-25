@@ -60,7 +60,7 @@ class LeastSquaresRegressionSupervisor(Supervisor):
 
             _result = SupervisionResult(self.template_id, self._kmr, delta, delta_prime, transformation_matrix)
 
-            oe_debug(f"Current MSE: {_result.get_weighted_mse()}", fg="yellow")
+            oe_debug(f"Current MSE: {_result.get_weighted_mse()}")
 
             _results.append(_result)
 

@@ -28,6 +28,7 @@ supervision:
     combinatorial:
       min_match_factor: 0.1
       max_transformation_error: 20
+      balance_factor: 10
 
   # The supervision engine may produce multiple results
   # Using this option, you can speficy how the final result should be chosen

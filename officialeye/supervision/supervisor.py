@@ -71,7 +71,7 @@ class Supervisor(ABC, Debuggable):
                 best_result_mse = result_mse
                 best_result = result
 
-        oe_debug(f"Best result has MSE {best_result_mse}", fg="yellow")
+        oe_debug(f"Best result has MSE {best_result_mse}")
 
         return best_result
 

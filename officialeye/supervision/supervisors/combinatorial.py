@@ -103,8 +103,10 @@ class CombinatorialSupervisor(Supervisor):
 
         # for every pixel of error, this amount of weight will get subtracted
         # in other words, how much weight does erroring by one pixel correspond to?
-        # TODO: make this configurable
-        balance_factor = 10
+        balance_factor = self.get_config()["balance_factor"]
+
+        assert balance_factor >= 0
+        assert balance_factor <= 4000000000
 
         solver.maximize(total_weight - balance_factor * self._transformation_error_bound)
 
@@ -164,7 +166,7 @@ class CombinatorialSupervisor(Supervisor):
             oe_debug(f"Error: {_result.get_weighted_mse()} "
                      f"Total weight: {model_total_weight} "
                      f"Score: {model_score} "
-                     f"Maximum transformation error: {model_transformation_error_bound}", fg="yellow")
+                     f"Maximum transformation error: {model_transformation_error_bound}")
 
             _results.append(_result)
 

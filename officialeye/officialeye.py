@@ -32,7 +32,7 @@ def cli(debug: bool, dedir: str, edir: str, quiet: bool, verbose: bool, disable_
         oe_context().export_directory = edir
 
     if oe_context().debug_mode:
-        oe_warn("Debug mode enabled. Disable for production use to avoid performance issues.")
+        oe_warn("Debug mode enabled. Disable for production use to improve performance.")
 
 
 @click.command()
@@ -56,7 +56,7 @@ def analyze(target_path: str, template_paths: str):
     # apply the templates to the image
     for template_path in template_paths:
         template = load_template(template_path)
-        template.analyze(target, debug_mode=oe_context().debug_mode)
+        template.analyze(target)
 
     oe_context().dispose()
 

@@ -33,7 +33,8 @@ _oe_template_schema = yml.Map({
         "config": yml.Map({
             yml.Optional("combinatorial"): yml.Map({
                 "min_match_factor": yml.Float(),
-                "max_transformation_error": yml.Int()
+                "max_transformation_error": yml.Int(),
+                "balance_factor": yml.Int()
             })
         }),
         "result": yml.Regex(r"^(first|random|best_mse|best_score)$")
