@@ -16,7 +16,9 @@ class OrthogonalRegressionSupervisor(Supervisor):
     ENGINE_ID = "orthogonal_regression"
 
     def __init__(self, template_id: str, kmr: KeypointMatchingResult, /):
-        super().__init__(template_id, kmr)
+        super().__init__(OrthogonalRegressionSupervisor.ENGINE_ID, template_id, kmr)
+
+        self._set_default_config({})
 
         # create variables for components of the translation matrix
         self._transformation_matrix = np.array([

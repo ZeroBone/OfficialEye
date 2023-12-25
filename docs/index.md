@@ -15,3 +15,19 @@ For full documentation visit [mkdocs.org](https://www.mkdocs.org).
     docs/
         index.md  # The documentation homepage.
         ...       # Other markdown pages, images and other files.
+
+## Code example
+
+```python
+def main():
+    pass
+
+if __name__ == "__main__":
+    main()
+```
+
+Some **bold** text.
+
+A quote by Stephen Kleene:
+
+> An algorithm is a finite answer to infinitely many questions

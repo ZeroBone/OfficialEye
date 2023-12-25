@@ -30,13 +30,13 @@ _oe_template_schema = yml.Map({
     }),
     "supervision": yml.Map({
         "engine": yml.Regex(r"^[a-zA-Z0-9_]{1,32}$"),
+        "config": yml.Map({
+            yml.Optional("combinatorial"): yml.Map({
+                "min_match_factor": yml.Float(),
+                "max_transformation_error": yml.Int()
+            })
+        }),
         "result": yml.Regex(r"^(first|random|best_mse|best_score)$")
-        # "constraints": yml.Map({
-        #     yml.Optional("min_weight"): yml.Map({
-        #         "keypoints": yml.UniqueSeq(_oe_template_schema_region_id),
-        #         "bound": yml.Int()
-        #     })
-        # })
     }),
     "features": yml.MapPattern(yml.Str(), _oe_template_schema_feature_validator)
 })
@@ -58,14 +58,14 @@ def _print_error_message(err: yml.StrictYAMLError, template_path: str):
             or err.context_mark.line != err.problem_mark.line
             or err.context_mark.column != err.problem_mark.column
     ):
-        oe_error(str(err.context_mark).replace("<unicode string>", template_path), prefix=False)
+        oe_error(str(err.context_mark).replace("<unicode string>", template_path))
 
     if err.problem is not None:
-        oe_error("Problem", prefix=False, bold=True, nl=False)
+        oe_error("Problem", bold=True, nl=False)
         oe_error(f": {err.problem}", prefix=False)
 
     if err.problem_mark is not None:
-        oe_error(str(err.problem_mark).replace("<unicode string>", template_path), prefix=False)
+        oe_error(str(err.problem_mark).replace("<unicode string>", template_path))
 
 
 def load_template(path: str) -> Template:

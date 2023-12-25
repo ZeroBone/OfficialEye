@@ -48,7 +48,8 @@ def oe_debug_verbose(msg, *args, prefix: bool = True, **kwargs):
 def oe_error(msg, *args, prefix: bool = True, **kwargs):
     if oe_context().quiet_mode:
         return
-    if prefix:
-        click.secho("ERROR", bold=True, bg="red", nl=False, err=True)
-        click.echo(" ", nl=False, err=True)
-    click.secho(msg, *args, **kwargs, err=True)
+    for line in msg.splitlines():
+        if prefix:
+            click.secho("ERROR", bold=True, bg="red", nl=False, err=True)
+            click.echo(" ", nl=False, err=True)
+        click.secho(line, *args, **kwargs, err=True)

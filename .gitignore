@@ -3,6 +3,8 @@
 *.jpg
 build
 dist
+.cache
+site
 
 # IDE
 .idea

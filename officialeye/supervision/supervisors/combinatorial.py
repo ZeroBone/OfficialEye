@@ -17,7 +17,12 @@ class CombinatorialSupervisor(Supervisor):
     ENGINE_ID = "combinatorial"
 
     def __init__(self, template_id: str, kmr: KeypointMatchingResult, /):
-        super().__init__(template_id, kmr)
+        super().__init__(CombinatorialSupervisor.ENGINE_ID, template_id, kmr)
+
+        self._set_default_config({
+            "min_match_factor": 0.1,
+            "max_transformation_error": 20
+        })
 
         # create variables for components of the translation matrix
         self._transformation_matrix = np.array([
@@ -34,10 +39,17 @@ class CombinatorialSupervisor(Supervisor):
         for match in self._kmr.get_matches():
             self._match_weight[match] = z3.Real(f"w_{match.get_debug_identifier()}")
 
-        # TODO: make the 0.1 coeff configurable
-        self._minimum_weight_to_enforce = self._kmr.get_total_match_count() * 0.1
-        # TODO: make this configurable
-        self._max_transformation_error = 20
+        oe_debug(f"Min match factor: {self.get_config()['min_match_factor']}")
+
+        assert self.get_config()['min_match_factor'] <= 1.0
+        assert self.get_config()['min_match_factor'] >= 0.0
+
+        self._minimum_weight_to_enforce = self._kmr.get_total_match_count() * self.get_config()["min_match_factor"]
+
+        assert self.get_config()["max_transformation_error"] >= 0
+        assert self.get_config()["max_transformation_error"] <= 5000
+
+        self._max_transformation_error = self.get_config()["max_transformation_error"]
 
     def _get_consistency_check(self, match: Match, delta: np.ndarray, delta_prime: np.ndarray, transformation_error_max: int, /) -> z3.AstRef:
         """

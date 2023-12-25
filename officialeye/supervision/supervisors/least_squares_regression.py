@@ -2,6 +2,7 @@ from typing import List
 
 import numpy as np
 
+from officialeye.match.result import KeypointMatchingResult
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor import Supervisor
 from officialeye.utils.logger import oe_debug
@@ -15,6 +16,10 @@ _IND_D = 3
 class LeastSquaresRegressionSupervisor(Supervisor):
 
     ENGINE_ID = "least_squares_regression"
+
+    def __init__(self, template_id: str, kmr: KeypointMatchingResult, /):
+        super().__init__(LeastSquaresRegressionSupervisor.ENGINE_ID, template_id, kmr)
+        self._set_default_config({})
 
     def _run(self) -> List[SupervisionResult]:
         match_count = self._kmr.get_total_match_count()
