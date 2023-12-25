@@ -25,25 +25,6 @@ theme:
     - navigation.instant
     - navigation.instant.prefetch
   language: en
-  palette_old:
-    - media: "(prefers-color-scheme)"
-      toggle:
-        icon: material/link
-        name: Switch to light mode
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/toggle-switch
-        name: Switch to dark mode
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: black
-      accent: indigo
-      toggle:
-        icon: material/toggle-switch-off
-        name: Switch to system preference
   palette:
     # Dark mode
     - scheme: slate
@@ -68,7 +49,6 @@ plugins:
   - search:
       separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
   - minify:
-      enabled: !ENV [CI, false]
       minify_html: true
   - privacy:
       enabled: !ENV [CI, false]
@@ -98,6 +78,9 @@ markdown_extensions:
 
 nav:
   - Home: index.md
+  - Tutorial: tutorial.md
+  - Documentation: documentation.md
+  - API: api.md
 
 copyright: |
   Copyright &copy; 2023 <a href="https://github.com/ZeroBone" target="_blank" rel="noopener">Alexander Mayorov</a>
