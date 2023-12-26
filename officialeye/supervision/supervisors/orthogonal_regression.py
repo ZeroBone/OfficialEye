@@ -75,7 +75,7 @@ class OrthogonalRegressionSupervisor(Supervisor):
 
             solver = z3.Optimize(ctx=self._z3_context)
             # TODO: make the timeout configurable
-            solver.set("timeout", 30000)
+            solver.set("timeout", 2500)
 
             solver.add(error_lower_bounds)
 

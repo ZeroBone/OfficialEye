@@ -97,7 +97,7 @@ class CombinatorialSupervisor(Supervisor):
 
         solver = z3.Optimize(ctx=self._z3_context)
         # TODO: make the timeout configurable
-        solver.set("timeout", 30000)
+        solver.set("timeout", 2500)
 
         solver.add(weights_lower_bounds)
         solver.add(weights_upper_bounds)
