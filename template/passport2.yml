@@ -1,0 +1,96 @@
+version: "v1.0.0"
+id: "passport2"
+name: "Passport 2"
+source: "../template_sources/passport2.png"
+keypoints:
+  rf_symbol:
+    x: 1600
+    y: 50
+    w: 170
+    h: 170
+  photo_security_top:
+    x: 100
+    y: 180
+    w: 570
+    h: 100
+  photo_security_left:
+    x: 100
+    y: 180
+    w: 100
+    h: 580
+matching:
+  engine: sift_flann
+supervision:
+  # Available engines: orthogonal_regression, least_squares_regression, combinatorial
+  engine: combinatorial
+  config:
+    # Here you can speficy engine-specific configurations
+    combinatorial:
+      min_match_factor: 0.1
+      max_transformation_error: 20
+      balance_factor: 10
+
+  # The supervision engine may produce multiple results
+  # Using this option, you can speficy how the final result should be chosen
+  # Available choice strategies: first, best_mse, best_score
+  # The `first` strategy simply returns the first result produced
+  # The `random` strategy chooses a random result produced
+  # The `best_mse` strategy finds the result which has the lowest mean squared error when translating template points to target points
+  # The `best_score` strategy returns the result with the highest score (what `score` represents depends on the supervision engine)
+  result: best_score
+features:
+  last_name:
+    x: 808
+    y: 140
+    w: 800
+    h: 200
+  first_name:
+    x: 808
+    y: 340
+    w: 800
+    h: 90
+  father_name:
+    x: 808
+    y: 420
+    w: 800
+    h: 90
+  sex:
+    x: 737
+    y: 519
+    w: 213
+    h: 86
+  birthday:
+    x: 1120
+    y: 520
+    w: 620
+    h: 87
+  place_of_birth:
+    x: 827
+    y: 600
+    w: 878
+    h: 327
+  mrz:
+    x: 111
+    y: 930
+    w: 1713
+    h: 260
+  face:
+    x: 180
+    y: 280
+    w: 475
+    h: 600
+  id_1:
+    x: 1730
+    y: 256
+    w: 120
+    h: 132
+  id_2:
+    x: 1730
+    y: 420
+    w: 120
+    h: 132
+  id_3:
+    x: 1730
+    y: 580
+    w: 120
+    h: 300

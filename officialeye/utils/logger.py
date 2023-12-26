@@ -10,6 +10,7 @@ def oe_info(msg, *args, prefix: bool = True, **kwargs):
         click.secho("INFO", bold=True, bg="blue", nl=False)
         click.echo("  ", nl=False)
     click.secho(msg, *args, **kwargs)
+    # sys.stdout.flush()
 
 
 def oe_warn(msg, *args, prefix: bool = True, **kwargs):
@@ -19,6 +20,7 @@ def oe_warn(msg, *args, prefix: bool = True, **kwargs):
         click.secho("WARN", bold=True, bg="yellow", nl=False)
         click.echo("  ", nl=False)
     click.secho(msg, *args, **kwargs)
+    # sys.stdout.flush()
 
 
 def oe_debug(msg, *args, prefix: bool = True, **kwargs):
@@ -30,6 +32,7 @@ def oe_debug(msg, *args, prefix: bool = True, **kwargs):
         click.secho("DEBUG", bold=True, bg="yellow", nl=False)
         click.echo(" ", nl=False)
     click.secho(msg, *args, **kwargs)
+    # sys.stdout.flush()
 
 
 def oe_debug_verbose(msg, *args, prefix: bool = True, **kwargs):
@@ -43,6 +46,7 @@ def oe_debug_verbose(msg, *args, prefix: bool = True, **kwargs):
         click.secho("DEBUG", bold=True, bg="yellow", nl=False)
         click.echo(" ", nl=False)
     click.secho(msg, *args, **kwargs)
+    # sys.stdout.flush()
 
 
 def oe_error(msg, *args, prefix: bool = True, **kwargs):
@@ -53,3 +57,12 @@ def oe_error(msg, *args, prefix: bool = True, **kwargs):
             click.secho("ERROR", bold=True, bg="red", nl=False, err=True)
             click.echo(" ", nl=False, err=True)
         click.secho(line, *args, **kwargs, err=True)
+    # sys.stderr.flush()
+
+
+def print_error(error: str, problem: str):
+    oe_error("Error ", bold=True, nl=False)
+    oe_error(error, prefix=False)
+    oe_error("Problem", bold=True, nl=False)
+    oe_error(f": {problem}", prefix=False)
+

@@ -9,6 +9,8 @@ from typing import List, Dict
 from typing import TYPE_CHECKING
 
 import click
+# noinspection PyPackageRequirements
+import z3
 
 from officialeye.meta import OFFICIALEYE_NAME
 
@@ -27,12 +29,22 @@ class Context:
         self.disable_logo = False
         self.debug_export_directory = None
         self.export_directory = None
+        self.io_driver_id = None
         # keys: template ids
         # values: template
         self._loaded_templates: Dict[str, Template] = {}
 
+        z3.set_param("parallel.enable", True)
+
     def on_template_loaded(self, template: Template, /):
+
+        if template.template_id in self._loaded_templates:
+            from officialeye.utils.logger import print_error
+            print_error(f"while loading template '{template.template_id}'", "A template with the same id has already been loaded.")
+            exit(37)
+
         assert template.template_id not in self._loaded_templates, "Template already loaded"
+
         self._loaded_templates[template.template_id] = template
 
     def get_template(self, template_id: str, /) -> Template:

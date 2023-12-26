@@ -24,20 +24,23 @@ class CombinatorialSupervisor(Supervisor):
             "max_transformation_error": 20
         })
 
+        self._z3_context = z3.Context()
+
         # create variables for components of the translation matrix
         self._transformation_matrix = np.array([
-            [z3.Real("a"), z3.Real("b")],
-            [z3.Real("c"), z3.Real("d")]
+            [z3.Real("a", ctx=self._z3_context), z3.Real("b", ctx=self._z3_context)],
+            [z3.Real("c", ctx=self._z3_context), z3.Real("d", ctx=self._z3_context)]
         ], dtype=z3.AstRef)
 
-        self._transformation_error_bound = z3.Real("err_bound")
+        self._transformation_error_bound = z3.Real("err_bound", ctx=self._z3_context)
 
         # keys: matches (instances of Match)
-        # values: z3 integer variables representing the errors for each match, i.e. how consistent the match is with the affine transformation model
+        # values: z3 integer variables representing the errors for each match,
+        # i.e. how consistent the match is with the affine transformation model
         self._match_weight: Dict[Match, z3.ArithRef] = {}
 
         for match in self._kmr.get_matches():
-            self._match_weight[match] = z3.Real(f"w_{match.get_debug_identifier()}")
+            self._match_weight[match] = z3.Real(f"w_{match.get_debug_identifier()}", ctx=self._z3_context)
 
         oe_debug(f"Min match factor: {self.get_config()['min_match_factor']}")
 
@@ -92,7 +95,7 @@ class CombinatorialSupervisor(Supervisor):
 
         total_weight = z3.Sum(*(self._match_weight[match] for match in self._kmr.get_matches()))
 
-        solver = z3.Optimize()
+        solver = z3.Optimize(ctx=self._z3_context)
         # TODO: make the timeout configurable
         solver.set("timeout", 30000)
 

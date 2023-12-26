@@ -1,10 +1,14 @@
+from typing import List
+
 import click
 # noinspection PyPackageRequirements
 import cv2
 
 from officialeye.context.singleton import oe_context
 from officialeye.meta import OFFICIALEYE_GITHUB, OFFICIALEYE_VERSION, print_logo
+from officialeye.template.analyze import do_analyze
 from officialeye.template.parser import load_template
+from officialeye.template.show import do_show
 from officialeye.utils.logger import oe_info, oe_warn
 
 
@@ -15,12 +19,14 @@ from officialeye.utils.logger import oe_info, oe_warn
 @click.option("-q", "--quiet", is_flag=True, show_default=True, default=False, help="Disable standard output messages.")
 @click.option("-v", "--verbose", is_flag=True, show_default=True, default=False, help="Enable verbose logging.")
 @click.option("-dl", "--disable-logo", is_flag=True, show_default=True, default=False, help="Disable the officialeye logo.")
-def cli(debug: bool, dedir: str, edir: str, quiet: bool, verbose: bool, disable_logo: bool):
+@click.option("--io", type=str, show_default=False, default="std", help="Specify the IO driver.")
+def cli(debug: bool, dedir: str, edir: str, quiet: bool, verbose: bool, disable_logo: bool, io: str):
 
     oe_context().debug_mode = debug
     oe_context().quiet_mode = quiet
     oe_context().verbose_mode = verbose
     oe_context().disable_logo = disable_logo
+    oe_context().io_driver_id = io
 
     if not quiet and not disable_logo:
         print_logo()
@@ -40,23 +46,23 @@ def cli(debug: bool, dedir: str, edir: str, quiet: bool, verbose: bool, disable_
 def show(template_path: str):
     """Exports template as an image with features visualized."""
     template = load_template(template_path)
-    template.show()
+    do_show(template)
     oe_context().dispose()
 
 
 @click.command()
 @click.argument("target_path", type=click.Path(exists=True, file_okay=True, readable=True))
 @click.argument("template_paths", type=click.Path(exists=True, file_okay=True, readable=True), nargs=-1)
-def analyze(target_path: str, template_paths: str):
+@click.option("--workers", type=int, default=4, show_default=True)
+def analyze(target_path: str, template_paths: List[str], workers: int):
     """Applies one or more templates to an image."""
 
     # load target image
     target = cv2.imread(target_path, cv2.IMREAD_COLOR)
 
-    # apply the templates to the image
-    for template_path in template_paths:
-        template = load_template(template_path)
-        template.analyze(target)
+    templates = [load_template(template_path) for template_path in template_paths]
+
+    do_analyze(target, templates, num_workers=workers)
 
     oe_context().dispose()
 

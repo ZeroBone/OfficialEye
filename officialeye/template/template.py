@@ -1,9 +1,8 @@
 import os
-from typing import Dict
+from typing import Dict, Union
 
 # noinspection PyPackageRequirements
 import cv2
-import numpy as np
 
 from officialeye.context.singleton import oe_context
 from officialeye.match.matcher import KeypointMatcher
@@ -11,11 +10,12 @@ from officialeye.match.matchers.sift_flann import SiftFlannKeypointMatcher
 from officialeye.match.result import KeypointMatchingResult
 from officialeye.region.feature import TemplateFeature
 from officialeye.region.keypoint import TemplateKeypoint
+from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisors.combinatorial import CombinatorialSupervisor
 from officialeye.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor
 from officialeye.supervision.supervisors.orthogonal_regression import OrthogonalRegressionSupervisor
 from officialeye.supervision.visualizer import SupervisionResultVisualizer
-from officialeye.utils.cli_utils import export_and_show_image, print_error
+from officialeye.utils.logger import print_error
 
 
 class Template:
@@ -106,10 +106,9 @@ class Template:
             img = keypoint.visualize(img)
         return img
 
-    def show(self):
+    def show(self) -> cv2.Mat:
         img = self.load_source_image()
-        img = self._show(img)
-        export_and_show_image(img)
+        return self._show(img)
 
     def _load_supervisor(self, kmr: KeypointMatchingResult):
         superivision_engine = self.get_supervision_engine()
@@ -126,7 +125,7 @@ class Template:
         print_error("while loading supervisor", f"unknown supervision engine '{superivision_engine}'")
         exit(6)
 
-    def analyze(self, target, /):
+    def analyze(self, target: cv2.Mat, /) -> Union[SupervisionResult, None]:
         # find all patterns in the target image
 
         matcher = self.load_keypoint_matcher(target)
@@ -142,56 +141,18 @@ class Template:
 
         # run supervision to obtain correspondence between template and target regions
         supervisor = self._load_supervisor(keypoint_matching_result)
-        supervision = supervisor.run()
+        supervision_result = supervisor.run()
 
-        if supervision is None:
-            print_error("while running supervisor", f"could not establish correspondence of the image with the template")
-            exit(7)
+        if supervision_result is None:
+            return None
 
         if oe_context().debug_mode:
-            supervision_result_visualizer = SupervisionResultVisualizer(supervision, target)
+            supervision_result_visualizer = SupervisionResultVisualizer(supervision_result, target)
             visualization = supervision_result_visualizer.render()
             supervisor.debug().add_image(visualization)
             supervisor.debug().export()
 
-        application_image = self.load_source_image()
-
-        # extract the features from the target image
-        for feature in self.features():
-            feature_tl = feature.get_top_left_vec()
-            feature_tr = feature.get_top_right_vec()
-            feature_bl = feature.get_bottom_left_vec()
-            feature_br = feature.get_bottom_right_vec()
-
-            target_tl = supervision.template_point_to_target_point(feature_tl)
-            target_tr = supervision.template_point_to_target_point(feature_tr)
-            target_bl = supervision.template_point_to_target_point(feature_bl)
-            target_br = supervision.template_point_to_target_point(feature_br)
-
-            dest_tl = np.array([0, 0], dtype=np.float64)
-            dest_tr = np.array([feature.w, 0], dtype=np.float64)
-            dest_br = np.array([feature.w, feature.h], dtype=np.float64)
-            dest_bl = np.array([0, feature.h], dtype=np.float64)
-
-            source_points = [target_tl, target_tr, target_br, target_bl]
-            destination_points = [dest_tl, dest_tr, dest_br, dest_bl]
-
-            homography = cv2.getPerspectiveTransform(np.float32(source_points), np.float32(destination_points))
-            target_transformed = cv2.warpPerspective(
-                target,
-                np.float32(homography),
-                (feature.w, feature.h),
-                flags=cv2.INTER_LINEAR
-            )
-
-            # export_and_show_image(target_transformed)
-            feature.insert_into_image(application_image, target_transformed)
-
-        # visualize features on the image
-        for feature in self.features():
-            application_image = feature.visualize(application_image)
-
-        export_and_show_image(application_image)
+        return supervision_result
 
     def __str__(self):
         return f"{self.name} ({self._source}, {len(self._keypoints)} keypoints, {len(self._features)} features)"

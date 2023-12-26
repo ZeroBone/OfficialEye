@@ -11,6 +11,7 @@ class SupervisionResult:
 
     def __init__(self, template_id: str, kmr: KeypointMatchingResult,
                  delta: np.ndarray, delta_prime: np.ndarray, transformation_matrix: np.ndarray, /):
+
         self.template_id = template_id
         self._kmr = kmr
 
@@ -36,6 +37,7 @@ class SupervisionResult:
         self._score = 0.0
 
     def get_score(self) -> float:
+        assert self._score >= 0.0
         return self._score
 
     def set_score(self, new_score: float, /):

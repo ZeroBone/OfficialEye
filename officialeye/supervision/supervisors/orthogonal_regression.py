@@ -20,18 +20,21 @@ class OrthogonalRegressionSupervisor(Supervisor):
 
         self._set_default_config({})
 
+        self._z3_context = z3.Context()
+
         # create variables for components of the translation matrix
         self._transformation_matrix = np.array([
-            [z3.Real("a"), z3.Real("b")],
-            [z3.Real("c"), z3.Real("d")]
+            [z3.Real("a", ctx=self._z3_context), z3.Real("b", ctx=self._z3_context)],
+            [z3.Real("c", ctx=self._z3_context), z3.Real("d", ctx=self._z3_context)]
         ], dtype=z3.AstRef)
 
         # keys: matches (instances of Match)
-        # values: z3 integer variables representing the errors for each match, i.e. how consistent the match is with the affine transformation model
+        # values: z3 integer variables representing the errors for each match,
+        # i.e. how consistent the match is with the affine transformation model
         self._match_error: Dict[Match, z3.ArithRef] = {}
 
         for match in self._kmr.get_matches():
-            self._match_error[match] = z3.Real(f"e_{match.get_debug_identifier()}")
+            self._match_error[match] = z3.Real(f"e_{match.get_debug_identifier()}", ctx=self._z3_context)
 
     def _get_consistency_check(self, match: Match, delta: np.ndarray, delta_prime: np.ndarray, /) -> z3.AstRef:
         """
@@ -70,7 +73,7 @@ class OrthogonalRegressionSupervisor(Supervisor):
             error_lower_bounds = z3.And(*(self._match_error[match] >= 0 for match in self._kmr.get_matches()))
             total_error = z3.Sum(*(self._match_error[match] for match in self._kmr.get_matches()))
 
-            solver = z3.Optimize()
+            solver = z3.Optimize(ctx=self._z3_context)
             # TODO: make the timeout configurable
             solver.set("timeout", 30000)
 
