@@ -18,7 +18,7 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
         super().__init__(template_id, img)
         self._ratio_thresh = 0.7  # TODO: make this configurable
         self._debug_images = []
-        self._result = KeypointMatchingResult()
+        self._result = KeypointMatchingResult(template_id)
 
     def match_keypoint(self, keypoint: TemplateKeypoint, /):
         # noinspection PyUnresolvedReferences
@@ -31,7 +31,7 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
         keypoints_target, destination_target = sift.detectAndCompute(target, None)
 
         index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
-        search_params = dict(checks=50)  # or pass empty dictionary
+        search_params = dict(checks=50)
         flann = cv2.FlannBasedMatcher(index_params, search_params)
         matches = flann.knnMatch(destination_pattern, destination_target, k=2)
 
@@ -51,6 +51,7 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
                 target_point = np.array(target_point, dtype=int)
 
                 match = Match(self.template_id, keypoint.region_id, pattern_point, target_point)
+                match.set_score(self._ratio_thresh * n.distance - m.distance)
                 self._result.add_match(match)
 
         if self.in_debug_mode():

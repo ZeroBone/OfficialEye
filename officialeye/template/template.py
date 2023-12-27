@@ -5,6 +5,7 @@ from typing import Dict, Union
 import cv2
 
 from officialeye.context.singleton import oe_context
+from officialeye.error.errors.template import ErrTemplateInvalidSupervisionEngine, ErrTemplateInvalidMatchingEngine
 from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.matchers.sift_flann import SiftFlannKeypointMatcher
 from officialeye.match.result import KeypointMatchingResult
@@ -15,7 +16,6 @@ from officialeye.supervision.supervisors.combinatorial import CombinatorialSuper
 from officialeye.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor
 from officialeye.supervision.supervisors.orthogonal_regression import OrthogonalRegressionSupervisor
 from officialeye.supervision.visualizer import SupervisionResultVisualizer
-from officialeye.utils.logger import print_error
 
 
 class Template:
@@ -70,8 +70,10 @@ class Template:
         if matching_engine == SiftFlannKeypointMatcher.ENGINE_ID:
             return SiftFlannKeypointMatcher(self.template_id, target_img)
 
-        print_error("while loading keypoint matcher", f"unknown matching engine '{matching_engine}'")
-        exit(5)
+        raise ErrTemplateInvalidMatchingEngine(
+            "while loading keypoint matcher",
+            f"unknown matching engine '{matching_engine}'"
+        )
 
     def features(self):
         for feature_id in self._features:
@@ -122,8 +124,10 @@ class Template:
         if superivision_engine == CombinatorialSupervisor.ENGINE_ID:
             return CombinatorialSupervisor(self.template_id, kmr)
 
-        print_error("while loading supervisor", f"unknown supervision engine '{superivision_engine}'")
-        exit(6)
+        raise ErrTemplateInvalidSupervisionEngine(
+            "while loading supervisor",
+            f"unknown supervision engine '{superivision_engine}'"
+        )
 
     def analyze(self, target: cv2.Mat, /) -> Union[SupervisionResult, None]:
         # find all patterns in the target image
@@ -138,6 +142,8 @@ class Template:
         if oe_context().debug_mode:
             matcher.debug().export()
             keypoint_matching_result.debug_print()
+
+        keypoint_matching_result.validate()
 
         # run supervision to obtain correspondence between template and target regions
         supervisor = self._load_supervisor(keypoint_matching_result)

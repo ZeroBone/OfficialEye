@@ -3,7 +3,7 @@ from typing import List
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.utils.cli_utils import export_image
+from officialeye.util.cli_utils import export_image
 
 
 class DebugImage:

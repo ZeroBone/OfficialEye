@@ -8,16 +8,25 @@ keypoints:
     y: 50
     w: 170
     h: 170
+    matches:
+      min: 0
+      max: 150
   photo_security_top:
     x: 100
     y: 180
     w: 570
     h: 100
+    matches:
+      min: 0
+      max: 150
   photo_security_left:
     x: 100
     y: 180
     w: 100
     h: 580
+    matches:
+      min: 0
+      max: 150
 matching:
   engine: sift_flann
 supervision:
@@ -40,56 +49,67 @@ supervision:
   result: best_score
 features:
   last_name:
+    type: text
     x: 808
     y: 140
     w: 800
     h: 200
   first_name:
+    type: text
     x: 808
     y: 340
     w: 800
     h: 90
   father_name:
+    type: text
     x: 808
     y: 420
     w: 800
     h: 90
   sex:
+    type: text
     x: 737
     y: 519
     w: 213
     h: 86
   birthday:
+    type: text
     x: 1120
     y: 520
     w: 620
     h: 87
   place_of_birth:
+    type: text
     x: 827
     y: 600
     w: 878
     h: 327
   mrz:
+    type: text
     x: 111
     y: 930
     w: 1713
     h: 260
   face:
+    type: image
     x: 180
     y: 280
     w: 475
     h: 600
   id_1:
+    type: image
     x: 1730
     y: 256
     w: 120
     h: 132
   id_2:
+    type: image
     x: 1730
     y: 420
     w: 120
     h: 132
   id_3:
+    type: image
     x: 1730
     y: 580
     w: 120

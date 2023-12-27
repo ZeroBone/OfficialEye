@@ -3,7 +3,7 @@ import click
 import cv2
 
 from officialeye.context.singleton import oe_context
-from officialeye.utils.logger import oe_info
+from officialeye.util.logger import oe_info
 
 
 def export_image(img: cv2.Mat, /, *, file_name: str = "") -> str:

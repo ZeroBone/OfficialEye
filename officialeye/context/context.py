@@ -12,6 +12,7 @@ import click
 # noinspection PyPackageRequirements
 import z3
 
+from officialeye.error.errors.template import ErrTemplateIdNotUnique
 from officialeye.meta import OFFICIALEYE_NAME
 
 if TYPE_CHECKING:
@@ -39,9 +40,10 @@ class Context:
     def on_template_loaded(self, template: Template, /):
 
         if template.template_id in self._loaded_templates:
-            from officialeye.utils.logger import print_error
-            print_error(f"while loading template '{template.template_id}'", "A template with the same id has already been loaded.")
-            exit(37)
+            raise ErrTemplateIdNotUnique(
+                f"while loading template '{template.template_id}'",
+                "A template with the same id has already been loaded."
+            )
 
         assert template.template_id not in self._loaded_templates, "Template already loaded"
 
@@ -97,9 +99,10 @@ class Context:
         return os.path.join(self.export_directory, file_name)
 
     def _cleanup_temporary_files(self):
-        for temp_file in self._not_deleted_temporary_files:
-            os.unlink(temp_file)
-        self._not_deleted_temporary_files = []
+        while len(self._not_deleted_temporary_files) > 0:
+            temp_file = self._not_deleted_temporary_files.pop()
+            if os.path.exists(temp_file):
+                os.unlink(temp_file)
 
     def dispose(self):
         self._cleanup_temporary_files()

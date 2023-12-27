@@ -1,7 +1,8 @@
 from officialeye.context.singleton import oe_context
+from officialeye.error.errors.io import ErrIOInvalidSupervisionEngine
 from officialeye.io.driver import IODriver
 from officialeye.io.drivers.std import StandardIODriver
-from officialeye.utils.logger import print_error
+
 
 _oe_io_driver = None
 
@@ -20,7 +21,9 @@ def oe_io_driver() -> IODriver:
         _oe_io_driver = StandardIODriver()
     else:
         # unknown io driver specified
-        print_error(f"while loading IO driver '{oe_context().io_driver_id}'", "The specified IO driver does not exist.")
-        exit(38)
+        raise ErrIOInvalidSupervisionEngine(
+            f"while loading IO driver '{oe_context().io_driver_id}'",
+            "The specified IO driver does not exist."
+        )
 
     return _oe_io_driver

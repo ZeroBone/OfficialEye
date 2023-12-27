@@ -5,6 +5,7 @@ from typing import Union
 # noinspection PyPackageRequirements
 import cv2
 
+from officialeye.error.error import OEError
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.template import Template
 
@@ -19,5 +20,9 @@ class IODriver(ABC):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def output_show_result(self, template: Template, img: cv2.Mat):
+    def output_show_result(self, template: Template, img: cv2.Mat, /):
+        raise NotImplementedError()
+
+    @abc.abstractmethod
+    def output_error(self, error: OEError, /):
         raise NotImplementedError()

@@ -9,7 +9,7 @@ from officialeye.match.match import Match
 from officialeye.match.result import KeypointMatchingResult
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor import Supervisor
-from officialeye.utils.logger import oe_warn, oe_debug
+from officialeye.util.logger import oe_warn, oe_debug
 
 
 class CombinatorialSupervisor(Supervisor):
@@ -21,7 +21,8 @@ class CombinatorialSupervisor(Supervisor):
 
         self._set_default_config({
             "min_match_factor": 0.1,
-            "max_transformation_error": 20
+            "max_transformation_error": 20,
+            "balance_factor": 10
         })
 
         self._z3_context = z3.Context()
@@ -86,11 +87,12 @@ class CombinatorialSupervisor(Supervisor):
 
         _results = []
 
-        weights_lower_bounds = z3.And(*(self._match_weight[match] >= 0 for match in self._kmr.get_matches()))
-        weights_upper_bounds = z3.And(*(self._match_weight[match] <= 1 for match in self._kmr.get_matches()))
+        weights_lower_bounds = z3.And(*(self._match_weight[match] >= 0 for match in self._kmr.get_matches()), self._z3_context)
+        weights_upper_bounds = z3.And(*(self._match_weight[match] <= 1 for match in self._kmr.get_matches()), self._z3_context)
         transformation_error_bounds = z3.And(
             self._transformation_error_bound >= 0,
-            self._transformation_error_bound <= self._max_transformation_error
+            self._transformation_error_bound <= self._max_transformation_error,
+            self._z3_context
         )
 
         total_weight = z3.Sum(*(self._match_weight[match] for match in self._kmr.get_matches()))
@@ -130,17 +132,18 @@ class CombinatorialSupervisor(Supervisor):
                 solver.add(z3.Implies(
                     self._match_weight[match] > 0,
                     # consistency check
-                    self._get_consistency_check(match, delta, delta_prime, 5)
+                    self._get_consistency_check(match, delta, delta_prime, 5),  # TODO: get rid of the hardcoded value 5
+                    ctx=self._z3_context
                 ))
 
             result = solver.check()
             if result == z3.unsat:
-                oe_warn("Could not satisfy imposed constraints.")
+                oe_warn("Could not satisfy the imposed constraints.")
                 solver.pop()
                 continue
 
             if result == z3.unknown:
-                oe_warn("Could not evaluate imposed constraints.")
+                oe_warn("Could not decide the satifiability of the imposed constraints.")
                 solver.pop()
                 continue
 

@@ -5,10 +5,11 @@ from typing import List, Union
 # noinspection PyPackageRequirements
 import cv2
 
+from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
 from officialeye.io.driver_singleton import oe_io_driver
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.template import Template
-from officialeye.utils.logger import oe_debug
+from officialeye.util.logger import oe_debug
 
 
 class AnalysisWorker(Thread):
@@ -32,6 +33,17 @@ class AnalysisWorker(Thread):
 
     def get_result(self) -> Union[SupervisionResult, None]:
         return self._result
+
+
+def _handle_analysis_result(target: cv2.Mat, result: Union[SupervisionResult, None], /):
+
+    if result is None:
+        raise ErrSupervisionCorrespondenceNotFound(
+            "while running supervisor",
+            "could not establish correspondence of the image with any of the templates provided"
+        )
+
+    oe_io_driver().output_analyze_result(target, result)
 
 
 def do_analyze(target: cv2.Mat, templates: List[Template], /, *, num_workers: int):
@@ -73,4 +85,4 @@ def do_analyze(target: cv2.Mat, templates: List[Template], /, *, num_workers: in
             best_result = result
 
     # note: best_result may be None here
-    oe_io_driver().output_analyze_result(target, best_result)
+    _handle_analysis_result(target, best_result)

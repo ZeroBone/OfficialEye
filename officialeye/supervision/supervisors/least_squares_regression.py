@@ -5,7 +5,7 @@ import numpy as np
 from officialeye.match.result import KeypointMatchingResult
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor import Supervisor
-from officialeye.utils.logger import oe_debug
+from officialeye.util.logger import oe_debug
 
 _IND_A = 0
 _IND_B = 1

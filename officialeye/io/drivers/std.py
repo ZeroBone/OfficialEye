@@ -1,15 +1,14 @@
-from typing import Union
-
 # noinspection PyPackageRequirements
 import cv2
 import numpy as np
 
 from officialeye.context.singleton import oe_context
+from officialeye.error.error import OEError
 from officialeye.io.driver import IODriver
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.template import Template
-from officialeye.utils.cli_utils import export_and_show_image
-from officialeye.utils.logger import print_error
+from officialeye.util.cli_utils import export_and_show_image
+from officialeye.util.logger import oe_error
 
 
 class StandardIODriver(IODriver):
@@ -19,11 +18,9 @@ class StandardIODriver(IODriver):
     def __init__(self):
         super().__init__(StandardIODriver.DRIVER_ID)
 
-    def output_analyze_result(self, target: cv2.Mat, result: Union[SupervisionResult, None], /):
+    def output_analyze_result(self, target: cv2.Mat, result: SupervisionResult, /):
 
-        if result is None:
-            print_error("while running supervisor", f"could not establish correspondence of the image with the template")
-            exit(7)
+        assert result is not None
 
         template = oe_context().get_template(result.template_id)
 
@@ -66,5 +63,10 @@ class StandardIODriver(IODriver):
 
         export_and_show_image(application_image)
 
-    def output_show_result(self, template: Template, img: cv2.Mat):
+    def output_show_result(self, template: Template, img: cv2.Mat, /):
         export_and_show_image(img, file_name=f"{template.template_id}.png")
+
+    def output_error(self, error: OEError, /):
+        oe_error(f"Error {error.code_num} in module {error.module}: {error.code_text}")
+        oe_error(f"Error occurred {error.error_text}")
+        oe_error(f"Problem: {error.problem_text}")

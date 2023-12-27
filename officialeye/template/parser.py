@@ -1,16 +1,21 @@
 import strictyaml as yml
 
 from officialeye.template.template import Template
-from officialeye.utils.logger import oe_error, oe_info
+from officialeye.util.logger import oe_error, oe_info
 
 _oe_template_schema_keypoint_validator = yml.Map({
     "x": yml.Int(),
     "y": yml.Int(),
     "w": yml.Int(),
-    "h": yml.Int()
+    "h": yml.Int(),
+    "matches": yml.Map({
+        "min": yml.Int(),
+        "max": yml.Int()
+    })
 })
 
 _oe_template_schema_feature_validator = yml.Map({
+    "type": yml.Str(),
     "x": yml.Int(),
     "y": yml.Int(),
     "w": yml.Int(),
