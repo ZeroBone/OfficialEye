@@ -26,7 +26,7 @@ _oe_template_schema_region_id = yml.Regex(r"^[a-zA-Z0-9_]{1,32}$")
 
 _oe_template_schema = yml.Map({
     "id": yml.Regex(r"^[a-z_][a-zA-Z0-9_]{,31}$"),
-    "name": yml.Regex(r"^[a-zA-Z0-9_ ]{1,64}$"),
+    "name": yml.Regex(r"^[a-zA-Z0-9_ ']{1,64}$"),
     "source": yml.Str(),
     "keypoints": yml.MapPattern(_oe_template_schema_region_id, _oe_template_schema_keypoint_validator),
     "matching": yml.Map({
