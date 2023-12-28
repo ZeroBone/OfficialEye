@@ -55,15 +55,13 @@ class CombinatorialSupervisor(Supervisor):
 
         self._max_transformation_error = self.get_config()["max_transformation_error"]
 
-    def _get_consistency_check(self, match: Match, delta: np.ndarray, delta_prime: np.ndarray, transformation_error_max: int, /) -> z3.AstRef:
+    def _get_consistency_check(self, match: Match, delta: np.ndarray, delta_prime: np.ndarray, /) -> z3.AstRef:
         """
         Generates a z3 formula asserting the consistency of the match with the affine linear transformation model.
         Consistency does not mean ideal matching of coordinates; rather, the template position with the affine
         transformation applied to it, must roughly be equal the target position for consistency to hold
         In other words, targetpoint = M * (templatepoint - offset), where offset is a vector and M is a 2x2 matrix
         """
-
-        assert transformation_error_max >= 0
 
         template_point = match.get_original_template_point()
 
@@ -77,10 +75,10 @@ class CombinatorialSupervisor(Supervisor):
         target_point_x, target_point_y = match.get_target_point()
 
         return z3.And(
-            translated_template_point_x - target_point_x <= transformation_error_max,
-            target_point_x - translated_template_point_x <= transformation_error_max,
-            translated_template_point_y - target_point_y <= transformation_error_max,
-            target_point_y - translated_template_point_y <= transformation_error_max,
+            translated_template_point_x - target_point_x <= self._transformation_error_bound,
+            target_point_x - translated_template_point_x <= self._transformation_error_bound,
+            translated_template_point_y - target_point_y <= self._transformation_error_bound,
+            target_point_y - translated_template_point_y <= self._transformation_error_bound,
         )
 
     def _run(self) -> List[SupervisionResult]:
@@ -92,6 +90,7 @@ class CombinatorialSupervisor(Supervisor):
         transformation_error_bounds = z3.And(
             self._transformation_error_bound >= 0,
             self._transformation_error_bound <= self._max_transformation_error,
+            self._transformation_error_bound == 5,
             self._z3_context
         )
 
@@ -132,18 +131,19 @@ class CombinatorialSupervisor(Supervisor):
                 solver.add(z3.Implies(
                     self._match_weight[match] > 0,
                     # consistency check
-                    self._get_consistency_check(match, delta, delta_prime, 5),  # TODO: get rid of the hardcoded value 5
+                    self._get_consistency_check(match, delta, delta_prime),
                     ctx=self._z3_context
                 ))
 
             result = solver.check()
+            # print(solver.statistics())
             if result == z3.unsat:
-                oe_warn("Could not satisfy the imposed constraints.")
+                oe_warn("Could not satisfy the imposed constraints.", fg="red")
                 solver.pop()
                 continue
 
             if result == z3.unknown:
-                oe_warn("Could not decide the satifiability of the imposed constraints.")
+                oe_warn("Could not decide the satifiability of the imposed constraints.", fg="red")
                 solver.pop()
                 continue
 
@@ -155,6 +155,10 @@ class CombinatorialSupervisor(Supervisor):
             # extract total weight and maximization target from model
             model_total_weight = model_evaluator(total_weight)
             model_score = model_evaluator(total_weight - balance_factor * self._transformation_error_bound)
+
+            # add fixed constant to make sure that the score value is always non-negative
+            model_score += balance_factor * self._max_transformation_error
+            assert model_score >= 0
 
             # extract upper bound on transformation error from model
             model_transformation_error_bound = model_evaluator(self._transformation_error_bound)

@@ -92,6 +92,7 @@ def analyze(target_path: str, template_paths: List[str], workers: int):
         do_analyze(target, templates, num_workers=workers)
     except OEError as err:
         _handle_oe_error(err)
+        click.pause()  # TODO: remove
 
     oe_context().dispose()
 

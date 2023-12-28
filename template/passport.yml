@@ -10,7 +10,7 @@ keypoints:
     h: 170
     matches:
       min: 0
-      max: 150
+      max: 40
   photo_security_top:
     x: 100
     y: 180
@@ -18,7 +18,7 @@ keypoints:
     h: 100
     matches:
       min: 0
-      max: 150
+      max: 40
   photo_security_left:
     x: 100
     y: 180
@@ -26,7 +26,7 @@ keypoints:
     h: 580
     matches:
       min: 0
-      max: 150
+      max: 40
 matching:
   engine: sift_flann
 supervision:
