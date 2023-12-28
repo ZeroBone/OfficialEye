@@ -20,7 +20,7 @@ def oe_io_driver() -> IODriver:
 
     if oe_context().io_driver_id == StandardIODriver.DRIVER_ID:
         _oe_io_driver = StandardIODriver()
-    if oe_context().io_driver_id == OcrIODriver.DRIVER_ID:
+    elif oe_context().io_driver_id == OcrIODriver.DRIVER_ID:
         _oe_io_driver = OcrIODriver()
     else:
         # unknown io driver specified

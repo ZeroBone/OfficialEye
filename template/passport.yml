@@ -1,6 +1,8 @@
-version: "v1.0.0"
+# This is the ID of the template. It is needed to identify this template in the API and must be alphanumeric and unique.
 id: "passport"
+# The name of the template, as should be displayed to the user
 name: "Passport"
+# This is the path
 source: "../template_sources/passport.png"
 keypoints:
   rf_symbol:

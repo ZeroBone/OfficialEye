@@ -52,11 +52,13 @@ class OcrIODriver(IODriver):
                 continue
             feature_img = result.get_feature_warped_region(target, feature)
 
+            # TODO: make the data here configurable
             data = pytesseract.image_to_string(feature_img, lang="rus", config="--dpi 10000 --oem 3 --psm 6")
 
             features_dict[feature.region_id] = data.strip()
 
         _output_dict({
             "ok": True,
+            "template": result.template_id,
             "features": features_dict
         })
