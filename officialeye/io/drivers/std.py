@@ -1,6 +1,5 @@
 # noinspection PyPackageRequirements
 import cv2
-import numpy as np
 
 from officialeye.context.singleton import oe_context
 from officialeye.error.error import OEError
@@ -28,34 +27,8 @@ class StandardIODriver(IODriver):
 
         # extract the features from the target image
         for feature in template.features():
-            feature_tl = feature.get_top_left_vec()
-            feature_tr = feature.get_top_right_vec()
-            feature_bl = feature.get_bottom_left_vec()
-            feature_br = feature.get_bottom_right_vec()
-
-            target_tl = result.template_point_to_target_point(feature_tl)
-            target_tr = result.template_point_to_target_point(feature_tr)
-            target_bl = result.template_point_to_target_point(feature_bl)
-            target_br = result.template_point_to_target_point(feature_br)
-
-            dest_tl = np.array([0, 0], dtype=np.float64)
-            dest_tr = np.array([feature.w, 0], dtype=np.float64)
-            dest_br = np.array([feature.w, feature.h], dtype=np.float64)
-            dest_bl = np.array([0, feature.h], dtype=np.float64)
-
-            source_points = [target_tl, target_tr, target_br, target_bl]
-            destination_points = [dest_tl, dest_tr, dest_br, dest_bl]
-
-            homography = cv2.getPerspectiveTransform(np.float32(source_points), np.float32(destination_points))
-            target_transformed = cv2.warpPerspective(
-                target,
-                np.float32(homography),
-                (feature.w, feature.h),
-                flags=cv2.INTER_LINEAR
-            )
-
-            # export_and_show_image(target_transformed)
-            feature.insert_into_image(application_image, target_transformed)
+            feature_img = result.get_feature_warped_region(target, feature)
+            feature.insert_into_image(application_image, feature_img)
 
         # visualize features on the image
         for feature in template.features():
@@ -67,6 +40,6 @@ class StandardIODriver(IODriver):
         export_and_show_image(img, file_name=f"{template.template_id}.png")
 
     def output_error(self, error: OEError, /):
-        oe_error(f"Error {error.code_num} in module {error.module}: {error.code_text}")
-        oe_error(f"Error occurred {error.error_text}")
+        oe_error(f"Error {error.code} in module {error.module}: {error.code_text}")
+        oe_error(f"Error occurred {error.while_text}")
         oe_error(f"Problem: {error.problem_text}")

@@ -29,7 +29,7 @@ class Match:
         """Returns the region point in the coordinate system of the underlying template."""
         template = oe_context().get_template(self.template_id)
         keypoint = template.get_keypoint(self.keypoint_id)
-        return self._region_point + keypoint.get_left_corner()
+        return self._region_point + keypoint.get_top_left_vec()
 
     def get_keypoint(self) -> TemplateKeypoint:
         return oe_context().get_template(self.template_id).get_keypoint(self.keypoint_id)

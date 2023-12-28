@@ -1,6 +1,8 @@
 import sys
 from typing import Set, Dict
 
+# noinspection PyPackageRequirements
+import cv2
 import numpy as np
 
 from officialeye.match.match import Match
@@ -57,6 +59,35 @@ class SupervisionResult:
         assert self._delta.shape == (2,)
         assert self._delta_prime.shape == (2,)
         return self._transformation_matrix @ (template_point - self._delta) + self._delta_prime
+
+    def get_feature_warped_region(self, target: cv2.Mat, feature) -> cv2.Mat:
+
+        feature_tl = feature.get_top_left_vec()
+        feature_tr = feature.get_top_right_vec()
+        feature_bl = feature.get_bottom_left_vec()
+        feature_br = feature.get_bottom_right_vec()
+
+        target_tl = self.template_point_to_target_point(feature_tl)
+        target_tr = self.template_point_to_target_point(feature_tr)
+        target_bl = self.template_point_to_target_point(feature_bl)
+        target_br = self.template_point_to_target_point(feature_br)
+
+        dest_tl = np.array([0, 0], dtype=np.float64)
+        dest_tr = np.array([feature.w, 0], dtype=np.float64)
+        dest_br = np.array([feature.w, feature.h], dtype=np.float64)
+        dest_bl = np.array([0, feature.h], dtype=np.float64)
+
+        source_points = [target_tl, target_tr, target_br, target_bl]
+        destination_points = [dest_tl, dest_tr, dest_br, dest_bl]
+
+        homography = cv2.getPerspectiveTransform(np.float32(source_points), np.float32(destination_points))
+
+        return cv2.warpPerspective(
+            target,
+            np.float32(homography),
+            (feature.w, feature.h),
+            flags=cv2.INTER_LINEAR
+        )
 
     def get_relevant_keypoint_ids(self) -> Set[str]:
         rk = set()

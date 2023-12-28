@@ -1,6 +1,7 @@
 from officialeye.context.singleton import oe_context
 from officialeye.error.errors.io import ErrIOInvalidSupervisionEngine
 from officialeye.io.driver import IODriver
+from officialeye.io.drivers.json2std import Json2StdIODriver
 from officialeye.io.drivers.std import StandardIODriver
 
 
@@ -19,6 +20,8 @@ def oe_io_driver() -> IODriver:
 
     if oe_context().io_driver_id == StandardIODriver.DRIVER_ID:
         _oe_io_driver = StandardIODriver()
+    if oe_context().io_driver_id == Json2StdIODriver.DRIVER_ID:
+        _oe_io_driver = Json2StdIODriver()
     else:
         # unknown io driver specified
         raise ErrIOInvalidSupervisionEngine(

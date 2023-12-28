@@ -1,5 +1,4 @@
 setuptools~=68.2.0
-officialeye~=1.0.0
 numpy~=1.26.2
 click~=8.1.7
 strictyaml~=1.7.3
@@ -7,3 +6,4 @@ z3-solver
 mkdocs-material
 mkdocs-material[imaging]
 mkdocs-minify-plugin
+pytesseract
