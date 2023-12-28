@@ -70,8 +70,8 @@ class OrthogonalRegressionSupervisor(Supervisor):
             delta = anchor_match.get_original_template_point()
             delta_prime = anchor_match.get_target_point()
 
-            error_lower_bounds = z3.And(*(self._match_error[match] >= 0 for match in self._kmr.get_matches()))
-            total_error = z3.Sum(*(self._match_error[match] for match in self._kmr.get_matches()))
+            error_lower_bounds = z3.And(*(self._match_error[match] >= 0 for match in self._kmr.get_matches()), self._z3_context)
+            total_error = z3.Sum(*(self._match_error[match] for match in self._kmr.get_matches()), self._z3_context)
 
             solver = z3.Optimize(ctx=self._z3_context)
             # TODO: make the timeout configurable
