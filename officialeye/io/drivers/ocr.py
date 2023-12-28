@@ -19,17 +19,17 @@ def _output_dict(d: dict):
     sys.stdout.flush()
 
 
-class Json2StdIODriver(IODriver):
+class OcrIODriver(IODriver):
 
-    DRIVER_ID = "json2std"
+    DRIVER_ID = "ocr"
 
     def __init__(self):
-        super().__init__(Json2StdIODriver.DRIVER_ID)
+        super().__init__(OcrIODriver.DRIVER_ID)
 
     def output_show_result(self, template: Template, img: cv2.Mat, /):
         raise ErrIOOperationNotSupportedByDriver(
             f"while trying to output the result of showing the template '{template.template_id}'",
-            f"Driver '{Json2StdIODriver.DRIVER_ID}' does not support this operation."
+            f"Driver '{OcrIODriver.DRIVER_ID}' does not support this operation."
         )
 
     def output_error(self, error: OEError, /):
