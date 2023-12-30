@@ -1,0 +1,87 @@
+# This is the ID of the template. It is needed to identify this template in the API and must be alphanumeric and unique.
+id: "id_de"
+# The name of the template, as should be displayed to the user
+name: "German ID Card"
+# This is the path to the example document you want to use as a base for the template.
+# The path can be absolute or relative. If it is relative, then it will be resolved relative to the location of the current file.
+source: "SPECIFY A PATH TO THE SOURCE FILE HERE"
+# A list of keypoints located in the template source image specified above.
+# A keypoint is a rectangular region that should be present in all documents of this kind, and that
+# should be used to find correspondences between the position of the given image and the positions in the template source image.
+keypoints:
+  # Example of a keypoint specification:
+  # Remember to remove or customize this keypoint that is here only for demonstration purposes.
+  example_keypoint_name:
+    # Remember that the origin is located at the top left corner of the image. In other words,
+    # the x-axis points to the right, and the y-axis points down (not up!).
+    x: 10 # the x-coordinate of the top left corner of the rectangle (measured in pixels)
+    y: 10 # the y-coordinate of the top left corner of the rectangle (measured in pixels)
+    w: 100 # width of the rectangle (measured in pixels)
+    h: 50 # height of the rectangle (measured in pixels)
+    matches:
+      # Minimum amount of matches that should be identified within this keypoints' region when analyzing a document image
+      min: 0
+      # Maximum amount of matches that should be identified within this keypoints' region when analyzing a document image
+      max: 40
+# Matching configuration
+# Matching is the process of finding equal patterns in the given image and the template source image,
+# thus establishing correspondences between positions.
+# Although better matchings will of course contribute to the stability of the document analysis, it is
+# completely fine for a matching algorithm to err in some cases.
+matching:
+  # Here you can speficy the name of the matching engine that should be used to find correspondences between
+  # positions of the given image and those of the template source image provided above.
+  # Available engines: sift_flann
+  engine: sift_flann
+# Supervision configuration
+# Supervision is the process of unifying the given document image with the template source,
+# based on the (partially unreliable) information received from the matching algorithm
+supervision:
+  # Here you can speficy the name of the supervision engine that should be used to find correspondences between
+  # positions of the given image and those of the template source image provided above.
+  # Available engines: orthogonal_regression, least_squares_regression, combinatorial
+  engine: combinatorial
+  config:
+    # Here you can speficy engine-specific configurations
+    combinatorial:
+      # A coefficient between 0 and 1, representing the fraction of matches that should be chosen as the basis for inferring the way the document
+      # is positioned in the image provided. The larger the coefficient, the more reliable the superivison result will be.
+      # However, increasing this value will also increase the risk of wrongfully not detecting a document at all.
+      # If your matching engine produces a lot of false positives, it is recommended to keep this value low, and vice versa.
+      min_match_factor: 0.1
+      # The combinatorial engine uses an affine linear transformation model to represent the way the document is located in the image provided.
+      # It then chooses at least `min_match_factor` * (total amount of matches) matches that cause the data to fit the model, up to the error
+      # specified here, measured in pixels along one of the axis. Thus, the lower this value is, the higher will be the quality of the
+      # combinatorial supervision engine's output. On the other hand, a very small value may increase
+      # the risk of wrongfully not detecting a document at all.
+      # Recommended value: between 2 and 10 pixels
+      max_transformation_error: 5
+
+  # Since the supervision engine may produce multiple results.
+  # This option allows you to specify the strategy that should be used to choose a final result.
+  # Available strategies: first, best_mse, best_score
+  # The `first` strategy simply returns the first result produced
+  # The `random` strategy chooses a random result produced
+  # The `best_mse` strategy finds the result which has the lowest mean squared error when translating template points to target points
+  # The `best_score` strategy returns the result with the highest score (what `score` represents depends on the supervision engine)
+  result: best_score
+# A list of features located in the template source image specified above.
+# A feature is a rectangular region containing any information of interest, such as text.
+# In other words, the corresponding regions in the target image will be found during document analysis.
+features:
+  # Example of a feature specification:
+  # Remember to remove or customize this feature that is here only for demonstration purposes.
+  # Remember that the origin is located at the top left corner of the image. In other words,
+  # the x-axis points to the right, and the y-axis points down (not up!).
+  example_feature_name:
+    # Type can be any text, useful to ensure that some processing is applied to only a certain type of features.
+    # For example, it would make little sense to run an OCR engine on a feature containing a picture of a person,
+    # so we can avoid this by just configuring the type accordingly.
+    type: text
+    # Remember that the origin is located at the top left corner of the image. In other words,
+    # the x-axis points to the right, and the y-axis points down (not up!).
+    x: 110 # the x-coordinate of the top left corner of the rectangle (measured in pixels)
+    y: 10 # the y-coordinate of the top left corner of the rectangle (measured in pixels)
+    w: 100 # width of the rectangle (measured in pixels)
+    h: 10 # height of the rectangle (measured in pixels)
+    
