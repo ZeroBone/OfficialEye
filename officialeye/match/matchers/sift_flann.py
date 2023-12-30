@@ -7,7 +7,7 @@ from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.result import KeypointMatchingResult
 from officialeye.region.keypoint import TemplateKeypoint
 
-FLANN_INDEX_KDTREE = 1
+_FLANN_INDEX_KDTREE = 1
 
 
 class SiftFlannKeypointMatcher(KeypointMatcher):
@@ -30,7 +30,7 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
         keypoints_pattern, destination_pattern = sift.detectAndCompute(pattern, None)
         keypoints_target, destination_target = sift.detectAndCompute(target, None)
 
-        index_params = dict(algorithm=FLANN_INDEX_KDTREE, trees=5)
+        index_params = dict(algorithm=_FLANN_INDEX_KDTREE, trees=5)
         search_params = dict(checks=50)
         flann = cv2.FlannBasedMatcher(index_params, search_params)
         matches = flann.knnMatch(destination_pattern, destination_target, k=2)

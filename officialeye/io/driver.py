@@ -1,6 +1,5 @@
 import abc
 from abc import ABC
-from typing import Union
 
 # noinspection PyPackageRequirements
 import cv2

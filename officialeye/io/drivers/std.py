@@ -3,11 +3,11 @@ import cv2
 
 from officialeye.context.singleton import oe_context
 from officialeye.error.error import OEError
+from officialeye.error.printing import oe_error_print_error
 from officialeye.io.driver import IODriver
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.template import Template
 from officialeye.util.cli_utils import export_and_show_image
-from officialeye.util.logger import oe_error
 
 
 class StandardIODriver(IODriver):
@@ -40,6 +40,4 @@ class StandardIODriver(IODriver):
         export_and_show_image(img, file_name=f"{template.template_id}.png")
 
     def output_error(self, error: OEError, /):
-        oe_error(f"Error {error.code} in module {error.module}: {error.code_text}")
-        oe_error(f"Error occurred {error.while_text}")
-        oe_error(f"Problem: {error.problem_text}")
+        oe_error_print_error(error)

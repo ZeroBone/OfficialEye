@@ -6,6 +6,7 @@ import cv2
 import numpy as np
 
 _LABEL_COLOR_DEFAULT = (0, 0, 0xff)
+_VISUALIZATION_SCALE_COEFF = 1.0 / 1400.0
 
 
 class TemplateRegion:
@@ -36,8 +37,21 @@ class TemplateRegion:
     def _visualize(self, img: cv2.Mat, /, *,
                    rect_color: Tuple[int, int, int], label_color=_LABEL_COLOR_DEFAULT) -> cv2.Mat:
         img = cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), rect_color, 4)
-        label_origin = (self.x + 10, self.y + 30)
-        img = cv2.putText(img, self.region_id, label_origin, cv2.FONT_HERSHEY_SIMPLEX, 1, label_color, 2, cv2.LINE_AA)
+        label_origin = (
+            self.x + int(10 * img.shape[0] * _VISUALIZATION_SCALE_COEFF),
+            self.y + int(30 * img.shape[0] * _VISUALIZATION_SCALE_COEFF)
+        )
+        font_scale = img.shape[0] * _VISUALIZATION_SCALE_COEFF
+        img = cv2.putText(
+            img,
+            self.region_id,
+            label_origin,
+            cv2.FONT_HERSHEY_SIMPLEX,
+            font_scale,
+            label_color,
+            int(2 * img.shape[0] * _VISUALIZATION_SCALE_COEFF),
+            cv2.LINE_AA
+        )
         return img
 
     def to_image(self, *, grayscale: bool = False):

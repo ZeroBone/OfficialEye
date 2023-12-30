@@ -72,6 +72,7 @@ supervision:
   # positions of the given image and those of the template source image provided above.
   # Available engines: orthogonal_regression, least_squares_regression, combinatorial
   engine: combinatorial
+  # Engine-specific configuration
   config:
     # Here you can speficy engine-specific configurations
     combinatorial:

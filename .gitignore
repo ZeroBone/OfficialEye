@@ -1,10 +1,9 @@
 # OfficialEye
-*.png
-*.jpg
 build
 dist
 .cache
 site
+temp
 
 # IDE
 .idea

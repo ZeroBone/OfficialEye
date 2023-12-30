@@ -4,8 +4,8 @@ from officialeye.error.error import OEError, ERR_MODULE_IO
 
 class ErrIO(OEError):
 
-    def __init__(self, code: int, code_text: str, while_text: str, problem_text: str, /):
-        super().__init__(ERR_MODULE_IO, code, code_text, while_text, problem_text)
+    def __init__(self, code: int, code_text: str, while_text: str, problem_text: str, /, *, is_regular: bool = False):
+        super().__init__(ERR_MODULE_IO, code, code_text, while_text, problem_text, is_regular=is_regular)
 
 
 class ErrIOInvalidSupervisionEngine(ErrIO):

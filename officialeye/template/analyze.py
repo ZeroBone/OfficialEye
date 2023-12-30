@@ -1,11 +1,13 @@
 from queue import Queue
 from threading import Thread
-from typing import List, Union
+from typing import List, Union, Tuple
 
 # noinspection PyPackageRequirements
 import cv2
 
+from officialeye.error.error import OEError
 from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
+from officialeye.error.printing import oe_error_print_debug
 from officialeye.io.driver_singleton import oe_io_driver
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.template import Template
@@ -19,7 +21,7 @@ class AnalysisWorker(Thread):
         self.worker_id = worker_id
         self.queue = queue
         self._target = target
-        self._result = None
+        self._results: List[Tuple[Union[SupervisionResult, None], Union[OEError, None]]] = []
 
     def run(self):
 
@@ -27,12 +29,23 @@ class AnalysisWorker(Thread):
             template = self.queue.get()
 
             try:
-                self._result = template.analyze(self._target)
+                _current_result = template.analyze(self._target)
+                self._results.append((_current_result, None))
+            except OEError as err:
+                self._results.append((None, err))
             finally:
                 self.queue.task_done()
 
-    def get_result(self) -> Union[SupervisionResult, None]:
-        return self._result
+    def get_successful_results(self):
+        for result, error in self._results:
+            if result is None or error is not None:
+                continue
+            yield result
+
+    def get_errors(self):
+        for _, error in self._results:
+            if error is not None:
+                yield error
 
 
 def _handle_analysis_result(target: cv2.Mat, result: Union[SupervisionResult, None], /):
@@ -73,16 +86,24 @@ def do_analyze(target: cv2.Mat, templates: List[Template], /, *, num_workers: in
     best_result_score = -1.0
 
     for worker in workers:
-        result = worker.get_result()
+        for result in worker.get_successful_results():
+            assert result is not None
 
-        if result is None:
-            oe_debug(f"Worker {worker.worker_id} has provided no result (return value = none).")
-            continue
+            result_score = result.get_score()
+            if result_score > best_result_score:
+                best_result_score = result_score
+                best_result = result
 
-        result_score = result.get_score()
-        if result_score > best_result_score:
-            best_result_score = result_score
-            best_result = result
+        for error in worker.get_errors():
+            assert error is not None
+
+            # we ignore regular errors here, because they may well be simply caused by trying to match
+            # a given document against an invalid template, which is normal behavior
+            if not error.is_regular:
+                raise error
+            else:
+                oe_debug(f"Worker {worker.worker_id} returned the following non-regular error {error.code_text}:")
+                oe_error_print_debug(error)
 
     # note: best_result may be None here
     _handle_analysis_result(target, best_result)

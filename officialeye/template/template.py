@@ -1,11 +1,14 @@
 import os
+import time
 from typing import Dict, Union
 
 # noinspection PyPackageRequirements
 import cv2
 
 from officialeye.context.singleton import oe_context
-from officialeye.error.errors.template import ErrTemplateInvalidSupervisionEngine, ErrTemplateInvalidMatchingEngine
+from officialeye.error.errors.io import ErrIOInvalidPath
+from officialeye.error.errors.template import ErrTemplateInvalidSupervisionEngine, ErrTemplateInvalidMatchingEngine, ErrTemplateInvalidKeypoint, \
+    ErrTemplateInvalidFeature
 from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.matchers.sift_flann import SiftFlannKeypointMatcher
 from officialeye.match.result import KeypointMatchingResult
@@ -16,6 +19,7 @@ from officialeye.supervision.supervisors.combinatorial import CombinatorialSuper
 from officialeye.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor
 from officialeye.supervision.supervisors.orthogonal_regression import OrthogonalRegressionSupervisor
 from officialeye.supervision.visualizer import SupervisionResultVisualizer
+from officialeye.util.logger import oe_debug, oe_info
 
 
 class Template:
@@ -35,8 +39,19 @@ class Template:
             keypoint_dict = yaml_dict["keypoints"][keypoint_id]
             keypoint_dict["id"] = keypoint_id
             keypoint = TemplateKeypoint(keypoint_dict, self)
-            assert keypoint.region_id not in self._keypoints, "Duplicate region id of keypoint"
-            assert keypoint.region_id not in self._features, "Duplicate region id of keypoint"
+
+            if keypoint.region_id in self._keypoints:
+                raise ErrTemplateInvalidKeypoint(
+                    f"while initializing keypoint '{keypoint_id}' of template '{self.template_id}'",
+                    f"There is already a keypoint with the same identifier '{keypoint.region_id}'."
+                )
+
+            if keypoint.region_id in self._features:
+                raise ErrTemplateInvalidKeypoint(
+                    f"while initializing keypoint '{keypoint_id}' of template '{self.template_id}'",
+                    f"There is already a feature with the same identifier '{keypoint.region_id}'."
+                )
+
             self._keypoints[keypoint.region_id] = keypoint
 
         self._matching = yaml_dict["matching"]
@@ -46,8 +61,19 @@ class Template:
             feature_dict = yaml_dict["features"][feature_id]
             feature_dict["id"] = feature_id
             feature = TemplateFeature(feature_dict, self)
-            assert feature.region_id not in self._keypoints, "Duplicate region id of feature"
-            assert feature.region_id not in self._features, "Duplicate region id of feature"
+
+            if feature.region_id in self._keypoints:
+                raise ErrTemplateInvalidFeature(
+                    f"while initializing feature '{feature_id}' of template '{self.template_id}'",
+                    f"There is already a keypoint with the same identifier '{feature.region_id}'."
+                )
+
+            if feature.region_id in self._features:
+                raise ErrTemplateInvalidFeature(
+                    f"while initializing feature '{feature_id}' of template '{self.template_id}'",
+                    f"There is already a feature with the same identifier '{feature.region_id}'."
+                )
+
             self._features[feature.region_id] = feature
 
         oe_context().on_template_loaded(self)
@@ -99,6 +125,21 @@ class Template:
         return os.path.normpath(path)
 
     def load_source_image(self) -> cv2.Mat:
+
+        _image_path = self._get_source_image_path()
+
+        if not os.path.isfile(_image_path):
+            raise ErrIOInvalidPath(
+                f"while loading template source image of template '{self.template_id}'.",
+                f"Inferred path '{_image_path}' does not refer to a file."
+            )
+
+        if not os.access(_image_path, os.R_OK):
+            raise ErrIOInvalidPath(
+                f"while loading template source image of template '{self.template_id}'.",
+                f"Inferred path at '{_image_path}' is not readable."
+            )
+
         return cv2.imread(self._get_source_image_path(), cv2.IMREAD_COLOR)
 
     def _show(self, img: cv2.Mat) -> cv2.Mat:
@@ -132,9 +173,12 @@ class Template:
     def analyze(self, target: cv2.Mat, /) -> Union[SupervisionResult, None]:
         # find all patterns in the target image
 
+        _analysis_start_time = time.perf_counter(), time.process_time()
+
         matcher = self.load_keypoint_matcher(target)
 
-        for i, kp in enumerate(self.keypoints()):
+        for kp in self.keypoints():
+            oe_debug(f"Running matcher for keypoint '{kp.region_id}'.")
             matcher.match_keypoint(kp)
 
         keypoint_matching_result = matcher.match_finish()
@@ -144,6 +188,11 @@ class Template:
             keypoint_matching_result.debug_print()
 
         keypoint_matching_result.validate()
+
+        _matching_ended_time = time.perf_counter(), time.process_time()
+
+        oe_info(f"Matching succeeded in {_matching_ended_time[0] - _analysis_start_time[0]:.2f} seconds of real time "
+                f"and {_matching_ended_time[1] - _analysis_start_time[1]:.2f} seconds of CPU time.")
 
         # run supervision to obtain correspondence between template and target regions
         supervisor = self._load_supervisor(keypoint_matching_result)
@@ -157,6 +206,11 @@ class Template:
             visualization = supervision_result_visualizer.render()
             supervisor.debug().add_image(visualization)
             supervisor.debug().export()
+
+        _supervision_ended_time = time.perf_counter(), time.process_time()
+
+        oe_info(f"Supervision succeeded in {_supervision_ended_time[0] - _matching_ended_time[0]:.2f} seconds of real time "
+                f"and {_supervision_ended_time[1] - _matching_ended_time[1]:.2f} seconds of CPU time.")
 
         return supervision_result
 
