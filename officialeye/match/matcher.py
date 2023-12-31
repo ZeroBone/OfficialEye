@@ -39,7 +39,7 @@ class KeypointMatcher(ABC, Debuggable):
 
         assert self.__default_config is not None, "get_config() should not be called if there is no default configuration configured"
 
-        matching_config = self.get_template().get_supervision_config()
+        matching_config = self.get_template().get_matching_config()
 
         if self.__engine_id in matching_config:
             return matching_config[self.__engine_id]

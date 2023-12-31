@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 
+from officialeye.error.errors.matching import ErrMatchingInvalidEngineConfig
 from officialeye.match.match import Match
 from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.result import KeypointMatchingResult
@@ -24,12 +25,16 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
         self._sensitivity = self.get_config()["sensitivity"]
 
         if self._sensitivity < 0.0:
-            # TODO: raise error
-            pass
+            raise ErrMatchingInvalidEngineConfig(
+                f"while loading the '{SiftFlannKeypointMatcher.ENGINE_ID}' keypoint matcher",
+                f"The `sensitivity` value ({self._sensitivity}) cannot be negative."
+            )
 
         if self._sensitivity > 1.0:
-            # TODO: raise error
-            pass
+            raise ErrMatchingInvalidEngineConfig(
+                f"while loading the '{SiftFlannKeypointMatcher.ENGINE_ID}' keypoint matcher",
+                f"The `sensitivity` value ({self._sensitivity}) cannot exceed 1.0."
+            )
 
         self._debug_images = []
         self._result = KeypointMatchingResult(template_id)
