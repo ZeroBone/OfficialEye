@@ -106,98 +106,112 @@ features:
     w: 1200
     h: 90
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   last_name_en:
     x: 1080
     y: 400
     w: 1200
     h: 70
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: eng
   name_ru:
     x: 1080
     y: 470
     w: 1200
     h: 90
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   name_en:
     x: 1080
     y: 550
     w: 1200
     h: 70
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: eng
   birthday:
     x: 1080
     y: 620
     w: 1200
     h: 90
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: eng
   place_of_birth_ru:
     x: 1080
     y: 700
     w: 1200
     h: 80
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   place_of_birth_en:
     x: 1080
     y: 780
     w: 1200
     h: 70
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: eng
   issue_date:
     x: 1080
     y: 860
     w: 500
     h: 90
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: eng
   expiry_date:
     x: 1750
     y: 860
     w: 500
     h: 90
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: eng
   issue_authority_ru:
     x: 1080
     y: 950
     w: 1200
     h: 80
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   issue_authority_en:
     x: 1080
     y: 1020
     w: 1200
     h: 80
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: eng
   identifier:
     x: 1080
     y: 1100
     w: 1200
     h: 100
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: eng
   issue_place_ru:
     x: 1080
     y: 1190
     w: 1200
     h: 80
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   issue_place_en:
     x: 1080
     y: 1260
     w: 1200
     h: 80
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: eng
   face:
     x: 174
     y: 384

@@ -138,80 +138,90 @@ features:
     w: 327
     h: 36
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   last_name_line2:
     x: 300
     y: 109
     w: 327
     h: 36
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   name:
     x: 300
     y: 145
     w: 370
     h: 36
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   father_name:
     x: 300
     y: 180
     w: 370
     h: 36
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   sex:
     x: 267
     y: 216
     w: 94
     h: 39
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   birthday:
     x: 413
     y: 215
     w: 256
     h: 40
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: eng
   place_of_birth_line1:
     x: 306
     y: 254
     w: 370
     h: 40
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   place_of_birth_line2:
     x: 306
     y: 290
     w: 370
     h: 40
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   place_of_birth_line3:
     x: 306
     y: 326
     w: 370
     h: 40
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: rus
   mrz_line1:
     x: 31
     y: 383
     w: 691
     h: 50
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: eng
   mrz_line2:
     x: 31
     y: 424
     w: 691
     h: 53
     meta:
-      type: text
+      ocr: tesseract
+      tesseract_lang: eng
   face:
     x: 47
     y: 123
     w: 177
     h: 243
-    

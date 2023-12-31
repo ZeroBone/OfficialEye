@@ -8,6 +8,7 @@ from pytesseract import pytesseract
 from officialeye.context.singleton import oe_context
 from officialeye.error.error import OEError
 from officialeye.error.errors.io import ErrIOOperationNotSupportedByDriver
+from officialeye.error.errors.template import ErrTemplateInvalidFeature
 from officialeye.io.driver import IODriver
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.template import Template
@@ -48,16 +49,25 @@ class OcrIODriver(IODriver):
 
         # extract the features from the target image
         for feature in template.features():
+            feature_meta = feature.get_meta()
 
-            feature_type = feature.get_meta().get("type")
+            ocr_engine = feature_meta.get("ocr", str)
 
-            if feature_type is None or feature_type != "text":
+            if ocr_engine is None:
                 continue
 
-            feature_img = result.get_feature_warped_region(target, feature)
+            if ocr_engine == "tesseract":
+                tesseract_lang = feature_meta.get("tesseract_lang", str, default="eng")
+                tesseract_config = feature_meta.get("tesseract_config", str, default="--dpi 10000 --oem 3 --psm 6")
 
-            # TODO: make the data here configurable
-            data = pytesseract.image_to_string(feature_img, lang="rus", config="--dpi 10000 --oem 3 --psm 6")
+                feature_img = result.get_feature_warped_region(target, feature)
+
+                data = pytesseract.image_to_string(feature_img, lang=tesseract_lang, config=tesseract_config)
+            else:
+                raise ErrTemplateInvalidFeature(
+                    f"while output the analysis result produced via the `{self.DRIVER_ID}` IO driver.",
+                    f"Feature '{feature.region_id}' of template '{result.template_id}' has unknown ocr engine '{ocr_engine}' configured."
+                )
 
             features_dict[feature.region_id] = data.strip()
 
