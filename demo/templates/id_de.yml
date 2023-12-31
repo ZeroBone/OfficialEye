@@ -80,10 +80,6 @@ features:
   # Remember that the origin is located at the top left corner of the image. In other words,
   # the x-axis points to the right, and the y-axis points down (not up!).
   example_feature_name:
-    # Type can be any text, useful to ensure that some processing is applied to only a certain type of features.
-    # For example, it would make little sense to run an OCR engine on a feature containing a picture of a person,
-    # so we can avoid this by just configuring the type accordingly.
-    type: text
     # Remember that the origin is located at the top left corner of the image. In other words,
     # the x-axis points to the right, and the y-axis points down (not up!).
     x: 110 # the x-coordinate of the top left corner of the rectangle (measured in pixels)

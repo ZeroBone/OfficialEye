@@ -48,8 +48,12 @@ class OcrIODriver(IODriver):
 
         # extract the features from the target image
         for feature in template.features():
-            if feature.get_type() != "text":
+
+            feature_type = feature.get_meta().get("type")
+
+            if feature_type is None or feature_type != "text":
                 continue
+
             feature_img = result.get_feature_warped_region(target, feature)
 
             # TODO: make the data here configurable

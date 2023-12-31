@@ -101,91 +101,104 @@ supervision:
 # In other words, the corresponding regions in the target image will be found during document analysis.
 features:
   last_name_ru:
-    type: text
     x: 1080
     y: 321
     w: 1200
     h: 90
+    meta:
+      type: text
   last_name_en:
-    type: text
     x: 1080
     y: 400
     w: 1200
     h: 70
+    meta:
+      type: text
   name_ru:
-    type: text
     x: 1080
     y: 470
     w: 1200
     h: 90
+    meta:
+      type: text
   name_en:
-    type: text
     x: 1080
     y: 550
     w: 1200
     h: 70
+    meta:
+      type: text
   birthday:
-    type: text
     x: 1080
     y: 620
     w: 1200
     h: 90
+    meta:
+      type: text
   place_of_birth_ru:
-    type: text
     x: 1080
     y: 700
     w: 1200
     h: 80
+    meta:
+      type: text
   place_of_birth_en:
-    type: text
     x: 1080
     y: 780
     w: 1200
     h: 70
+    meta:
+      type: text
   issue_date:
-    type: text
     x: 1080
     y: 860
     w: 500
     h: 90
+    meta:
+      type: text
   expiry_date:
-    type: text
     x: 1750
     y: 860
     w: 500
     h: 90
+    meta:
+      type: text
   issue_authority_ru:
-    type: text
     x: 1080
     y: 950
     w: 1200
     h: 80
+    meta:
+      type: text
   issue_authority_en:
-    type: text
     x: 1080
     y: 1020
     w: 1200
     h: 80
+    meta:
+      type: text
   identifier:
-    type: text
     x: 1080
     y: 1100
     w: 1200
     h: 100
+    meta:
+      type: text
   issue_place_ru:
-    type: text
     x: 1080
     y: 1190
     w: 1200
     h: 80
+    meta:
+      type: text
   issue_place_en:
-    type: text
     x: 1080
     y: 1260
     w: 1200
     h: 80
+    meta:
+      type: text
   face:
-    type: img
     x: 174
     y: 384
     w: 627

@@ -15,11 +15,11 @@ _oe_template_schema_keypoint_validator = yml.Map({
 })
 
 _oe_template_schema_feature_validator = yml.Map({
-    "type": yml.Str(),
     "x": yml.Int(),
     "y": yml.Int(),
     "w": yml.Int(),
-    "h": yml.Int()
+    "h": yml.Int(),
+    yml.Optional("meta"): yml.MapPattern(yml.Str(), yml.Int() | yml.Bool() | yml.Float() | yml.Str())
 })
 
 _oe_template_schema_region_id = yml.Regex(r"^[a-zA-Z0-9_]{1,32}$")

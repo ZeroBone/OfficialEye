@@ -133,73 +133,83 @@ supervision:
 # In other words, the corresponding regions in the target image will be found during document analysis.
 features:
   last_name_line1:
-    type: text
     x: 300
     y: 75
     w: 327
     h: 36
+    meta:
+      type: text
   last_name_line2:
-    type: text
     x: 300
     y: 109
     w: 327
     h: 36
+    meta:
+      type: text
   name:
-    type: text
     x: 300
     y: 145
     w: 370
     h: 36
+    meta:
+      type: text
   father_name:
-    type: text
     x: 300
     y: 180
     w: 370
     h: 36
+    meta:
+      type: text
   sex:
-    type: text
     x: 267
     y: 216
     w: 94
     h: 39
+    meta:
+      type: text
   birthday:
-    type: text
     x: 413
     y: 215
     w: 256
     h: 40
+    meta:
+      type: text
   place_of_birth_line1:
-    type: text
     x: 306
     y: 254
     w: 370
     h: 40
+    meta:
+      type: text
   place_of_birth_line2:
-    type: text
     x: 306
     y: 290
     w: 370
     h: 40
+    meta:
+      type: text
   place_of_birth_line3:
-    type: text
     x: 306
     y: 326
     w: 370
     h: 40
+    meta:
+      type: text
   mrz_line1:
-    type: text
     x: 31
     y: 383
     w: 691
     h: 50
+    meta:
+      type: text
   mrz_line2:
-    type: text
     x: 31
     y: 424
     w: 691
     h: 53
+    meta:
+      type: text
   face:
-    type: image
     x: 47
     y: 123
     w: 177
