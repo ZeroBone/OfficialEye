@@ -5,6 +5,7 @@ import numpy as np
 # noinspection PyPackageRequirements
 import z3
 
+from officialeye.error.errors.supervision import ErrSupervisionInvalidEngineConfig
 from officialeye.match.match import Match
 from officialeye.match.result import KeypointMatchingResult
 from officialeye.supervision.result import SupervisionResult
@@ -40,17 +41,38 @@ class CombinatorialSupervisor(Supervisor):
         for match in self._kmr.get_matches():
             self._match_weight[match] = z3.Real(f"w_{match.get_debug_identifier()}", ctx=self._z3_context)
 
-        oe_debug(f"Min match factor: {self.get_config()['min_match_factor']}")
+        _config_min_match_factor = self.get_config()["min_match_factor"]
+        oe_debug(f"Min match factor: {_config_min_match_factor}")
 
-        assert self.get_config()['min_match_factor'] <= 1.0
-        assert self.get_config()['min_match_factor'] >= 0.0
+        if _config_min_match_factor > 1.0:
+            raise ErrSupervisionInvalidEngineConfig(
+                f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor",
+                f"The `min_match_factor` value ({_config_min_match_factor}) cannot exceed 1.0."
+            )
 
-        self._minimum_weight_to_enforce = self._kmr.get_total_match_count() * self.get_config()["min_match_factor"]
+        if _config_min_match_factor < 0.0:
+            raise ErrSupervisionInvalidEngineConfig(
+                f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor",
+                f"The `min_match_factor` value ({_config_min_match_factor}) cannot be negative."
+            )
 
-        assert self.get_config()["max_transformation_error"] >= 0
-        assert self.get_config()["max_transformation_error"] <= 5000
+        self._minimum_weight_to_enforce = self._kmr.get_total_match_count() * _config_min_match_factor
 
-        self._max_transformation_error = self.get_config()["max_transformation_error"]
+        _config_max_transformation_error = self.get_config()["max_transformation_error"]
+
+        if _config_max_transformation_error < 0:
+            raise ErrSupervisionInvalidEngineConfig(
+                f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor",
+                f"The `max_transformation_error` value ({_config_max_transformation_error}) cannot be negative."
+            )
+
+        if _config_max_transformation_error > 5000:
+            raise ErrSupervisionInvalidEngineConfig(
+                f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor",
+                f"The `max_transformation_error` value ({_config_max_transformation_error}) is too high."
+            )
+
+        self._max_transformation_error = _config_max_transformation_error
 
     def _get_consistency_check(self, match: Match, delta: np.ndarray, delta_prime: np.ndarray, /) -> z3.AstRef:
         """

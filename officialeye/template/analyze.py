@@ -7,6 +7,7 @@ import cv2
 
 from officialeye.error.error import OEError
 from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
+from officialeye.error.errors.template import ErrTemplateInvalidConcurrencyConfig
 from officialeye.error.printing import oe_error_print_debug
 from officialeye.io.driver_singleton import oe_io_driver
 from officialeye.supervision.result import SupervisionResult
@@ -66,8 +67,18 @@ def do_analyze(target: cv2.Mat, templates: List[Template], /, *, num_workers: in
         return
 
     assert num_workers is not None
-    assert num_workers >= 1
-    assert num_workers <= 0xff
+
+    if num_workers < 1:
+        raise ErrTemplateInvalidConcurrencyConfig(
+            "while setting up workers for analyzing the target image.",
+            f"The provided number of workers ({num_workers}) cannot be less than one."
+        )
+
+    if num_workers > 0xff:
+        raise ErrTemplateInvalidConcurrencyConfig(
+            "while setting up workers for analyzing the target image.",
+            f"The provided number of workers ({num_workers}) is too high."
+        )
 
     queue = Queue(maxsize=len(templates))
 

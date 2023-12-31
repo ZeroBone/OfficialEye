@@ -45,8 +45,6 @@ class Context:
                 "A template with the same id has already been loaded."
             )
 
-        assert template.template_id not in self._loaded_templates, "Template already loaded"
-
         self._loaded_templates[template.template_id] = template
 
     def get_template(self, template_id: str, /) -> Template:

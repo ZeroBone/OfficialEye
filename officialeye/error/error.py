@@ -32,5 +32,3 @@ ERR_MODULE_IO = "io"
 ERR_MODULE_MATCHING = "matching"
 ERR_MODULE_SUPERVISION = "supervision"
 ERR_MODULE_TEMPLATE = "template"
-
-# TODO: consider all assert statements in the entire project, and check that they are replaced by appropriate exception raising where necessary

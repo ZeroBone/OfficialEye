@@ -1,4 +1,4 @@
-from officialeye.error.codes import ERR_SUPERVISION_CORRESPONDENCE_NOT_FOUND
+from officialeye.error.codes import ERR_SUPERVISION_CORRESPONDENCE_NOT_FOUND, ERR_SUPERVISION_INVALID_ENGINE_CONFIG
 from officialeye.error.error import ERR_MODULE_SUPERVISION, OEError
 
 
@@ -12,3 +12,9 @@ class ErrSupervisionCorrespondenceNotFound(ErrSupervision):
     def __init__(self, while_text: str, problem_text: str, /):
         super().__init__(
             ERR_SUPERVISION_CORRESPONDENCE_NOT_FOUND[0], ERR_SUPERVISION_CORRESPONDENCE_NOT_FOUND[1], while_text, problem_text, is_regular=True)
+
+
+class ErrSupervisionInvalidEngineConfig(ErrSupervision):
+    def __init__(self, while_text: str, problem_text: str, /):
+        super().__init__(
+            ERR_SUPERVISION_INVALID_ENGINE_CONFIG[0], ERR_SUPERVISION_INVALID_ENGINE_CONFIG[1], while_text, problem_text, is_regular=False)

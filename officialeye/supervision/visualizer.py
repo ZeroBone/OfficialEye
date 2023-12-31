@@ -100,7 +100,7 @@ class SupervisionResultVisualizer:
 
             # draw a line visualizing the match
             # TODO: make this depend on the weight of the match
-            if True:  # vote_count >= 1:
+            if True:  # FIXME
                 match_color = (0, 0xff, 0)  # green
             else:
                 match_color = (0, 0, 0xff)  # red
