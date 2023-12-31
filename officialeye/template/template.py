@@ -90,6 +90,9 @@ class Template:
     def get_supervision_config(self) -> dict:
         return self._supervision["config"]
 
+    def get_matching_config(self) -> dict:
+        return self._matching["config"]
+
     def load_keypoint_matcher(self, target_img: cv2.Mat, /) -> KeypointMatcher:
         matching_engine = self.get_matching_engine()
 

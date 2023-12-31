@@ -30,7 +30,12 @@ _oe_template_schema = yml.Map({
     "source": yml.Str(),
     "keypoints": yml.MapPattern(_oe_template_schema_region_id, _oe_template_schema_keypoint_validator),
     "matching": yml.Map({
-        "engine": yml.Regex(r"^[a-zA-Z0-9_]{1,32}$")
+        "engine": yml.Regex(r"^[a-zA-Z0-9_]{1,32}$"),
+        "config": yml.Map({
+            yml.Optional("sift_flann"): yml.Map({
+                "sensitivity": yml.Float()
+            })
+        }),
     }),
     "supervision": yml.Map({
         "engine": yml.Regex(r"^[a-zA-Z0-9_]{1,32}$"),

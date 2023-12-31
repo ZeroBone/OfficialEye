@@ -23,10 +23,6 @@ class Supervisor(ABC, Debuggable):
         self.__engine_id = engine_id
         self.__default_config = None
 
-        # whether or not the user has been warned that the configuration file does not contain supervision engine specific configuration
-        # and that thererefore the default settings have been applied
-        self.__warned_about_config_fallback = False
-
         self.template_id = template_id
         self._kmr = kmr
 
@@ -113,14 +109,6 @@ class Supervisor(ABC, Debuggable):
 
         if self.__engine_id in supervision_config:
             return supervision_config[self.__engine_id]
-
-        # there is no supervision engine specific configuration available
-        # therefore, we need to fallback to the default configuration
-
-        if not self.__warned_about_config_fallback:
-            self.__warned_about_config_fallback = True
-            oe_warn(f"Template '{self.template_id}' does not contain supervision configuration for the '{self.__engine_id}' engine."
-                    f" Therefore, the default configuration had to be applied.")
 
         return self.__default_config
 

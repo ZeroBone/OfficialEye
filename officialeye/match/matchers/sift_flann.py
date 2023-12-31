@@ -15,8 +15,22 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
     ENGINE_ID = "sift_flann"
 
     def __init__(self, template_id: str, img: cv2.Mat, /):
-        super().__init__(template_id, img)
-        self._ratio_thresh = 0.7  # TODO: make this configurable
+        super().__init__(SiftFlannKeypointMatcher.ENGINE_ID, template_id, img)
+
+        self._set_default_config({
+            "sensitivity": 0.7
+        })
+
+        self._sensitivity = self.get_config()["sensitivity"]
+
+        if self._sensitivity < 0.0:
+            # TODO: raise error
+            pass
+
+        if self._sensitivity > 1.0:
+            # TODO: raise error
+            pass
+
         self._debug_images = []
         self._result = KeypointMatchingResult(template_id)
 
@@ -40,7 +54,7 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
 
         # filter matches
         for i, (m, n) in enumerate(matches):
-            if m.distance < self._ratio_thresh * n.distance:
+            if m.distance < self._sensitivity * n.distance:
                 matches_mask[i] = [1, 0]
 
                 pattern_point = keypoints_pattern[m.queryIdx].pt
@@ -51,7 +65,7 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
                 target_point = np.array(target_point, dtype=int)
 
                 match = Match(self.template_id, keypoint.region_id, pattern_point, target_point)
-                match.set_score(self._ratio_thresh * n.distance - m.distance)
+                match.set_score(self._sensitivity * n.distance - m.distance)
                 self._result.add_match(match)
 
         if self.in_debug_mode():

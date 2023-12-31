@@ -4,28 +4,39 @@ from officialeye.error.errors.io import ErrIOInvalidPath
 from officialeye.util.logger import oe_info
 
 
-def create_example_template_config_file(path: str, template_id: str, template_name: str, force_mode: bool, /):
+def create_example_template_config_file(template_path: str, template_image: str, template_id: str, template_name: str, force_mode: bool, /):
 
     # validate the path first
-    if os.path.isdir(path):
+    if os.path.isdir(template_path):
         raise ErrIOInvalidPath(
-            f"while making sure that '{path}' references a file",
+            f"while making sure that '{template_path}' references a file",
             f"This path references a directory."
         )
 
-    if os.path.exists(path) and not force_mode:
+    # determine source config value
+    if os.path.isabs(template_image):
+        # if the path to the specified template source file is absolute,
+        # then we simply put the same absolute path in the template config
+        template_source_config = template_image
+    else:
+        # otherwise, the path is relative to the working directory the program was started in
+        # however, we are interested in the path to the template image relative to the template configuration file
+        # therefore, we 'subtract' from the template_image path the template_path path
+        template_source_config = os.path.relpath(template_image, os.path.dirname(template_path))
+
+    if os.path.exists(template_path) and not force_mode:
         raise ErrIOInvalidPath(
-            f"while making sure that path '{path}' exists",
+            f"while making sure that path '{template_path}' exists",
             f"There is already a file at this path. Use --force to suppress this error."
         )
 
-    dir_name = os.path.dirname(path)
+    dir_name = os.path.dirname(template_path)
     if dir_name != "" and dir_name != "/" and not os.path.exists(dir_name):
         if force_mode:
             os.makedirs(dir_name, exist_ok=True)
         else:
             raise ErrIOInvalidPath(
-                f"while making sure that path '{path}' exists",
+                f"while making sure that path '{template_path}' exists",
                 f"Not all directories leading to the file exist. Use --force to create the missing directories."
             )
 
@@ -35,7 +46,7 @@ id: "{template_id}"
 name: "{template_name}"
 # This is the path to the example document you want to use as a base for the template.
 # The path can be absolute or relative. If it is relative, then it will be resolved relative to the location of the current file.
-source: "SPECIFY A PATH TO THE SOURCE FILE HERE"
+source: "{template_source_config}"
 # A list of keypoints located in the template source image specified above.
 # A keypoint is a rectangular region that should be present in all documents of this kind, and that
 # should be used to find correspondences between the position of the given image and the positions in the template source image.
@@ -64,6 +75,11 @@ matching:
   # positions of the given image and those of the template source image provided above.
   # Available engines: sift_flann
   engine: sift_flann
+  # Engine-specific configuration
+  config:
+    # Configuration specific to the `sift_flann` matching engine.
+    sift_flann:
+      sensitivity: 0.7
 # Supervision configuration
 # Supervision is the process of unifying the given document image with the template source,
 # based on the (partially unreliable) information received from the matching algorithm
@@ -118,7 +134,7 @@ features:
     h: 10 # height of the rectangle (measured in pixels)
     '''
 
-    with open(path, "w") as fh:
+    with open(template_path, "w") as fh:
         fh.write(template_yml)
 
-    oe_info(f"Initialized template configuration file at '{path}'.")
+    oe_info(f"Initialized template configuration file at '{template_path}'.")

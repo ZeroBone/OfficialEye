@@ -68,14 +68,15 @@ def _handle_oe_error(error: OEError):
 # noinspection PyShadowingBuiltins
 @click.command()
 @click.argument("template_path", type=click.Path(exists=False, file_okay=True, readable=True, writable=True))
+@click.argument("template_image", type=click.Path(exists=True, file_okay=True, readable=True, writable=False))
 @click.option("--id", type=str, show_default=False, default="example", help="Specify the template identifier.")
 @click.option("--name", type=str, show_default=False, default="Example", help="Specify the template name.")
 @click.option("--force", is_flag=True, show_default=True, default=False, help="Create the .")
-def create(template_path: str, id: str, name: str, force: bool):
+def create(template_path: str, template_image: str, id: str, name: str, force: bool):
     """Creates a new template configuration file at the specified path."""
 
     try:
-        create_example_template_config_file(template_path, id, name, force)
+        create_example_template_config_file(template_path, template_image, id, name, force)
     except OEError as err:
         _handle_oe_error(err)
 

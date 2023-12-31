@@ -6,7 +6,7 @@ The simplest way to install OfficialEye is via the standard `pip` installation c
 pip install officialeye
 ```
 
-Especially if you are deploying the tool on a production server, you might want to set up `OfficialEye` in a `venv` virtual environment:
+Especially if you are deploying the tool on a production server, you might want to set up `OfficialEye` in a `venv` virtual environment instead:
 
 ```bash
 python3 -m venv venv
@@ -28,7 +28,7 @@ To re-enter the virtual environment, execute
 source venv/bin/activate
 ```
 
-while being located in the root directory of the project.
+while being located in the root directory of the project. For more information about `venv`, see the [official documentation](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment)
 
 # Installation for development
 
