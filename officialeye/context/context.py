@@ -30,7 +30,7 @@ class Context:
         self.disable_logo = False
         self.debug_export_directory = None
         self.export_directory = None
-        self.io_driver_id = None
+        self.io_driver = None
         # keys: template ids
         # values: template
         self._loaded_templates: Dict[str, Template] = {}

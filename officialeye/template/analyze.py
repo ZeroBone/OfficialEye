@@ -5,11 +5,11 @@ from typing import List, Union, Tuple
 # noinspection PyPackageRequirements
 import cv2
 
+from officialeye.context.singleton import oe_context
 from officialeye.error.error import OEError
 from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
 from officialeye.error.errors.template import ErrTemplateInvalidConcurrencyConfig
 from officialeye.error.printing import oe_error_print_debug
-from officialeye.io.driver_singleton import oe_io_driver
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.template import Template
 from officialeye.util.logger import oe_debug
@@ -57,7 +57,7 @@ def _handle_analysis_result(target: cv2.Mat, result: Union[SupervisionResult, No
             "could not establish correspondence of the image with any of the templates provided"
         )
 
-    oe_io_driver().output_analyze_result(target, result)
+    oe_context().io_driver.output_analyze_result(target, result)
 
 
 def do_analyze(target: cv2.Mat, templates: List[Template], /, *, num_workers: int):

@@ -10,12 +10,12 @@ from officialeye.template.template import Template
 from officialeye.util.cli_utils import export_and_show_image
 
 
-class StandardIODriver(IODriver):
+class TestIODriver(IODriver):
 
-    DRIVER_ID = "std"
+    DRIVER_ID = "test"
 
     def __init__(self):
-        super().__init__(StandardIODriver.DRIVER_ID)
+        super().__init__()
 
     def output_analyze_result(self, target: cv2.Mat, result: SupervisionResult, /):
 

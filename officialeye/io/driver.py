@@ -11,8 +11,8 @@ from officialeye.template.template import Template
 
 class IODriver(ABC):
 
-    def __init__(self, driver_id: str):
-        self.__driver_id = driver_id
+    def __init__(self):
+        pass
 
     @abc.abstractmethod
     def output_analyze_result(self, target: cv2.Mat, result: SupervisionResult, /):

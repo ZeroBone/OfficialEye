@@ -18,17 +18,17 @@ def _output_dict(d: dict):
     sys.stdout.flush()
 
 
-class OcrIODriver(IODriver):
+class RunIODriver(IODriver):
 
-    DRIVER_ID = "ocr"
+    DRIVER_ID = "run"
 
     def __init__(self):
-        super().__init__(OcrIODriver.DRIVER_ID)
+        super().__init__()
 
     def output_show_result(self, template: Template, img: cv2.Mat, /):
         raise ErrIOOperationNotSupportedByDriver(
             f"while trying to output the result of showing the template '{template.template_id}'",
-            f"Driver '{OcrIODriver.DRIVER_ID}' does not support this operation."
+            f"Driver '{RunIODriver.DRIVER_ID}' does not support this operation."
         )
 
     def output_error(self, error: OEError, /):
