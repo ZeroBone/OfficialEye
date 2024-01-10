@@ -62,12 +62,10 @@ def generate_template_schema() -> yml.Map:
         }),
         "supervision": yml.Map({
             "engine": _alphanumeric_id_validator,
-            "config": yml.Map({
-                yml.Optional("combinatorial"): yml.Map({
-                    "min_match_factor": yml.Float(),
-                    "max_transformation_error": yml.Int()
-                })
-            }),
+            "config": yml.EmptyDict() | yml.MapPattern(
+                _alphanumeric_id_validator,
+                yml.EmptyDict() | yml.MapPattern(_alphanumeric_id_validator, yml.Any())
+            ),
             "result": yml.Regex(r"^(first|random|best_mse|best_score)$")
         }),
         "feature_classes": yml.MapPattern(_alphanumeric_id_validator, _feature_class_validator),

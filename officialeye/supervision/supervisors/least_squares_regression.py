@@ -19,7 +19,6 @@ class LeastSquaresRegressionSupervisor(Supervisor):
 
     def __init__(self, template_id: str, kmr: KeypointMatchingResult, /):
         super().__init__(LeastSquaresRegressionSupervisor.ENGINE_ID, template_id, kmr)
-        self._set_default_config({})
 
     def _run(self) -> List[SupervisionResult]:
         match_count = self._kmr.get_total_match_count()

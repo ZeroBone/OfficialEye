@@ -4,6 +4,7 @@ import numpy as np
 # noinspection PyPackageRequirements
 import z3
 
+from officialeye.error.errors.supervision import ErrSupervisionInvalidEngineConfig
 from officialeye.match.match import Match
 from officialeye.match.result import KeypointMatchingResult
 from officialeye.supervision.result import SupervisionResult
@@ -18,7 +19,19 @@ class OrthogonalRegressionSupervisor(Supervisor):
     def __init__(self, template_id: str, kmr: KeypointMatchingResult, /):
         super().__init__(OrthogonalRegressionSupervisor.ENGINE_ID, template_id, kmr)
 
-        self._set_default_config({})
+        def _z3_timeout_preprocessor(v: any) -> int:
+
+            v = int(v)
+
+            if v < 1:
+                raise ErrSupervisionInvalidEngineConfig(
+                    f"while loading the '{OrthogonalRegressionSupervisor.ENGINE_ID}' supervisor.",
+                    f"The `z3_timeout` value ({v}) cannot be negative or zero."
+                )
+
+            return v
+
+        self.get_config().set_value_preprocessor("z3_timeout", _z3_timeout_preprocessor)
 
         self._z3_context = z3.Context()
 
@@ -74,8 +87,7 @@ class OrthogonalRegressionSupervisor(Supervisor):
             total_error = z3.Sum(*(self._match_error[match] for match in self._kmr.get_matches()), self._z3_context)
 
             solver = z3.Optimize(ctx=self._z3_context)
-            # TODO: make the timeout configurable
-            solver.set("timeout", 2500)
+            solver.set("timeout", self.get_config().get("z3_timeout", default=2500))
 
             solver.add(error_lower_bounds)
 

@@ -7,7 +7,8 @@ from officialeye.context.singleton import oe_context
 from officialeye.debug.debuggable import Debuggable
 from officialeye.match.result import KeypointMatchingResult
 from officialeye.supervision.result import SupervisionResult
-from officialeye.util.logger import oe_debug, oe_debug_verbose
+from officialeye.supervision.supervisor_config import SupervisorConfig
+from officialeye.util.logger import oe_debug, oe_debug_verbose, oe_warn
 
 _SUPERVISION_RESULT_FIRST = "first"
 _SUPERVISION_RESULT_RANDOM = "random"
@@ -21,18 +22,23 @@ class Supervisor(ABC, Debuggable):
         super().__init__()
 
         self.__engine_id = engine_id
-        self.__default_config = None
-
         self.template_id = template_id
         self._kmr = kmr
 
-        self._delta_x = oe_context().get_template(self.template_id).width // 2
-        self._delta_y = oe_context().get_template(self.template_id).height // 2
-
         oe_debug(f"Total match count: {self._kmr.get_total_match_count()}")
 
-    def _set_default_config(self, default_config: dict):
-        self.__default_config = default_config
+        # initialize configuration manager
+        supervision_config = self.get_template().get_supervision_config()
+
+        assert isinstance(supervision_config, dict)
+
+        if self.__engine_id in supervision_config:
+            config_dict = supervision_config[self.__engine_id]
+        else:
+            oe_warn(f"Could not find any configuration entries for the '{self.__engine_id}' supervision engine.")
+            config_dict = {}
+
+        self._config = SupervisorConfig(config_dict, self.__engine_id)
 
     def get_template(self):
         return oe_context().get_template(self.template_id)
@@ -101,20 +107,10 @@ class Supervisor(ABC, Debuggable):
 
         return best_result
 
-    def get_config(self) -> dict:
-
-        assert self.__default_config is not None, "get_config() should not be called if there is no default configuration configured"
-
-        supervision_config = self.get_template().get_supervision_config()
-
-        if self.__engine_id in supervision_config:
-            return supervision_config[self.__engine_id]
-
-        return self.__default_config
+    def get_config(self) -> SupervisorConfig:
+        return self._config
 
     def run(self) -> Union[SupervisionResult, None]:
-
-        assert self.__default_config is not None, "Default supervision configuration has not been configured"
 
         supervision_result_choice_engine = self.get_template().get_supervision_result()
 

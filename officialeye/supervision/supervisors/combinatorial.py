@@ -20,11 +20,62 @@ class CombinatorialSupervisor(Supervisor):
     def __init__(self, template_id: str, kmr: KeypointMatchingResult, /):
         super().__init__(CombinatorialSupervisor.ENGINE_ID, template_id, kmr)
 
-        self._set_default_config({
-            "min_match_factor": 0.1,
-            "max_transformation_error": 5
-        })
+        # setup configuration
+        def _min_match_factor_preprocessor(v: any) -> float:
 
+            v = float(v)
+
+            if v > 1.0:
+                raise ErrSupervisionInvalidEngineConfig(
+                    f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor",
+                    f"The `min_match_factor` value ({v}) cannot exceed 1.0."
+                )
+
+            if v < 0.0:
+                raise ErrSupervisionInvalidEngineConfig(
+                    f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor",
+                    f"The `min_match_factor` value ({v}) cannot be negative."
+                )
+
+            return v
+
+        self.get_config().set_value_preprocessor("min_match_factor", _min_match_factor_preprocessor)
+
+        def _max_transformation_error_preprocessor(v: any) -> int:
+
+            v = int(v)
+
+            if v < 0:
+                raise ErrSupervisionInvalidEngineConfig(
+                    f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor.",
+                    f"The `max_transformation_error` value ({v}) cannot be negative."
+                )
+
+            if v > 5000:
+                raise ErrSupervisionInvalidEngineConfig(
+                    f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor.",
+                    f"The `max_transformation_error` value ({v}) is too high."
+                )
+
+            return v
+
+        self.get_config().set_value_preprocessor("max_transformation_error", _max_transformation_error_preprocessor)
+
+        def _z3_timeout_preprocessor(v: any) -> int:
+
+            v = int(v)
+
+            if v < 1:
+                raise ErrSupervisionInvalidEngineConfig(
+                    f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor.",
+                    f"The `z3_timeout` value ({v}) cannot be negative or zero."
+                )
+
+            return v
+
+        self.get_config().set_value_preprocessor("z3_timeout", _z3_timeout_preprocessor)
+
+        # initialize all engine-specific values
         self._z3_context = z3.Context()
 
         # create variables for components of the translation matrix
@@ -41,38 +92,11 @@ class CombinatorialSupervisor(Supervisor):
         for match in self._kmr.get_matches():
             self._match_weight[match] = z3.Real(f"w_{match.get_debug_identifier()}", ctx=self._z3_context)
 
-        _config_min_match_factor = self.get_config()["min_match_factor"]
+        _config_min_match_factor = self.get_config().get("min_match_factor", default=0.1)
         oe_debug(f"Min match factor: {_config_min_match_factor}")
 
-        if _config_min_match_factor > 1.0:
-            raise ErrSupervisionInvalidEngineConfig(
-                f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor",
-                f"The `min_match_factor` value ({_config_min_match_factor}) cannot exceed 1.0."
-            )
-
-        if _config_min_match_factor < 0.0:
-            raise ErrSupervisionInvalidEngineConfig(
-                f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor",
-                f"The `min_match_factor` value ({_config_min_match_factor}) cannot be negative."
-            )
-
         self._minimum_weight_to_enforce = self._kmr.get_total_match_count() * _config_min_match_factor
-
-        _config_max_transformation_error = self.get_config()["max_transformation_error"]
-
-        if _config_max_transformation_error < 0:
-            raise ErrSupervisionInvalidEngineConfig(
-                f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor",
-                f"The `max_transformation_error` value ({_config_max_transformation_error}) cannot be negative."
-            )
-
-        if _config_max_transformation_error > 5000:
-            raise ErrSupervisionInvalidEngineConfig(
-                f"while loading the '{CombinatorialSupervisor.ENGINE_ID}' supervisor",
-                f"The `max_transformation_error` value ({_config_max_transformation_error}) is too high."
-            )
-
-        self._max_transformation_error = _config_max_transformation_error
+        self._max_transformation_error = self.get_config().get("max_transformation_error")
 
     def _get_consistency_check(self, match: Match, delta: np.ndarray, delta_prime: np.ndarray, /) -> z3.AstRef:
         """
@@ -110,8 +134,7 @@ class CombinatorialSupervisor(Supervisor):
         total_weight = z3.Sum(*(self._match_weight[match] for match in self._kmr.get_matches()))
 
         solver = z3.Optimize(ctx=self._z3_context)
-        # TODO: make the timeout configurable
-        solver.set("timeout", 2500)
+        solver.set("timeout", self.get_config().get("z3_timeout", default=2500))
 
         solver.add(weights_lower_bounds)
         solver.add(weights_upper_bounds)
