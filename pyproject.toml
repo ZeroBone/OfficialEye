@@ -30,6 +30,7 @@ build-backend = "pdm.backend"
 
 [tool.pdm.scripts]
 docs-serve = "mkdocs serve"
+docs-build = "mkdocs build"
 
 [tool.pdm.dev-dependencies]
 doc = [
