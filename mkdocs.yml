@@ -52,6 +52,19 @@ plugins:
       minify_html: true
   - privacy:
       enabled: !ENV [CI, false]
+  - gen-files:
+      scripts:
+        - scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_file: summary.md
+  - mkdocstrings:
+      enabled: true
+      default_handler: python
+      handlers:
+        python:
+          options:
+            docstring_style: google
+            show_source: true
 
 extra:
   social:
@@ -81,6 +94,8 @@ nav:
   - "Getting Started": getting-started.md
   - Documentation: documentation.md
   - API: api.md
+  - Reference:
+      - mkdocstrings-python: reference/
 
 copyright: |
-  Copyright &copy; 2023 <a href="https://github.com/ZeroBone" target="_blank" rel="noopener">Alexander Mayorov</a>
+  Copyright &copy; 2023-2024 <a href="https://github.com/ZeroBone" target="_blank" rel="noopener">Alexander Mayorov</a>

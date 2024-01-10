@@ -4,6 +4,9 @@ dist
 .cache
 site
 temp
+docs/reference
+.pdm-build
+.pdm-python
 
 # IDE
 .idea
