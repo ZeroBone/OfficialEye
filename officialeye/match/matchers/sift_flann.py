@@ -6,7 +6,6 @@ from officialeye.error.errors.matching import ErrMatchingInvalidEngineConfig
 from officialeye.match.match import Match
 from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.result import KeypointMatchingResult
-from officialeye.region.keypoint import TemplateKeypoint
 
 _FLANN_INDEX_KDTREE = 1
 
@@ -18,23 +17,27 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
     def __init__(self, template_id: str, img: cv2.Mat, /):
         super().__init__(SiftFlannKeypointMatcher.ENGINE_ID, template_id, img)
 
-        self._set_default_config({
-            "sensitivity": 0.7
-        })
+        def _preprocess_sensitivity(value: any) -> float:
 
-        self._sensitivity = self.get_config()["sensitivity"]
+            value = float(value)
 
-        if self._sensitivity < 0.0:
-            raise ErrMatchingInvalidEngineConfig(
-                f"while loading the '{SiftFlannKeypointMatcher.ENGINE_ID}' keypoint matcher",
-                f"The `sensitivity` value ({self._sensitivity}) cannot be negative."
-            )
+            if value < 0.0:
+                raise ErrMatchingInvalidEngineConfig(
+                    f"while loading the '{SiftFlannKeypointMatcher.ENGINE_ID}' keypoint matcher",
+                    f"The `sensitivity` value ({self._sensitivity}) cannot be negative."
+                )
 
-        if self._sensitivity > 1.0:
-            raise ErrMatchingInvalidEngineConfig(
-                f"while loading the '{SiftFlannKeypointMatcher.ENGINE_ID}' keypoint matcher",
-                f"The `sensitivity` value ({self._sensitivity}) cannot exceed 1.0."
-            )
+            if value > 1.0:
+                raise ErrMatchingInvalidEngineConfig(
+                    f"while loading the '{SiftFlannKeypointMatcher.ENGINE_ID}' keypoint matcher",
+                    f"The `sensitivity` value ({self._sensitivity}) cannot exceed 1.0."
+                )
+
+            return value
+
+        self.get_config().set_value_preprocessor("sensitivity", _preprocess_sensitivity)
+
+        self._sensitivity = self.get_config().get("sensitivity", default=0.7)
 
         self._debug_images = []
         self._result = KeypointMatchingResult(template_id)
@@ -46,13 +49,11 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
         # pre-compute the sift keypoints in the target image
         self._keypoints_target, self._destination_target = self._sift.detectAndCompute(self._img, None)
 
-    def match_keypoint(self, keypoint: TemplateKeypoint, /):
-        # noinspection PyUnresolvedReferences
-        sift = cv2.SIFT_create()
+    def match_keypoint(self, pattern: cv2.Mat, keypoint_id: str, /):
 
-        pattern = keypoint.to_image(grayscale=True)
+        pattern = cv2.cvtColor(pattern, cv2.COLOR_BGR2GRAY)
 
-        keypoints_pattern, destination_pattern = sift.detectAndCompute(pattern, None)
+        keypoints_pattern, destination_pattern = self._sift.detectAndCompute(pattern, None)
 
         index_params = dict(algorithm=_FLANN_INDEX_KDTREE, trees=5)
         search_params = dict(checks=50)
@@ -74,7 +75,7 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
                 pattern_point = np.array(pattern_point, dtype=int)
                 target_point = np.array(target_point, dtype=int)
 
-                match = Match(self.template_id, keypoint.region_id, pattern_point, target_point)
+                match = Match(self.template_id, keypoint_id, pattern_point, target_point)
                 match.set_score(self._sensitivity * n.distance - m.distance)
                 self._result.add_match(match)
 
@@ -92,7 +93,7 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
                 matchesMask=matches_mask,
                 flags=cv2.DrawMatchesFlags_DEFAULT
             )
-            self._debug.add_image(debug_image, name=f"match_{keypoint.region_id}")
+            self._debug.add_image(debug_image, name=f"match_{keypoint_id}")
 
     def match_finish(self):
         return self._result

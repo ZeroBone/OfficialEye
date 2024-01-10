@@ -12,13 +12,15 @@ from officialeye.error.errors.template import ErrTemplateInvalidSupervisionEngin
 from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.matchers.sift_flann import SiftFlannKeypointMatcher
 from officialeye.match.result import KeypointMatchingResult
-from officialeye.region.feature import TemplateFeature
-from officialeye.region.keypoint import TemplateKeypoint
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisors.combinatorial import CombinatorialSupervisor
 from officialeye.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor
 from officialeye.supervision.supervisors.orthogonal_regression import OrthogonalRegressionSupervisor
 from officialeye.supervision.visualizer import SupervisionResultVisualizer
+from officialeye.template.feature_class.loader import load_template_feature_classes
+from officialeye.template.feature_class.manager import FeatureClassManager
+from officialeye.template.region.feature import TemplateFeature
+from officialeye.template.region.keypoint import TemplateKeypoint
 from officialeye.util.logger import oe_debug, oe_info
 
 
@@ -26,6 +28,7 @@ class Template:
 
     def __init__(self, yaml_dict: dict, path_to_template: str, /):
         self._path_to_template = path_to_template
+
         self.template_id = yaml_dict["id"]
         self.name = yaml_dict["name"]
         self._source = yaml_dict["source"]
@@ -57,6 +60,10 @@ class Template:
         self._matching = yaml_dict["matching"]
         self._supervision = yaml_dict["supervision"]
 
+        # load feature classes
+        self._feature_class_manager = load_template_feature_classes(yaml_dict["feature_classes"], self.template_id)
+
+        # load features
         for feature_id in yaml_dict["features"]:
             feature_dict = yaml_dict["features"][feature_id]
             feature_dict["id"] = feature_id
@@ -73,6 +80,8 @@ class Template:
                     f"while initializing feature '{feature_id}' of template '{self.template_id}'",
                     f"There is already a feature with the same identifier '{feature.region_id}'."
                 )
+
+            feature.validate_feature_class()
 
             self._features[feature.region_id] = feature
 
@@ -91,7 +100,12 @@ class Template:
         return self._supervision["config"]
 
     def get_matching_config(self) -> dict:
-        return self._matching["config"]
+        matching_config = self._matching["config"]
+        assert isinstance(matching_config, dict)
+        return matching_config
+
+    def get_feature_classes(self) -> FeatureClassManager:
+        return self._feature_class_manager
 
     def load_keypoint_matcher(self, target_img: cv2.Mat, /) -> KeypointMatcher:
         matching_engine = self.get_matching_engine()
@@ -140,7 +154,7 @@ class Template:
         if not os.access(_image_path, os.R_OK):
             raise ErrIOInvalidPath(
                 f"while loading template source image of template '{self.template_id}'.",
-                f"Inferred path at '{_image_path}' is not readable."
+                f"The file at path '{_image_path}' could not be read."
             )
 
         return cv2.imread(self._get_source_image_path(), cv2.IMREAD_COLOR)
@@ -180,9 +194,10 @@ class Template:
 
         matcher = self.load_keypoint_matcher(target)
 
-        for kp in self.keypoints():
-            oe_debug(f"Running matcher for keypoint '{kp.region_id}'.")
-            matcher.match_keypoint(kp)
+        for keypoint in self.keypoints():
+            keypoint_pattern = keypoint.to_image()
+            oe_debug(f"Running matcher for keypoint '{keypoint.region_id}'.")
+            matcher.match_keypoint(keypoint_pattern, keypoint.region_id)
 
         keypoint_matching_result = matcher.match_finish()
 

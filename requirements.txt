@@ -7,3 +7,4 @@ mkdocs-material
 mkdocs-material[imaging]
 mkdocs-minify-plugin
 pytesseract
+pytest

@@ -2,7 +2,7 @@
 import cv2
 
 from officialeye.error.errors.template import ErrTemplateInvalidKeypoint
-from officialeye.region.region import TemplateRegion
+from officialeye.template.region.region import TemplateRegion
 
 _KEYPOINT_RECT_COLOR = (0, 0, 0xff)
 

@@ -11,7 +11,7 @@ from officialeye.io.drivers.std import StandardIODriver
 from officialeye.meta import OFFICIALEYE_GITHUB, OFFICIALEYE_VERSION, print_logo
 from officialeye.template.analyze import do_analyze
 from officialeye.template.create import create_example_template_config_file
-from officialeye.template.parser import load_template
+from officialeye.template.parser.loader import load_template
 from officialeye.template.show import do_show
 from officialeye.util.logger import oe_info, oe_warn, oe_error
 

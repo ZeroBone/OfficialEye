@@ -119,8 +119,7 @@ supervision:
       # the risk of wrongfully not detecting a document at all.
       # Recommended value: between 2 and 10 pixels
       max_transformation_error: 5
-
-  # Since the supervision engine may produce multiple results.
+  # Recall that the supervision engine may produce multiple results.
   # This option allows you to specify the strategy that should be used to choose a final result.
   # Available strategies: first, best_mse, best_score
   # The `first` strategy simply returns the first result produced
@@ -128,6 +127,28 @@ supervision:
   # The `best_mse` strategy finds the result which has the lowest mean squared error when translating template points to target points
   # The `best_score` strategy returns the result with the highest score (what `score` represents depends on the supervision engine)
   result: best_score
+feature_classes:
+  line_with_text:
+    abstract: yes
+    mutators:
+      - id: non_local_means_denoising
+        config:
+          colored: yes
+    interpretation:
+      method: ocr_tesseract
+      config:
+        config: --dpi 10000 --oem 3 --psm 6
+  line_with_russian_text:
+    inherits: line_with_text
+    interpretation:
+      config:
+        lang: rus
+  line_with_english_text:
+    inherits: line_with_text
+    interpretation:
+      config:
+        lang: eng
+
 # A list of features located in the template source image specified above.
 # A feature is a rectangular region containing any information of interest, such as text.
 # In other words, the corresponding regions in the target image will be found during document analysis.
@@ -137,89 +158,67 @@ features:
     y: 75
     w: 327
     h: 36
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   last_name_line2:
     x: 300
     y: 109
     w: 327
     h: 36
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   name:
     x: 300
     y: 145
     w: 370
     h: 36
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   father_name:
     x: 300
     y: 180
     w: 370
     h: 36
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   sex:
     x: 267
     y: 216
     w: 94
     h: 39
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   birthday:
     x: 413
     y: 215
     w: 256
     h: 40
-    meta:
-      ocr: tesseract
-      tesseract_lang: eng
+    class: line_with_english_text
   place_of_birth_line1:
     x: 306
     y: 254
     w: 370
     h: 40
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   place_of_birth_line2:
     x: 306
     y: 290
     w: 370
     h: 40
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   place_of_birth_line3:
     x: 306
     y: 326
     w: 370
     h: 40
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   mrz_line1:
     x: 31
     y: 383
     w: 691
     h: 50
-    meta:
-      ocr: tesseract
-      tesseract_lang: eng
+    class: line_with_english_text
   mrz_line2:
     x: 31
     y: 424
     w: 691
     h: 53
-    meta:
-      ocr: tesseract
-      tesseract_lang: eng
+    class: line_with_english_text
   face:
     x: 47
     y: 123

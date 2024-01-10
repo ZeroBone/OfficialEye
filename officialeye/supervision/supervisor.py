@@ -7,7 +7,7 @@ from officialeye.context.singleton import oe_context
 from officialeye.debug.debuggable import Debuggable
 from officialeye.match.result import KeypointMatchingResult
 from officialeye.supervision.result import SupervisionResult
-from officialeye.util.logger import oe_debug, oe_debug_verbose, oe_warn
+from officialeye.util.logger import oe_debug, oe_debug_verbose
 
 _SUPERVISION_RESULT_FIRST = "first"
 _SUPERVISION_RESULT_RANDOM = "random"

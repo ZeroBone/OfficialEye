@@ -9,7 +9,8 @@ _LABEL_COLOR_DEFAULT = (0, 0, 0xff)
 _VISUALIZATION_SCALE_COEFF = 1.0 / 1400.0
 
 
-class TemplateRegion:
+class TemplateRegion(abc.ABC):
+
     def __init__(self, feature_dict: dict, template, /):
         self._template = template
         self.region_id = str(feature_dict["id"])
@@ -54,12 +55,9 @@ class TemplateRegion:
         )
         return img
 
-    def to_image(self, *, grayscale: bool = False):
+    def to_image(self):
         img = self._template.load_source_image()
-        img_cropped = img[self.y:self.y + self.h, self.x:self.x + self.w]
-        if grayscale:
-            return cv2.cvtColor(img_cropped, cv2.COLOR_BGR2GRAY)
-        return img_cropped
+        return img[self.y:self.y + self.h, self.x:self.x + self.w]
 
     def insert_into_image(self, target: np.ndarray, transformed_version: np.ndarray = None):
         assert target.shape[0] == self._template.height

@@ -1,54 +1,11 @@
 import strictyaml as yml
 
+from officialeye.error.errors.template import ErrTemplateInvalidSyntax
+from officialeye.template.parser.schema import generate_template_schema
 from officialeye.template.template import Template
 from officialeye.util.logger import oe_error, oe_info
 
-_oe_template_schema_keypoint_validator = yml.Map({
-    "x": yml.Int(),
-    "y": yml.Int(),
-    "w": yml.Int(),
-    "h": yml.Int(),
-    "matches": yml.Map({
-        "min": yml.Int(),
-        "max": yml.Int()
-    })
-})
-
-_oe_template_schema_feature_validator = yml.Map({
-    "x": yml.Int(),
-    "y": yml.Int(),
-    "w": yml.Int(),
-    "h": yml.Int(),
-    yml.Optional("meta"): yml.MapPattern(yml.Str(), yml.Int() | yml.Bool() | yml.Float() | yml.Str())
-})
-
-_oe_template_schema_region_id = yml.Regex(r"^[a-zA-Z0-9_]{1,32}$")
-
-_oe_template_schema = yml.Map({
-    "id": yml.Regex(r"^[a-z_][a-zA-Z0-9_]{,31}$"),
-    "name": yml.Regex(r"^[a-zA-Z0-9_ ']{1,64}$"),
-    "source": yml.Str(),
-    "keypoints": yml.MapPattern(_oe_template_schema_region_id, _oe_template_schema_keypoint_validator),
-    "matching": yml.Map({
-        "engine": yml.Regex(r"^[a-zA-Z0-9_]{1,32}$"),
-        "config": yml.Map({
-            yml.Optional("sift_flann"): yml.Map({
-                "sensitivity": yml.Float()
-            })
-        }),
-    }),
-    "supervision": yml.Map({
-        "engine": yml.Regex(r"^[a-zA-Z0-9_]{1,32}$"),
-        "config": yml.Map({
-            yml.Optional("combinatorial"): yml.Map({
-                "min_match_factor": yml.Float(),
-                "max_transformation_error": yml.Int()
-            })
-        }),
-        "result": yml.Regex(r"^(first|random|best_mse|best_score)$")
-    }),
-    "features": yml.MapPattern(yml.Str(), _oe_template_schema_feature_validator)
-})
+_oe_template_schema = generate_template_schema()
 
 
 def _print_error_message(err: yml.StrictYAMLError, template_path: str):
@@ -88,6 +45,12 @@ def load_template(path: str) -> Template:
     except yml.StrictYAMLError as err:
         _print_error_message(err, path)
         exit(4)
+    except yml.YAMLError as err:
+        raise ErrTemplateInvalidSyntax(
+            f"while loading template configuration file at '{path}'.",
+            f"General parsing error. Check the syntax and the encoding of the file.",
+            cause=err
+        )
 
     data = yaml_document.data
 

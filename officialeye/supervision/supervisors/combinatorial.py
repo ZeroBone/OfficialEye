@@ -158,10 +158,10 @@ class CombinatorialSupervisor(Supervisor):
             assert result == z3.sat
 
             model = solver.model()
-            model_evaluator = np.vectorize(lambda var: float(model.eval(var, model_completion=True).as_fraction()))
+            model_evaluator = np.vectorize(lambda var: model.eval(var, model_completion=True).as_fraction())
 
             # extract total weight and maximization target from model
-            model_total_weight = model_evaluator(total_weight)
+            model_total_weight = float(model_evaluator(total_weight))
 
             # extract transformation matrix from model
             transformation_matrix = model_evaluator(self._transformation_matrix)

@@ -44,6 +44,7 @@ class SupervisionResult:
 
     def set_score(self, new_score: float, /):
         assert new_score >= 0
+        assert isinstance(new_score, float)
         self._score = new_score
 
     def get_match_weight(self, match: Match, /) -> float:

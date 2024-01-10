@@ -1,7 +1,7 @@
 import numpy as np
 
 from officialeye.context.singleton import oe_context
-from officialeye.region.keypoint import TemplateKeypoint
+from officialeye.template.region.keypoint import TemplateKeypoint
 
 
 class Match:

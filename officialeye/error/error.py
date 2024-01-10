@@ -1,6 +1,10 @@
+from typing import Union
+
+
 class OEError(Exception):
 
-    def __init__(self, module: str, code: int, code_text: str, while_text: str, problem_text: str, /, *, is_regular: bool = False):
+    def __init__(self, module: str, code: int, code_text: str, while_text: str, problem_text: str, /, *,
+                 is_regular: bool = False, cause: Union[Exception, None] = None):
         super().__init__()
 
         assert code != 0
@@ -17,6 +21,8 @@ class OEError(Exception):
         # on the other hand, the template configuration file does not count as end user input
         self.is_regular = is_regular
 
+        self.cause = cause
+
     def serialize(self) -> dict:
         return {
             "code": self.code,
@@ -24,7 +30,8 @@ class OEError(Exception):
             "module": self.module,
             "while_text": self.while_text,
             "problem_text": self.problem_text,
-            "is_regular": self.is_regular
+            "is_regular": self.is_regular,
+            "cause": str(self.cause) if self.cause is not None else None
         }
 
 
