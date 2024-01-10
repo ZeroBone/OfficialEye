@@ -55,7 +55,6 @@ class RunIODriver(IODriver):
 
             feature_img = result.get_feature_warped_region(target, feature)
 
-            # apply the interpretation mutators
             feature_img_mutated = feature.apply_mutators_to_image(feature_img)
 
             interpretation = feature.interpret_image(feature_img_mutated)

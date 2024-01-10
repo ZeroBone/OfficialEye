@@ -96,6 +96,24 @@ supervision:
   # The `best_mse` strategy finds the result which has the lowest mean squared error when translating template points to target points
   # The `best_score` strategy returns the result with the highest score (what `score` represents depends on the supervision engine)
   result: best_score
+feature_classes:
+  line_with_text:
+    abstract: yes
+    mutators:
+    interpretation:
+      method: ocr_tesseract
+      config:
+        config: --dpi 10000 --oem 3 --psm 6
+  line_with_russian_text:
+    inherits: line_with_text
+    interpretation:
+      config:
+        lang: rus
+  line_with_english_text:
+    inherits: line_with_text
+    interpretation:
+      config:
+        lang: eng
 # A list of features located in the template source image specified above.
 # A feature is a rectangular region containing any information of interest, such as text.
 # In other words, the corresponding regions in the target image will be found during document analysis.
@@ -105,113 +123,85 @@ features:
     y: 321
     w: 1200
     h: 90
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   last_name_en:
     x: 1080
     y: 400
     w: 1200
     h: 70
-    meta:
-      ocr: tesseract
-      tesseract_lang: eng
+    class: line_with_english_text
   name_ru:
     x: 1080
     y: 470
     w: 1200
     h: 90
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   name_en:
     x: 1080
     y: 550
     w: 1200
     h: 70
-    meta:
-      ocr: tesseract
-      tesseract_lang: eng
+    class: line_with_english_text
   birthday:
     x: 1080
     y: 620
     w: 1200
     h: 90
-    meta:
-      ocr: tesseract
-      tesseract_lang: eng
+    class: line_with_english_text
   place_of_birth_ru:
     x: 1080
     y: 700
     w: 1200
     h: 80
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   place_of_birth_en:
     x: 1080
     y: 780
     w: 1200
     h: 70
-    meta:
-      ocr: tesseract
-      tesseract_lang: eng
+    class: line_with_english_text
   issue_date:
     x: 1080
     y: 860
     w: 500
     h: 90
-    meta:
-      ocr: tesseract
-      tesseract_lang: eng
+    class: line_with_english_text
   expiry_date:
     x: 1750
     y: 860
     w: 500
     h: 90
-    meta:
-      ocr: tesseract
-      tesseract_lang: eng
+    class: line_with_english_text
   issue_authority_ru:
     x: 1080
     y: 950
     w: 1200
     h: 80
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   issue_authority_en:
     x: 1080
     y: 1020
     w: 1200
     h: 80
-    meta:
-      ocr: tesseract
-      tesseract_lang: eng
+    class: line_with_english_text
   identifier:
     x: 1080
     y: 1100
     w: 1200
     h: 100
-    meta:
-      ocr: tesseract
-      tesseract_lang: eng
+    class: line_with_english_text
   issue_place_ru:
     x: 1080
     y: 1190
     w: 1200
     h: 80
-    meta:
-      ocr: tesseract
-      tesseract_lang: rus
+    class: line_with_russian_text
   issue_place_en:
     x: 1080
     y: 1260
     w: 1200
     h: 80
-    meta:
-      ocr: tesseract
-      tesseract_lang: eng
+    class: line_with_english_text
   face:
     x: 174
     y: 384

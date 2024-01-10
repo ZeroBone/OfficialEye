@@ -28,7 +28,8 @@ class TestIODriver(IODriver):
         # extract the features from the target image
         for feature in template.features():
             feature_img = result.get_feature_warped_region(target, feature)
-            feature.insert_into_image(application_image, feature_img)
+            feature_img_mutated = feature.apply_mutators_to_image(feature_img)
+            feature.insert_into_image(application_image, feature_img_mutated)
 
         # visualize features on the image
         for feature in template.features():
