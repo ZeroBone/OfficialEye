@@ -17,7 +17,8 @@ jobs:
         with:
           key: ${{ github.ref }}
           path: .cache
-      - run: pip install mkdocs-material
-      - run: pip install mkdocs-material[imaging]
-      - run: pip install mkdocs-minify-plugin
-      - run: mkdocs gh-deploy --force
+      # install PDM
+      - run: curl -sSL https://pdm-project.org/install-pdm.py | python3 -
+      # install dependencies
+      - run: pdm install --dev
+      - run: pdm run docs-deploy
