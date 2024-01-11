@@ -89,11 +89,20 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
 
 nav:
   - Usage:
-      - Introduction: index.md
+      - index.md
+      - usage/basics.md
   - "API Reference": reference/
+
+extra_css:
+  - assets/stylesheets/style.css
 
 copyright: |
   Copyright &copy; 2023-2024 <a href="https://github.com/ZeroBone" target="_blank" rel="noopener">Alexander Mayorov</a>

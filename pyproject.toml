@@ -32,6 +32,8 @@ build-backend = "pdm.backend"
 docs-serve = "mkdocs serve"
 docs-build = "mkdocs build"
 docs-deploy = "mkdocs gh-deploy --force"
+tests-integration = {shell = "pytest src/tests/integration/*.py"}
+count-loc = {shell = "find src/officialeye -name '*.py' | xargs wc -l"}
 
 [tool.pdm.dev-dependencies]
 doc = [

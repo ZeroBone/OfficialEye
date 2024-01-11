@@ -32,7 +32,7 @@ The tool can be installed with the standard `pip` installation command:
 pip install officialeye
 ```
 
-Especially if you are deploying the tool on a production server, you might want to set up `OfficialEye` in a `venv` virtual environment instead:
+Especially if you are deploying the tool on a production server, you might want to set up `OfficialEye` in a `venv` virtual environment, which is an isolated Python runtime:
 
 ```shell
 python3 -m venv venv
@@ -64,7 +64,7 @@ curl -sSL https://pdm-project.org/install-pdm.py | python3 -
 ```
 
 !!! note
-    PDM will not work without the `python3-venv` package. Make sure to have it installed before running the above command.
+    PDM will not work without the `python3-venv` package. Make sure to have `curl` and `python3-venv` installed before running the above command.
 
 Next, initialize a new `venv` environment and enter it:
 ```shell
@@ -78,3 +78,12 @@ At this point, a prefix of the form `(officialeye-x.xx)` should appear in the te
 pdm install
 pip install -e .
 ```
+
+!!! success
+    The tool should now be available via the `officialeye` command. Note that if you leave the virtual environment, the `officialeye` command will no longer be available. Therefore, it is important to not forget to reenter `venv` via the
+    ```shell
+    source .venv/bin/activate
+    ```
+    command.
+
+[:octicons-arrow-right-16: Basics](./usage/basics.md){ .md-button .md-button--primary}
