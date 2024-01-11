@@ -96,24 +96,7 @@ supervision:
   # The `best_mse` strategy finds the result which has the lowest mean squared error when translating template points to target points
   # The `best_score` strategy returns the result with the highest score (what `score` represents depends on the supervision engine)
   result: best_score
-feature_classes:
-  line_with_text:
-    abstract: yes
-    mutators:
-    interpretation:
-      method: ocr_tesseract
-      config:
-        config: --dpi 10000 --oem 3 --psm 6
-  line_with_russian_text:
-    inherits: line_with_text
-    interpretation:
-      config:
-        lang: rus
-  line_with_english_text:
-    inherits: line_with_text
-    interpretation:
-      config:
-        lang: eng
+
 # A list of features located in the template source image specified above.
 # A feature is a rectangular region containing any information of interest, such as text.
 # In other words, the corresponding regions in the target image will be found during document analysis.
@@ -207,3 +190,22 @@ features:
     y: 384
     w: 627
     h: 921
+
+feature_classes:
+  line_with_text:
+    abstract: yes
+    mutators:
+    interpretation:
+      method: ocr_tesseract
+      config:
+        config: --dpi 10000 --oem 3 --psm 6
+  line_with_russian_text:
+    inherits: line_with_text
+    interpretation:
+      config:
+        lang: rus
+  line_with_english_text:
+    inherits: line_with_text
+    interpretation:
+      config:
+        lang: eng

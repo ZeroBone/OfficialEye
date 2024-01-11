@@ -1,7 +1,7 @@
 [project]
 name = "officialeye"
 version = "1.0.3"
-description = "Default template for PDM package"
+description = "AI-powered document recognition system"
 authors = [
     {name = "Alexander Mayorov", email = "zb@zerobone.net"},
 ]

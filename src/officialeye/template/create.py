@@ -128,6 +128,33 @@ features:
     y: 10 # the y-coordinate of the top left corner of the rectangle (measured in pixels)
     w: 100 # width of the rectangle (measured in pixels)
     h: 10 # height of the rectangle (measured in pixels)
+    class: example_feature_class # optional, the class of this feature (see below)
+    
+# A feature class can be used to group similar features together
+# Feature classes are identified by a unique name, and can inherit other classes.
+feature_classes:
+  # For example, the following entry defines a feature class named example_feature_class
+  example_feature_class:
+    # An abstract class cannot be directly used by any concrete feature, but can be incomplete.
+    # To use an abstract class, a non-abstract subclass has to be created.
+    # A non-abstract class can be used by concrete features, but cannot be incomplete.
+    abstract: no # Optional. By default, feature classes are not abstract.
+    # A mutator is a method of transforming an image into another image.
+    # Examples of mutators include image denoising, grayscale coloring, etc.
+    # You can even define and use your own mutators.
+    # In this example, we use a mutator that reduces image noise.
+    mutators: # A sequence of mutators that should be applied to the region of a feature, before it is processed further.
+      - id: non_local_means_denoising # Name of the mutator
+        config: # Optional mutator-specific configuration
+          colored: yes
+    intepretation:
+      # An interpretation method defines the way in which the mutated feature location should be processed further
+      # For example, the ocr_tesseract method will apply the Tesseract OCR to the image.
+      method: ocr_tesseract
+      # Intepretation-engine-specific configuration values
+      config:
+        config: --dpi 10000 --oem 3 --psm 6
+        lang: eng
     '''
 
     with open(template_path, "w") as fh:

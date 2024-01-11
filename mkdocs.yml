@@ -54,7 +54,7 @@ plugins:
       enabled: !ENV [CI, false]
   - gen-files:
       scripts:
-        - scripts/gen_ref_pages.py
+        - docs_dynamic/gen_ref_pages.py
   - literate-nav:
       nav_file: summary.md
   - mkdocstrings:
@@ -91,9 +91,8 @@ markdown_extensions:
       emoji_generator: !!python/name:materialx.emoji.to_svg
 
 nav:
-  - Home: index.md
-  - "Getting Started": getting-started.md
-  - Documentation: documentation.md
+  - Usage:
+      - Introduction: index.md
   - "API Reference": reference/
 
 copyright: |
