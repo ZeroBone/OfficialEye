@@ -5,7 +5,7 @@ import cv2
 
 from officialeye.error.errors.template import ErrTemplateInvalidFeature
 from officialeye.interpretation.loader import load_interpretation_method
-from officialeye.mutator.loader import load_mutator
+from officialeye.mutator.loader import load_mutator_from_dict
 from officialeye.template.feature_class.feature_class import FeatureClass
 from officialeye.template.feature_class.manager import FeatureClassManager
 from officialeye.template.region.region import TemplateRegion
@@ -86,17 +86,8 @@ class TemplateFeature(TemplateRegion):
         assert isinstance(mutators, list)
 
         for mutator_dict in mutators:
-            mutator_id = mutator_dict["id"]
-
-            if "config" in mutator_dict:
-                mutator_config = mutator_dict["config"]
-            else:
-                mutator_config = {}
-
-            oe_debug(f"Applying mutator '{mutator_id}'.")
-
-            mutator = load_mutator(mutator_id, mutator_config)
-
+            mutator = load_mutator_from_dict(mutator_dict)
+            oe_debug(f"Applying mutator '{mutator.mutator_id}'.")
             img = mutator.mutate(img)
 
         return img

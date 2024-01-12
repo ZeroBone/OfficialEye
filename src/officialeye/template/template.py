@@ -1,6 +1,6 @@
 import os
 import time
-from typing import Dict, Union
+from typing import Dict, Union, List
 
 # noinspection PyPackageRequirements
 import cv2
@@ -12,6 +12,8 @@ from officialeye.error.errors.template import ErrTemplateInvalidSupervisionEngin
 from officialeye.match.matcher import KeypointMatcher
 from officialeye.match.matchers.sift_flann import SiftFlannKeypointMatcher
 from officialeye.match.result import KeypointMatchingResult
+from officialeye.mutator.loader import load_mutator_from_dict
+from officialeye.mutator.mutator import Mutator
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisors.combinatorial import CombinatorialSupervisor
 from officialeye.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor
@@ -34,6 +36,14 @@ class Template:
         self._source = yaml_dict["source"]
 
         self.height, self.width, _ = self.load_source_image().shape
+
+        self._source_mutators: List[Mutator] = [
+            load_mutator_from_dict(mutator_dict) for mutator_dict in yaml_dict["mutators"]["source"]
+        ]
+
+        self._target_mutators: List[Mutator] = [
+            load_mutator_from_dict(mutator_dict) for mutator_dict in yaml_dict["mutators"]["target"]
+        ]
 
         self._keypoints: Dict[str, TemplateKeypoint] = {}
         self._features: Dict[str, TemplateFeature] = {}
@@ -159,16 +169,28 @@ class Template:
 
         return cv2.imread(self._get_source_image_path(), cv2.IMREAD_COLOR)
 
-    def _show(self, img: cv2.Mat) -> cv2.Mat:
-        for feature in self.features():
-            img = feature.visualize(img)
-        for keypoint in self.keypoints():
-            img = keypoint.visualize(img)
+    def _show(self, img: cv2.Mat, /, *, hide_features: bool, hide_keypoints: bool) -> cv2.Mat:
+
+        if not hide_features:
+            for feature in self.features():
+                img = feature.visualize(img)
+
+        if not hide_keypoints:
+            for keypoint in self.keypoints():
+                img = keypoint.visualize(img)
+
         return img
 
-    def show(self) -> cv2.Mat:
+    def show(self, /, **kwargs) -> cv2.Mat:
+
         img = self.load_source_image()
-        return self._show(img)
+
+        # apply template mutators to the target image
+        for mutator in self._source_mutators:
+            oe_debug(f"Applying mutator '{mutator.mutator_id}' to the source image of template '{self.template_id}'.")
+            img = mutator.mutate(img)
+
+        return self._show(img, **kwargs)
 
     def _load_supervisor(self, kmr: KeypointMatchingResult):
         superivision_engine = self.get_supervision_engine()
@@ -192,6 +214,12 @@ class Template:
 
         _analysis_start_time = time.perf_counter(), time.process_time()
 
+        # apply mutators to the target image
+        for mutator in self._target_mutators:
+            oe_debug(f"Applying mutator '{mutator.mutator_id}' to input image.")
+            target = mutator.mutate(target)
+
+        # start matching
         matcher = self.load_keypoint_matcher(target)
 
         for keypoint in self.keypoints():

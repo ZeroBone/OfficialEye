@@ -55,8 +55,15 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
 
         keypoints_pattern, destination_pattern = self._sift.detectAndCompute(pattern, None)
 
-        index_params = dict(algorithm=_FLANN_INDEX_KDTREE, trees=5)
-        search_params = dict(checks=50)
+        index_params = {
+            "algorithm": _FLANN_INDEX_KDTREE,
+            "trees": 5
+        }
+
+        search_params = {
+            "checks": 50
+        }
+
         flann = cv2.FlannBasedMatcher(index_params, search_params)
         matches = flann.knnMatch(destination_pattern, self._destination_target, k=2)
 

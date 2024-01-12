@@ -10,16 +10,19 @@ class KeypointMatchingResult:
 
     def __init__(self, template_id: str, /):
         self._template_id = template_id
+
         # keys: keypoint ids
         # values: matches with this keypoint
         self._matches_dict: Dict[str, List[Match]] = {}
+
+        for keypoint in self.get_template().keypoints():
+            self._matches_dict[keypoint.region_id] = []
 
     def remove_all_matches(self):
         self._matches_dict = {}
 
     def add_match(self, match: Match, /):
-        if match.keypoint_id not in self._matches_dict:
-            self._matches_dict[match.keypoint_id] = []
+        assert match.keypoint_id in self._matches_dict
         self._matches_dict[match.keypoint_id].append(match)
 
     def get_matches(self):
@@ -79,4 +82,3 @@ class KeypointMatchingResult:
         oe_debug_verbose(f"Listing matched points:")
         for match in self.get_matches():
             oe_debug_verbose(f"> {match}")
-

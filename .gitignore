@@ -7,6 +7,8 @@ temp
 docs/reference
 .pdm-build
 .pdm-python
+docs/assets/img/demo
+docs/usage/basics.md
 
 # IDE
 .idea

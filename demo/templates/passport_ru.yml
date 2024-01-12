@@ -5,6 +5,13 @@ name: "Passport RU"
 # This is the path to the example document you want to use as a base for the template.
 # The path can be absolute or relative. If it is relative, then it will be resolved relative to the location of the current file.
 source: "../template_images/passport_ru.jpg"
+mutators:
+  # A list of mutators that should be applied to the above template source image before the unification phase
+  source:
+    - id: clahe
+  # A list of mutators that should be applied to the input image before the unification phase
+  target:
+    - id: clahe
 # A list of keypoints located in the template source image specified above.
 # A keypoint is a rectangular region that should be present in all documents of this kind, and that
 # should be used to find correspondences between the position of the given image and the positions in the template source image.
@@ -15,7 +22,7 @@ keypoints:
     w: 65
     h: 65
     matches:
-      min: 2
+      min: 1
       max: 20
   photo_bar_top:
     x: 14
@@ -210,9 +217,9 @@ feature_classes:
   line_with_text:
     abstract: yes
     mutators:
-      - id: non_local_means_denoising
-        config:
-          colored: yes
+      #- id: non_local_means_denoising
+      #  config:
+      #    colored: yes
     interpretation:
       method: ocr_tesseract
       config:

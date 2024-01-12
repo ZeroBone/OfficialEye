@@ -99,6 +99,9 @@ nav:
   - Usage:
       - index.md
       - usage/basics.md
+      - usage/architecture.md
+  - Development:
+      - dev/changelog.md
   - "API Reference": reference/
 
 extra_css:

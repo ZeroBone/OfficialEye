@@ -52,6 +52,10 @@ def generate_template_schema() -> yml.Map:
         "id": _alphanumeric_id_validator,
         "name": yml.Regex(r"^[a-zA-Z0-9_ ']{1,64}$"),
         "source": yml.Str(),
+        "mutators": yml.Map({
+            "source": yml.EmptyList() | yml.Seq(_mutator_specification),
+            "target": yml.EmptyList() | yml.Seq(_mutator_specification)
+        }),
         "keypoints": yml.MapPattern(_alphanumeric_id_validator, _keypoint_validator),
         "matching": yml.Map({
             "engine": _alphanumeric_id_validator,

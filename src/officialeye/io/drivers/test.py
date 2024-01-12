@@ -17,6 +17,8 @@ class TestIODriver(IODriver):
     def __init__(self):
         super().__init__()
 
+        self.visualize_features: bool = True
+
     def output_analyze_result(self, target: cv2.Mat, result: SupervisionResult, /):
 
         assert result is not None
@@ -31,9 +33,10 @@ class TestIODriver(IODriver):
             feature_img_mutated = feature.apply_mutators_to_image(feature_img)
             feature.insert_into_image(application_image, feature_img_mutated)
 
-        # visualize features on the image
-        for feature in template.features():
-            application_image = feature.visualize(application_image)
+        if self.visualize_features:
+            # visualize features on the image
+            for feature in template.features():
+                application_image = feature.visualize(application_image)
 
         export_and_show_image(application_image)
 

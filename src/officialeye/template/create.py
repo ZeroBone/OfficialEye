@@ -47,6 +47,11 @@ name: "{template_name}"
 # This is the path to the example document you want to use as a base for the template.
 # The path can be absolute or relative. If it is relative, then it will be resolved relative to the location of the current file.
 source: "{template_source_config}"
+mutators:
+  # A list of mutators that should be applied to the above template source image before the unification phase
+  source:
+  # A list of mutators that should be applied to the input image before the unification phase
+  target:
 # A list of keypoints located in the template source image specified above.
 # A keypoint is a rectangular region that should be present in all documents of this kind, and that
 # should be used to find correspondences between the position of the given image and the positions in the template source image.
@@ -100,7 +105,7 @@ supervision:
       # The combinatorial engine uses an affine linear transformation model to represent the way the document is located in the image provided.
       # It then chooses at least `min_match_factor` * (total amount of matches) matches that cause the data to fit the model, up to the error
       # specified here, measured in pixels along one of the axis. Thus, the lower this value is, the higher will be the quality of the
-      # combinatorial supervision engine's output. On the other hand, a very small value may increase
+      # combinatorial supervision engine's output. On the other hand, a very small value will increase
       # the risk of wrongfully not detecting a document at all.
       # Recommended value: between 2 and 10 pixels
       max_transformation_error: 5

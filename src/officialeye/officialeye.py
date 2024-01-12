@@ -12,7 +12,6 @@ from officialeye.meta import OFFICIALEYE_GITHUB, OFFICIALEYE_VERSION, print_logo
 from officialeye.template.analyze import do_analyze
 from officialeye.template.create import create_example_template_config_file
 from officialeye.template.parser.loader import load_template
-from officialeye.template.show import do_show
 from officialeye.util.logger import oe_info, oe_warn
 
 
@@ -51,7 +50,7 @@ def cli(debug: bool, dedir: str, edir: str, quiet: bool, verbose: bool, disable_
 @click.argument("template_image", type=click.Path(exists=True, file_okay=True, readable=True, writable=False))
 @click.option("--id", type=str, show_default=False, default="example", help="Specify the template identifier.")
 @click.option("--name", type=str, show_default=False, default="Example", help="Specify the template name.")
-@click.option("--force", is_flag=True, show_default=True, default=False, help="Create the .")
+@click.option("--force", is_flag=True, show_default=True, default=False, help="Create missing directories and overwrite file.")
 def create(template_path: str, template_image: str, id: str, name: str, force: bool):
     """Creates a new template configuration file at the specified path."""
 
@@ -65,11 +64,14 @@ def create(template_path: str, template_image: str, id: str, name: str, force: b
 
 @click.command()
 @click.argument("template_path", type=click.Path(exists=True, file_okay=True, readable=True))
-def show(template_path: str):
+@click.option("--hide-features", is_flag=True, show_default=False, default=False, help="Do not visualize the locations of features.")
+@click.option("--hide-keypoints", is_flag=True, show_default=False, default=False, help="Do not visualize the locations of keypoints.")
+def show(template_path: str, hide_features: bool, hide_keypoints: bool):
     """Exports template as an image with features visualized."""
     try:
         template = load_template(template_path)
-        do_show(template)
+        img = template.show(hide_features=hide_features, hide_keypoints=hide_keypoints)
+        oe_context().io_driver.output_show_result(template, img)
     except OEError as err:
         oe_context().io_driver.output_error(err)
 
@@ -80,8 +82,12 @@ def show(template_path: str):
 @click.argument("target_path", type=click.Path(exists=True, file_okay=True, readable=True))
 @click.argument("template_paths", type=click.Path(exists=True, file_okay=True, readable=True), nargs=-1)
 @click.option("--workers", type=int, default=4, show_default=True)
-def test(target_path: str, template_paths: List[str], workers: int):
+@click.option("--show-features", is_flag=True, show_default=False, default=False, help="Visualize the locations of features.")
+def test(target_path: str, template_paths: List[str], workers: int, show_features: bool):
     """Visualizes the analysis of an image using one or more templates."""
+
+    assert isinstance(oe_context().io_driver, TestIODriver)
+    oe_context().io_driver.visualize_features = show_features
 
     # load target image
     target = cv2.imread(target_path, cv2.IMREAD_COLOR)
