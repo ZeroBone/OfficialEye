@@ -152,7 +152,7 @@ feature_classes:
       - id: non_local_means_denoising # Name of the mutator
         config: # Optional mutator-specific configuration
           colored: yes
-    intepretation:
+    interpretation:
       # An interpretation method defines the way in which the mutated feature location should be processed further
       # For example, the ocr_tesseract method will apply the Tesseract OCR to the image.
       method: ocr_tesseract

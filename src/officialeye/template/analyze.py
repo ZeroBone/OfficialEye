@@ -57,7 +57,7 @@ def _handle_analysis_result(target: cv2.Mat, result: Union[SupervisionResult, No
             "could not establish correspondence of the image with any of the templates provided"
         )
 
-    oe_context().io_driver.output_analyze_result(target, result)
+    oe_context().io_driver.output_supervision_result(target, result)
 
 
 def do_analyze(target: cv2.Mat, templates: List[Template], /, *, num_workers: int):

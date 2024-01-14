@@ -7,14 +7,14 @@ from officialeye.template.region.keypoint import TemplateKeypoint
 class Match:
 
     def __init__(self, template_id: str, keypoint_region_id: str,
-                 region_point: np.ndarray, target_point: np.ndarray, /, *, weight: float = 0.0):
+                 region_point: np.ndarray, target_point: np.ndarray, /, *, score: float = 0.0):
         assert region_point.shape[0] == 2
         assert target_point.shape[0] == 2
         self.template_id = template_id
         self.keypoint_id = keypoint_region_id
         self._region_point = region_point
         self._target_point = target_point
-        self._score = weight
+        self._score = score
 
     def set_score(self, new_score: float, /):
         self._score = new_score

@@ -6,6 +6,9 @@ repo_name: ZeroBone/OfficialEye
 repo_url: https://github.com/ZeroBone/OfficialEye
 theme:
   name: material
+  icon:
+    logo: material/file-eye
+    repo: fontawesome/brands/github
   features:
     - content.action.edit
     - content.code.annotate
@@ -86,9 +89,10 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.mark
   - attr_list
+  - md_in_html
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:materialx.emoji.to_svg
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -96,12 +100,15 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
 
 nav:
-  - Usage:
-      - index.md
-      - usage/basics.md
-      - usage/architecture.md
+  - Tutorials:
+      - Introduction: index.md
+      - "Getting Started":
+          - tutorials/getting-started/setup.md
+          - tutorials/getting-started/yaml-basics.md
+          - tutorials/getting-started/architecture.md
   - Development:
       - dev/changelog.md
+      - License: dev/license.md
   - "API Reference": reference/
 
 extra_css:

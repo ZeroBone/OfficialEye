@@ -1,7 +1,7 @@
 import abc
 import random
 from abc import ABC
-from typing import List, Union
+from typing import Union, Generator
 
 from officialeye.context.singleton import oe_context
 from officialeye.debug.debuggable import Debuggable
@@ -44,19 +44,20 @@ class Supervisor(ABC, Debuggable):
         return oe_context().get_template(self.template_id)
 
     @abc.abstractmethod
-    def _run(self) -> List[SupervisionResult]:
+    def _run(self) -> Generator[SupervisionResult, None, None]:
         raise NotImplementedError()
 
     def _run_first(self) -> Union[SupervisionResult, None]:
-        results = self._run()
-        return None if len(results) == 0 else results[0]
+        results_generator = self._run()
+        return next(results_generator, None)
 
     def _run_random(self) -> Union[SupervisionResult, None]:
-        results = self._run()
+        results = list(self._run())
         return None if len(results) == 0 else results[random.randint(0, len(results) - 1)]
 
     def _run_best_mse(self) -> Union[SupervisionResult, None]:
-        results = self._run()
+
+        results = list(self._run())
 
         if len(results) == 0:
             return None
@@ -79,7 +80,7 @@ class Supervisor(ABC, Debuggable):
 
     def _run_best_score(self) -> Union[SupervisionResult, None]:
 
-        results = self._run()
+        results = list(self._run())
 
         if len(results) == 0:
             return None

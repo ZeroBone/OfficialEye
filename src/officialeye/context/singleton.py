@@ -1,4 +1,4 @@
-from officialeye.context.context import Context
+from officialeye.context import Context
 
 _officialeye_context_ = Context()
 

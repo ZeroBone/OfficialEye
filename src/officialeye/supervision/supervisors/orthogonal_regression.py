@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, Generator
 
 import numpy as np
 # noinspection PyPackageRequirements
@@ -75,9 +75,7 @@ class OrthogonalRegressionSupervisor(Supervisor):
             translated_template_point_y - target_point_y >= -self._match_error[match],
         )
 
-    def _run(self) -> List[SupervisionResult]:
-
-        _results = []
+    def _run(self) -> Generator[SupervisionResult, None, None]:
 
         for anchor_match in self._kmr.get_matches():
             delta = anchor_match.get_original_template_point()
@@ -100,11 +98,11 @@ class OrthogonalRegressionSupervisor(Supervisor):
 
             if _result == z3.unsat:
                 oe_debug("Z3 returned unsat.")
-                return []
+                return
 
             if _result == z3.unknown:
                 oe_debug("Z3 returned unknown.")
-                return []
+                return
 
             assert _result == z3.sat
 
@@ -119,6 +117,4 @@ class OrthogonalRegressionSupervisor(Supervisor):
 
             oe_debug(f"Error: {_result.get_weighted_mse()}")
 
-            _results.append(_result)
-
-        return _results
+            yield _result

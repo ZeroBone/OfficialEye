@@ -1,5 +1,5 @@
 import random
-from typing import List, Dict
+from typing import Dict, Generator
 
 import numpy as np
 # noinspection PyPackageRequirements
@@ -124,9 +124,7 @@ class CombinatorialSupervisor(Supervisor):
             target_point_y - translated_template_point_y <= self._max_transformation_error,
         )
 
-    def _run(self) -> List[SupervisionResult]:
-
-        _results = []
+    def _run(self) -> Generator[SupervisionResult, None, None]:
 
         weights_lower_bounds = z3.And(*(self._match_weight[match] >= 0 for match in self._kmr.get_matches()), self._z3_context)
         weights_upper_bounds = z3.And(*(self._match_weight[match] <= 1 for match in self._kmr.get_matches()), self._z3_context)
@@ -148,6 +146,7 @@ class CombinatorialSupervisor(Supervisor):
             if len(keypoint_matches) == 0:
                 continue
 
+            # TODO: think whether this is a good algorithm design decision, and improve it if not
             anchor_match = keypoint_matches[random.randint(0, len(keypoint_matches) - 1)]
 
             delta = anchor_match.get_original_template_point()
@@ -164,9 +163,6 @@ class CombinatorialSupervisor(Supervisor):
                 ))
 
             result = solver.check()
-
-            # print(solver.statistics())
-            # print(solver.sexpr())
 
             if result == z3.unsat:
                 oe_warn("Could not satisfy the imposed constraints.", fg="red")
@@ -200,8 +196,6 @@ class CombinatorialSupervisor(Supervisor):
             oe_debug(f"Error: {_result.get_weighted_mse()} "
                      f"Total weight and score: {model_total_weight}")
 
-            _results.append(_result)
+            yield _result
 
             solver.pop()
-
-        return _results

@@ -34,4 +34,17 @@ Broadly speaking, we now need to explain OfficialEye, which parts of this exampl
 officialeye create demo/templates/id_de.yml --name "German ID Card" --id id_de --force
 ```
 
-This command creates the configuration file `demo/templates/id_de.yml` for the new template, so that we don't have to configure everything from scratch. 
+This command creates the configuration file `demo/templates/id_de.yml` for the new template, so that we don't have to configure everything from scratch.
+
+<figure markdown>
+  ![Driver license photo](../../assets/img/demo/driver_license_ru_01.jpg){ width="600", loading=lazy }
+  <figcaption>Driver's license example photo</figcaption>
+</figure>
+
+<div class="grid" markdown>
+!!! tip "Template"
+    * No further requirements
+
+!!! example "Example document"
+    * test
+</div>

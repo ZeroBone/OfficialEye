@@ -14,7 +14,7 @@ class DiffObjectSpecificationEntry(ABC):
         return self._validator
 
     @abc.abstractmethod
-    def apply_diff(self, current_value, diff_value, diff_mode: str):
+    def apply_diff(self, current_value: any, diff_value: any, diff_mode: str) -> any:
         """
         Calculates a new value for an entry, based on currently available value, some provided value, and a way of combining them.
 

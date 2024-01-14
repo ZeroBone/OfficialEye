@@ -15,7 +15,7 @@ class IODriver(ABC):
         pass
 
     @abc.abstractmethod
-    def output_analyze_result(self, target: cv2.Mat, result: SupervisionResult, /):
+    def output_supervision_result(self, target: cv2.Mat, result: SupervisionResult, /):
         raise NotImplementedError()
 
     @abc.abstractmethod

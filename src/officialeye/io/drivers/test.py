@@ -7,7 +7,7 @@ from officialeye.error.printing import oe_error_print_error
 from officialeye.io.driver import IODriver
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.template import Template
-from officialeye.util.cli_utils import export_and_show_image
+from officialeye.util.cli_utils import export_and_show_image, export_image
 
 
 class TestIODriver(IODriver):
@@ -19,7 +19,7 @@ class TestIODriver(IODriver):
 
         self.visualize_features: bool = True
 
-    def output_analyze_result(self, target: cv2.Mat, result: SupervisionResult, /):
+    def output_supervision_result(self, target: cv2.Mat, result: SupervisionResult, /):
 
         assert result is not None
 
@@ -38,10 +38,16 @@ class TestIODriver(IODriver):
             for feature in template.features():
                 application_image = feature.visualize(application_image)
 
-        export_and_show_image(application_image)
+        if oe_context().quiet_mode:
+            export_image(application_image, file_name="supervision_result.png")
+        else:
+            export_and_show_image(application_image, file_name="supervision_result.png")
 
     def output_show_result(self, template: Template, img: cv2.Mat, /):
-        export_and_show_image(img, file_name=f"{template.template_id}.png")
+        if oe_context().quiet_mode:
+            export_image(img, file_name=f"{template.template_id}.png")
+        else:
+            export_and_show_image(img, file_name=f"{template.template_id}.png")
 
     def output_error(self, error: OEError, /):
         oe_error_print_error(error)

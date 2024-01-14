@@ -26,7 +26,7 @@ class DiffObjectExpansion:
             partial_object: Which object to get the information from.
 
         Raises:
-            DiffObjectException
+            DiffObjectException: In the event of a merge error.
         """
 
         def _do_add(specification_dict: Dict[str, any],

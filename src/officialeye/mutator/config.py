@@ -1,6 +1,6 @@
 from typing import Dict
 
-from officialeye.config.config import Config
+from officialeye.config import Config
 from officialeye.error.errors.template import ErrTemplateInvalidMutator
 
 

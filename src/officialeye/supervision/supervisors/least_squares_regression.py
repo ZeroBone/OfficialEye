@@ -1,4 +1,4 @@
-from typing import List
+from typing import Generator
 
 import numpy as np
 
@@ -20,10 +20,9 @@ class LeastSquaresRegressionSupervisor(Supervisor):
     def __init__(self, template_id: str, kmr: KeypointMatchingResult, /):
         super().__init__(LeastSquaresRegressionSupervisor.ENGINE_ID, template_id, kmr)
 
-    def _run(self) -> List[SupervisionResult]:
-        match_count = self._kmr.get_total_match_count()
+    def _run(self) -> Generator[SupervisionResult, None, None]:
 
-        _results = []
+        match_count = self._kmr.get_total_match_count()
 
         for anchor_match in self._kmr.get_matches():
             delta = anchor_match.get_original_template_point()
@@ -61,6 +60,4 @@ class LeastSquaresRegressionSupervisor(Supervisor):
 
             oe_debug(f"Current MSE: {_result.get_weighted_mse()}")
 
-            _results.append(_result)
-
-        return _results
+            yield _result

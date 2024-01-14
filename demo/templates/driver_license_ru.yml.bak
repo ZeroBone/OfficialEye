@@ -8,10 +8,10 @@ source: "../template_images/driver_license_ru.jpg"
 mutators:
   # A list of mutators that should be applied to the above template source image before the unification phase
   source:
-    - id: clahe
+    # - id: clahe
   # A list of mutators that should be applied to the input image before the unification phase
   target:
-    - id: clahe
+    # - id: clahe
 # A list of keypoints located in the template source image specified above.
 # A keypoint is a rectangular region that should be present in all documents of this kind, and that
 # should be used to find correspondences between the position of the given image and the positions in the template source image.
@@ -30,7 +30,7 @@ keypoints:
     w: 792
     h: 70
     matches:
-      min: 30
+      min: 15
       max: 50
   heading_bar:
     x: 441
@@ -38,7 +38,7 @@ keypoints:
     w: 96
     h: 610
     matches:
-      min: 10
+      min: 5
       max: 30
   heading_4b:
     x: 802
@@ -54,7 +54,7 @@ keypoints:
     w: 51
     h: 106
     matches:
-      min: 5
+      min: 3
       max: 10
   b_b1:
     x: 531
@@ -118,49 +118,49 @@ supervision:
 # In other words, the corresponding regions in the target image will be found during document analysis.
 features:
   last_name_ru:
-    x: 540
+    x: 525
     y: 160
     w: 600
     h: 45
     class: line_with_russian_text
   last_name_en:
-    x: 540
+    x: 525
     y: 200
     w: 600
     h: 35
     class: line_with_english_text
   name_ru:
-    x: 540
+    x: 525
     y: 235
     w: 600
     h: 45
     class: line_with_russian_text
   name_en:
-    x: 540
+    x: 525
     y: 275
     w: 600
     h: 35
     class: line_with_english_text
   birthday:
-    x: 540
+    x: 525
     y: 310
     w: 600
     h: 45
     class: line_with_english_text
   place_of_birth_ru:
-    x: 540
+    x: 525
     y: 350
     w: 600
     h: 40
     class: line_with_russian_text
   place_of_birth_en:
-    x: 540
+    x: 525
     y: 390
     w: 600
     h: 35
     class: line_with_english_text
   issue_date:
-    x: 540
+    x: 525
     y: 430
     w: 250
     h: 45
@@ -172,31 +172,31 @@ features:
     h: 45
     class: line_with_english_text
   issue_authority_ru:
-    x: 540
+    x: 525
     y: 475
     w: 600
     h: 40
     class: line_with_russian_text
   issue_authority_en:
-    x: 540
+    x: 525
     y: 510
     w: 600
     h: 40
     class: line_with_english_text
   identifier:
-    x: 540
+    x: 525
     y: 550
     w: 600
     h: 50
     class: line_with_english_text
   issue_place_ru:
-    x: 540
+    x: 525
     y: 595
     w: 600
     h: 40
     class: line_with_russian_text
   issue_place_en:
-    x: 540
+    x: 525
     y: 630
     w: 600
     h: 40

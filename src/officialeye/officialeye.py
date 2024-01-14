@@ -58,8 +58,8 @@ def create(template_path: str, template_image: str, id: str, name: str, force: b
         create_example_template_config_file(template_path, template_image, id, name, force)
     except OEError as err:
         oe_context().io_driver.output_error(err)
-
-    oe_context().dispose()
+    finally:
+        oe_context().dispose()
 
 
 @click.command()
@@ -74,8 +74,8 @@ def show(template_path: str, hide_features: bool, hide_keypoints: bool):
         oe_context().io_driver.output_show_result(template, img)
     except OEError as err:
         oe_context().io_driver.output_error(err)
-
-    oe_context().dispose()
+    finally:
+        oe_context().dispose()
 
 
 @click.command()
@@ -97,8 +97,8 @@ def test(target_path: str, template_paths: List[str], workers: int, show_feature
         do_analyze(target, templates, num_workers=workers)
     except OEError as err:
         oe_context().io_driver.output_error(err)
-
-    oe_context().dispose()
+    finally:
+        oe_context().dispose()
 
 
 @click.command()
@@ -119,8 +119,8 @@ def run(target_path: str, template_paths: List[str], workers: int):
         do_analyze(target, templates, num_workers=workers)
     except OEError as err:
         oe_context().io_driver.output_error(err)
-
-    oe_context().dispose()
+    finally:
+        oe_context().dispose()
 
 
 @click.command()

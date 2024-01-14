@@ -1,1 +1,3 @@
-# Comment needed to avoid this file being empty
+"""
+This module contains utility classes needed to implement debugging-mode related features.
+"""
