@@ -49,15 +49,6 @@ class AnalysisWorker(Thread):
                 yield error
 
 
-def _handle_analysis_result(target: cv2.Mat, result: Union[SupervisionResult, None], /):
-
-    if result is None:
-        raise ErrSupervisionCorrespondenceNotFound(
-            "while running supervisor",
-            "could not establish correspondence of the image with any of the templates provided"
-        )
-
-    oe_context().io_driver.output_supervision_result(target, result)
 
 
 def do_analyze(target: cv2.Mat, templates: List[Template], /, *, num_workers: int):
@@ -96,6 +87,9 @@ def do_analyze(target: cv2.Mat, templates: List[Template], /, *, num_workers: in
     best_result = None
     best_result_score = -1.0
 
+    # a list containing regular errors that occurred in workers
+    regular_errors = []
+
     for worker in workers:
         for result in worker.get_successful_results():
             assert result is not None
@@ -115,6 +109,20 @@ def do_analyze(target: cv2.Mat, templates: List[Template], /, *, num_workers: in
             else:
                 oe_debug(f"Worker {worker.worker_id} returned the following non-regular error {error.code_text}:")
                 oe_error_print_debug(error)
+                regular_errors.append(error)
 
     # note: best_result may be None here
-    _handle_analysis_result(target, best_result)
+
+    if best_result is None:
+
+        error = ErrSupervisionCorrespondenceNotFound(
+            "while running supervisor",
+            "could not establish correspondence of the image with any of the templates provided"
+        )
+
+        for worker_error in regular_errors:
+            error.add_cause(worker_error)
+
+        raise error
+
+    oe_context().io_driver.output_supervision_result(target, best_result)

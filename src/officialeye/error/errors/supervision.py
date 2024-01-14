@@ -5,7 +5,7 @@ from officialeye.error import ERR_MODULE_SUPERVISION, OEError
 class ErrSupervision(OEError):
 
     def __init__(self, code: int, code_text: str, while_text: str, problem_text: str, /, *, is_regular: bool, **kwargs):
-        super().__init__(ERR_MODULE_SUPERVISION, code, code_text, while_text, problem_text, is_regular=is_regular, **kwargs)
+        super().__init__(ERR_MODULE_SUPERVISION, code, code_text, while_text, problem_text, is_regular=is_regular)
 
 
 class ErrSupervisionCorrespondenceNotFound(ErrSupervision):

@@ -1,10 +1,10 @@
-from typing import Union
-
-
 class OEError(Exception):
+    """
+    Base class for all officialeye-related errors.
+    """
 
     def __init__(self, module: str, code: int, code_text: str, while_text: str, problem_text: str, /, *,
-                 is_regular: bool = False, cause: Union[Exception, None] = None):
+                 is_regular: bool = False):
         super().__init__()
 
         assert code != 0
@@ -21,9 +21,18 @@ class OEError(Exception):
         # on the other hand, the template configuration file does not count as end user input
         self.is_regular = is_regular
 
-        self.cause = cause
+        self._causes = []
+
+    def add_cause(self, cause: Exception, /):
+        self._causes.append(cause)
 
     def serialize(self) -> dict:
+
+        causes = [
+            cause.serialize()
+            for cause in self._causes
+        ]
+
         return {
             "code": self.code,
             "code_text": self.code_text,
@@ -31,7 +40,7 @@ class OEError(Exception):
             "while_text": self.while_text,
             "problem_text": self.problem_text,
             "is_regular": self.is_regular,
-            "cause": str(self.cause) if self.cause is not None else None
+            "causes": causes
         }
 
 

@@ -35,6 +35,19 @@ def _print_error_message(err: yml.StrictYAMLError, template_path: str):
 
 
 def load_template(path: str) -> Template:
+    """
+    Loads a template from a file located at the specified path.
+
+    Arguments:
+        path: The path to the YAML template configuration file.
+
+    Returns:
+        Loaded template.
+
+    Raises:
+        OEError: In case there has been an error validating the correctness of the template.
+    """
+
     global _oe_template_schema
 
     with open(path, "r") as fh:
@@ -45,11 +58,10 @@ def load_template(path: str) -> Template:
     except yml.StrictYAMLError as err:
         _print_error_message(err, path)
         exit(4)
-    except yml.YAMLError as err:
+    except yml.YAMLError:
         raise ErrTemplateInvalidSyntax(
             f"while loading template configuration file at '{path}'.",
-            f"General parsing error. Check the syntax and the encoding of the file.",
-            cause=err
+            f"General parsing error. Check the syntax and the encoding of the file."
         )
 
     data = yaml_document.data

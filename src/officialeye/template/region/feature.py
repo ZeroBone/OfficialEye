@@ -8,7 +8,7 @@ from officialeye.interpretation.loader import load_interpretation_method
 from officialeye.mutator.loader import load_mutator_from_dict
 from officialeye.template.feature_class.feature_class import FeatureClass
 from officialeye.template.feature_class.manager import FeatureClassManager
-from officialeye.template.region.region import TemplateRegion
+from officialeye.template.region import TemplateRegion
 from officialeye.util.logger import oe_debug
 
 _FEATURE_RECT_COLOR = (0, 0xff, 0)
