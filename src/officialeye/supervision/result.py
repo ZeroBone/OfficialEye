@@ -5,8 +5,8 @@ from typing import Set, Dict
 import cv2
 import numpy as np
 
-from officialeye.match.match import Match
-from officialeye.match.result import KeypointMatchingResult
+from officialeye.matching.match import Match
+from officialeye.matching.result import KeypointMatchingResult
 
 
 class SupervisionResult:

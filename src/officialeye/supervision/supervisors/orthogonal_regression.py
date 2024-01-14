@@ -5,8 +5,8 @@ import numpy as np
 import z3
 
 from officialeye.error.errors.supervision import ErrSupervisionInvalidEngineConfig
-from officialeye.match.match import Match
-from officialeye.match.result import KeypointMatchingResult
+from officialeye.matching.match import Match
+from officialeye.matching.result import KeypointMatchingResult
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor import Supervisor
 from officialeye.util.logger import oe_debug

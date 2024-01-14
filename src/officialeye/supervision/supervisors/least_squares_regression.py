@@ -2,7 +2,7 @@ from typing import Generator
 
 import numpy as np
 
-from officialeye.match.result import KeypointMatchingResult
+from officialeye.matching.result import KeypointMatchingResult
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor import Supervisor
 from officialeye.util.logger import oe_debug

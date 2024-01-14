@@ -3,9 +3,9 @@ import cv2
 import numpy as np
 
 from officialeye.error.errors.matching import ErrMatchingInvalidEngineConfig
-from officialeye.match.match import Match
-from officialeye.match.matcher import KeypointMatcher
-from officialeye.match.result import KeypointMatchingResult
+from officialeye.matching.match import Match
+from officialeye.matching.matcher import KeypointMatcher
+from officialeye.matching.result import KeypointMatchingResult
 
 _FLANN_INDEX_KDTREE = 1
 

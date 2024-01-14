@@ -6,8 +6,8 @@ import cv2
 
 from officialeye.context.singleton import oe_context
 from officialeye.debug.debuggable import Debuggable
-from officialeye.match.matcher_config import KeypointMatcherConfig
-from officialeye.match.result import KeypointMatchingResult
+from officialeye.matching.matcher_config import KeypointMatcherConfig
+from officialeye.matching.result import KeypointMatchingResult
 from officialeye.util.logger import oe_warn
 
 

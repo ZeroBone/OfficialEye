@@ -2,7 +2,7 @@ from typing import List, Dict
 
 from officialeye.context.singleton import oe_context
 from officialeye.error.errors.matching import ErrMatchingMatchCountOutOfBounds
-from officialeye.match.match import Match
+from officialeye.matching.match import Match
 from officialeye.util.logger import oe_debug, oe_debug_verbose
 
 

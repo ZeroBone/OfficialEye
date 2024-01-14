@@ -5,7 +5,7 @@ from typing import Union, Generator
 
 from officialeye.context.singleton import oe_context
 from officialeye.debug.debuggable import Debuggable
-from officialeye.match.result import KeypointMatchingResult
+from officialeye.matching.result import KeypointMatchingResult
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor_config import SupervisorConfig
 from officialeye.util.logger import oe_debug, oe_debug_verbose, oe_warn

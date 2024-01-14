@@ -2,7 +2,6 @@ from typing import Dict
 
 # noinspection PyPackageRequirements
 import cv2
-import numpy as np
 
 from officialeye.mutator.mutator import Mutator
 

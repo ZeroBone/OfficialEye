@@ -9,9 +9,9 @@ from officialeye.context.singleton import oe_context
 from officialeye.error.errors.io import ErrIOInvalidPath
 from officialeye.error.errors.template import ErrTemplateInvalidSupervisionEngine, ErrTemplateInvalidMatchingEngine, ErrTemplateInvalidKeypoint, \
     ErrTemplateInvalidFeature
-from officialeye.match.matcher import KeypointMatcher
-from officialeye.match.matchers.sift_flann import SiftFlannKeypointMatcher
-from officialeye.match.result import KeypointMatchingResult
+from officialeye.matching.matcher import KeypointMatcher
+from officialeye.matching.matchers.sift_flann import SiftFlannKeypointMatcher
+from officialeye.matching.result import KeypointMatchingResult
 from officialeye.mutator.loader import load_mutator_from_dict
 from officialeye.mutator.mutator import Mutator
 from officialeye.supervision.result import SupervisionResult
