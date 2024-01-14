@@ -4,7 +4,7 @@ from abc import ABC
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.error.error import OEError
+from officialeye.error import OEError
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.template import Template
 

@@ -6,7 +6,7 @@ from typing import List, Union, Tuple
 import cv2
 
 from officialeye.context.singleton import oe_context
-from officialeye.error.error import OEError
+from officialeye.error import OEError
 from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
 from officialeye.error.errors.template import ErrTemplateInvalidConcurrencyConfig
 from officialeye.error.printing import oe_error_print_debug

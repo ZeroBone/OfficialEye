@@ -2,7 +2,7 @@
 import cv2
 
 from officialeye.context.singleton import oe_context
-from officialeye.error.error import OEError
+from officialeye.error import OEError
 from officialeye.error.printing import oe_error_print_error
 from officialeye.io.driver import IODriver
 from officialeye.supervision.result import SupervisionResult

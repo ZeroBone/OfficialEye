@@ -4,7 +4,7 @@ from typing import Dict
 import cv2
 from pytesseract import pytesseract
 
-from officialeye.interpretation.interpretation import InterpretationMethod
+from officialeye.interpretation import InterpretationMethod
 
 
 class TesseractInterpretationMethod(InterpretationMethod):

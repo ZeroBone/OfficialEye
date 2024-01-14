@@ -234,6 +234,7 @@ class Template:
             keypoint_matching_result.debug_print()
 
         keypoint_matching_result.validate()
+        assert keypoint_matching_result.get_total_match_count() > 0
 
         _matching_ended_time = time.perf_counter(), time.process_time()
 

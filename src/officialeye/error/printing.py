@@ -1,4 +1,4 @@
-from officialeye.error.error import OEError
+from officialeye.error import OEError
 from officialeye.util.logger import oe_error, oe_debug
 
 

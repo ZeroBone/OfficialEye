@@ -51,6 +51,10 @@ class KeypointMatchingResult:
 
         oe_debug("Validating the keypoint matching result.")
 
+        assert len(self._matches_dict) > 0
+
+        total_match_count = 0
+
         # verify that for every keypoint, it has been matched a number of times that is in the desired bounds
         for keypoint_id in self._matches_dict:
             keypoint = self.get_template().get_keypoint(keypoint_id)
@@ -62,8 +66,9 @@ class KeypointMatchingResult:
 
             if keypoint_matches_count < keypoint_matches_min:
                 raise ErrMatchingMatchCountOutOfBounds(
-                    f"keypoint '{keypoint_id}' of template '{self._template_id}' was match an incorrect number of times",
-                    f"expected at least {keypoint_matches_min} matches, got {keypoint_matches_count}"
+                    f"while checking that keypoint '{keypoint_id}' of template '{self._template_id}' "
+                    f"has been matched a sufficient number of times",
+                    f"Expected at least {keypoint_matches_min} matches, got {keypoint_matches_count}"
                 )
 
             if keypoint_matches_count > keypoint_matches_max:
@@ -75,6 +80,15 @@ class KeypointMatchingResult:
 
             oe_debug(f"Keypoint '{keypoint_id}' of template '{self._template_id}' has been matched {keypoint_matches_count} times "
                      f"(min: {keypoint_matches_min} max: {keypoint_matches_max}).")
+
+            total_match_count += keypoint_matches_count
+
+        assert total_match_count >= 0
+        if total_match_count == 0:
+            raise ErrMatchingMatchCountOutOfBounds(
+                f"while checking that there has been at least one match for template '{self._template_id}'.",
+                f"There have been no matches."
+            )
 
     def debug_print(self):
         oe_debug(f"Found {self.get_total_match_count()} matched points!")

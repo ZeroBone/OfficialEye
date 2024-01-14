@@ -4,6 +4,7 @@ site_author: Alexander Mayorov
 docs_dir: docs
 repo_name: ZeroBone/OfficialEye
 repo_url: https://github.com/ZeroBone/OfficialEye
+edit_uri: edit/main/docs/
 theme:
   name: material
   icon:

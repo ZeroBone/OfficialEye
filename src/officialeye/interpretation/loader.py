@@ -1,7 +1,7 @@
 from typing import Dict
 
 from officialeye.error.errors.template import ErrTemplateInvalidInterpretation
-from officialeye.interpretation.interpretation import InterpretationMethod
+from officialeye.interpretation import InterpretationMethod
 from officialeye.interpretation.interpretations.tesseract import TesseractInterpretationMethod
 
 

@@ -5,7 +5,7 @@ import click
 import cv2
 
 from officialeye.context.singleton import oe_context
-from officialeye.error.error import OEError
+from officialeye.error import OEError
 from officialeye.io.drivers.run import RunIODriver
 from officialeye.io.drivers.test import TestIODriver
 from officialeye.meta import OFFICIALEYE_GITHUB, OFFICIALEYE_VERSION, print_logo
