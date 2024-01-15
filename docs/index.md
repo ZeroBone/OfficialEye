@@ -5,114 +5,159 @@
 
 # Introduction
 
-OfficialEye is a perfect solution if you need to reliably extract important information from a document (e.g. passport or certificate) based on its image. The tool relies on modern AI to transform the original image to a standartized canonical form, whereupon it processes the information you need.
+OfficialEye is an advanced tool designed to streamline and simplify the extraction of information from flat documents, such as passports or application forms, through image analysis. Leveraging state-of-the-art symbolic AI techniques, OfficialEye empowers users to effortlessly transform raw images into standardized canonical forms, facilitating the seamless extraction and processing of crucial information.
+
+## Key features
 
 <div class="grid cards" markdown>
 
--   :material-clock-fast:{ .lg .middle } __Example-driven and easy to use__
+-   :material-clock-fast:{ .lg .middle } __Example-driven and user-friendly__
 
     ---
 
-    OfficialEye is easy and intuitive to use because it is example-driven: as a user, all you need to do is:
-    
-    * Provide an image of an *example* document;
-    * Explain, based on that example, how to recognize other documents of the same kind;
+    OfficialEye boasts an intuitive and example-driven approach. As a user, all you need to do is provide an image of a sample document and articulate which parts contain information you are interested in, and which can be used to recognize similar documents. The tool automatically generalizes from your example, making it a user-friendly solution for various document recognition tasks.
 
-    Everything else is handled *automatically*! In particular, the tool will generalize your example to a way of processing arbitrary documents of that type.
-
--   :material-hammer-screwdriver:{ .lg .middle } __Powerful template system__
+-   :material-camera-document:{ .lg .middle } __Powerful template system__
 
     ---
 
-    Templates capture all aspects of how a certain kind of documents should be analyzed and processed. For multiple document types, you simply use multiple templates - the particular document type at hand will be detected automatically.
-
-    Every template can be configured via a powerful `YAML`-based scripting language. It is designed to allow users to express contents of documents in a comprehensive and concise way that remains maintainable even if your document contains hundreds of entries.
+    Templates encapsulate the nuances of document analysis and processing. Multiple document types are effortlessly managed by employing distinct templates, each configurable through a potent YAML-based scripting language. Express the contents of your documents comprehensively and concisely, ensuring maintainability even for complex documents with numerous entries.
 
 -   :material-code-block-braces:{ .lg .middle } __Highly modular and customizable__
 
     ---
 
-    All the steps during image analysis are clearly separated and explained.
+    OfficialEye prioritizes modularity and customization. Each step of the image analysis process is separated and explained. The template scripting language allows users to switch between implementations of every component without the need for recompilation. Inject custom implementations easily, tailoring the tool to your specific needs.
 
-    Via the template scripting language, you can easily change the implementation of every component without recompiling the project, or even inject custom implementations.
+-   :material-brain:{ .lg .middle } __Consistency-driven detection__
 
-    [:octicons-arrow-right-24: TODO](#)
-
--   :material-scale-balance:{ .lg .middle } __Free and Open Source, GPL-3.0__
+    ---
+    
+    Out-of-the box, OfficialEye's supports an innovative consistency-driven detection approach, finely tuned for flat documents. Imagine the human ability to detect formatted documents at a glance: with an innate understanding of how a document appears, our brains effortlessly filters out incongruent elements. OfficialEye mirrors this by operating under the assumption that the document in the image is a flat surface and leveraging this inherent knowledge to significantly enhance the accuracy of the results.
+ 
+- :material-scale-balance:{ .lg .middle } __Free and open source__
 
     ---
 
-    Most if not all other comparable tools are either [proprietary](https://en.wikipedia.org/wiki/Proprietary_software) or are too generic and thus lack fine-grained optimization for the flat-surface document analysis model.
-
-    By contrast, OfficialEye is [free and open source](https://en.wikipedia.org/wiki/Free_and_open-source_software), licensed under the GNU GPL-3.0 license.
+    Say goodbye to proprietary alternatives. OfficialEye is committed to the principles of freedom and transparency. Released under the GNU GPL-3.0 license, it provides a [free and open-source](https://en.wikipedia.org/wiki/Free_and_open-source_software) alternative, ensuring accessibility for all users.
 
     [:octicons-arrow-right-24: License](dev/license.md)
 
 </div>
 
+Whether you're a developer, data scientist, or enthusiast, OfficialEye is your go-to solution for accurate and efficient flat document analysis. Experience the future of document analysis with OfficialEye!
+
 [:octicons-arrow-right-16: Getting started](./tutorials/getting-started/setup.md){ .md-button .md-button--primary}
 
-## Example
+## Example: Retrieving Information from a Driver's License Photo
 
-Suppose we are interested in retreiving information about a person from a photo of their driver's license. Moreover, and as demonstrated in the following example, the image may well be of low quality, the document therein may be rotated, zoomed, held at an angle, etc.
+In this example, we'll showcase how OfficialEye simplifies the extraction of information from a driver's license photo, even when faced with challenges such as low image quality, rotation, zoom, and varying angles.
 
-???+ example "Input image"
-    ![Driver license photo](./assets/img/demo/driver_license_ru_01.jpg){ loading=lazy }
+### Step 1: Template creation
 
-To tackle the problem, we need a properly-positioned and high-quality image of an example document. For this demonstration, we will use the following scan of another driver's license, which we will hereinafter call *template image*.
+Start by obtaining a properly positioned and high-quality image of a driver's license, which will serve as the template for OfficialEye. This template image acts as the reference point for recognizing similar documents in other images.
+
+For demonstration purposes, let's use the following scan of a driver's license:
 
 ???+ tip "Template image"
     ![Driver license photo](./assets/img/demo/driver_license_ru.jpg){ loading=lazy }
 
-### Creating a template
-
-Intuitively, now need to explain OfficialEye, which parts of this template image contain information we are interested in, and which features are present on any document of this kind and can thus be used to find and recognize the document in other images. Templates conveniently capture this information together with the template image. We shall now create a template called `Driver's License RU` with identifier `driver_license_ru`.
+Next, we initialize a new template configuration file using the following command.
 
 ```shell
-officialeye create demo/driver_license_ru/template.yml demo/driver_license_ru/template.jpg --name "Driver License RU" --id driver_license_ru
+officialeye create driver_license_ru.yml driver_license_ru.jpg --name "Driver License RU" --id driver_license_ru
 ```
 
-The `demo/driver_license_ru/template.jpg` path refers to the template image, while the above command creates a `YAML` template configuration file at path `demo/driver_license_ru/template.yml`. We now explain the relevant parts of this file.
+This command initializes a template configuration file named `driver_license_ru.yml` and connects it with the template image `driver_license_ru.jpg`.
 
-```yaml title="demo/driver_license_ru/template.yml" hl_lines="5 6 7 8 9 10 11 12"
+```yaml title="driver_license_ru.yml"
 id: "driver_license_ru" # (1)!
 name: "Driver License RU" # (2)!
-source: "template.jpg" # (3)!
-keypoints: # (4)!
-  example_keypoint_name:
-    x: 10
-    y: 10
-    w: 100
-    h: 50
-    matches:
-      min: 0
-      max: 40
-features:
-  example_feature_name:
-    x: 110
-    y: 10
-    w: 100
-    h: 10
-    class: example_feature_class
-feature_classes:
-  example_feature_class:
-    abstract: no
-    mutators:
-      - id: non_local_means_denoising
-        config:
+source: "driver_license_ru.jpg" # (3)!
+mutators: # (4)!
+  source: # (5)!
+  target: # (6)!
+keypoints: # (7)!
+  example_keypoint_name: # (8)! 
+    x: 10 # (9)!
+    y: 10 # (10)!
+    w: 100 # (11)!
+    h: 50 # (12)!
+    matches: # (13)!
+      min: 0 # (14)!
+      max: 40 # (15)!
+matching: # (16)!
+  engine: sift_flann # (17)! 
+  config: # (18)!
+    sift_flann: # (19)!
+      sensitivity: 0.7
+supervision: # (20)!
+  engine: combinatorial # (21)!
+  config: # (22)!
+    combinatorial:
+      min_match_factor: 0.1
+      max_transformation_error: 5
+  result: best_score # (23)!
+features: # (24)!
+  example_feature_name: # (25)!
+    x: 110 # (26)!
+    y: 10 # (27)!
+    w: 100 # (28)!
+    h: 10 # (29)!
+    class: example_feature_class # (30)!
+feature_classes: # (31)!
+  example_feature_class: # (32)!
+    abstract: no # (33)!
+    mutators: # (34)!
+      - id: non_local_means_denoising # (35)!
+        config: # (36)!
           colored: yes
-    interpretation:
-      method: ocr_tesseract
-      config:
+    interpretation: # (37)!
+      method: ocr_tesseract # (38)!
+      config: # (39)!
         config: --dpi 10000 --oem 3 --psm 6
         lang: eng
-# ... other properties 
 ```
 
 1. This is the ID of the template. It is needed to identify this template in the API and must be alphanumeric and unique.
 2. The name of the template, as should be displayed to the user.
-3. Path to the template image.
-4. A list of keypoints located in the template source image specified above. A keypoint is a rectangular region that should be present in all documents of this kind, and that should be used to find correspondences between the position of the given image and the positions in the template source image.
+3. This is the path to the example document you want to use as a base for the template. The path can be absolute or relative. If it is relative, then it will be resolved relative to the location of the current file.
+4. A mutator is a size-preserving image transforming function. Examples of mutators include noise reduction and color correction.
+5. A list of mutators that should be applied to the above template source image before the unification phase.
+6. A list of mutators that should be applied to the input image before the unification phase.
+7. A list of keypoints located in the template source image specified above. A keypoint is a rectangular region that should be present in all documents of this kind, and that should be used to find correspondences between the position of the given image and the positions in the template source image.
+8. Example keypoint specification.
+9. The x-coordinate of the top left corner of the rectangle (measured in pixels). Remember that the origin is located in the top left corner of the image. In other words, the x-axis points to the right, and the y-axis points down (not up!).
+10. The y-coordinate of the top left corner of the rectangle (measured in pixels). Remember that the origin is located in the top left corner of the image. In other words, the x-axis points to the right, and the y-axis points down (not up!).
+11. Width of the rectangle (measured in pixels).
+12. Height of the rectangle (measured in pixels).
+13. A match is a correspondence between a point in the template image and a point in the input image.
+14. Minimum amount of matches that should be identified within this keypoint's region when analyzing an image.
+15. Maximum amount of matches that should be identified within this keypoint's region when analyzing an image.
+16. Matching is the process of finding equal patterns in the given image and the template source image, thus establishing correspondences between positions. Although better matchings will of course contribute to the accuracy of the document analysis, it is completely fine for a matching algorithm to err in some cases.
+17. Here you can specify the name of the matching engine that should be used to find correspondences between positions of the given image and those of the template source image provided above.
+18. Engine-specific configuration.
+19. Configuration specific to the `sift_flann` matching engine.
+20. Supervision is the process of unifying the given document image with the template source, based on the (partially unreliable) information received from the matching algorithm.
+21. Here you can specify the name of the supervision engine that should be used to find correspondences between positions of the given image and those of the template source image provided above.
+22. Engine-specific configuration.
+23. Name of the strategy that should be used to compute the final supervision result.
+24. A list of features located in the template source image specified above. A feature is a rectangular region containing any information of interest, such as text. In other words, the corresponding regions in the target image will be found during document analysis.
+25. Example feature specification.
+26. The x-coordinate of the top left corner of the rectangle (measured in pixels). Remember that the origin is located in the top left corner of the image. In other words, the x-axis points to the right, and the y-axis points down (not up!).
+27. The y-coordinate of the top left corner of the rectangle (measured in pixels). Remember that the origin is located in the top left corner of the image. In other words, the x-axis points to the right, and the y-axis points down (not up!).
+28. Width of the rectangle (measured in pixels).
+29. Height of the rectangle (measured in pixels).
+30. Optional, the class of this feature (see below).
+31. A feature class can be used to group similar features together. Feature classes are identified by a unique name, and can inherit other classes.
+32. For example, the following entry defines a feature class named `example_feature_class`.
+33. Optional. By default, feature classes are not abstract. An abstract class cannot be directly used by any concrete feature, but can be incomplete. To use an abstract class, a non-abstract subclass has to be created. A non-abstract class can be used by concrete features, but cannot be incomplete.
+34. A sequence of mutators that should be applied to the region of a feature, before it is processed further.
+35. Name of the mutator.
+36. Optional mutator-specific configuration.
+37. An interpretation method defines the way in which the mutated feature location should be processed further. For example, the `ocr_tesseract` method will apply the Tesseract OCR to the image.
+38. Name of the interpretation method.
+39. Intepretation-method-specific configuration values.
 
 !!! info "Not familiar with the above syntax?"
-    Above we have used `YAML` syntax. If you are not familiar with it, read [this page](./tutorials/getting-started/yaml-basics.md). 
+    Above we have used `YAML` syntax. If you are not familiar with it, read [this page](./tutorials/getting-started/yaml-basics.md).

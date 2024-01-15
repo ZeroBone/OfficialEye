@@ -48,3 +48,8 @@ This command creates the configuration file `demo/templates/id_de.yml` for the n
 !!! example "Example document"
     * test
 </div>
+
+???+ example "Input image"
+    ![Driver license photo](./assets/img/demo/driver_license_ru_01.jpg){ loading=lazy }
+
+hl_lines="5 6 7 8 9 10 11 12"

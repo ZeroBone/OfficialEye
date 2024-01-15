@@ -1,6 +1,6 @@
 # Changelog
 
-## Pre-Release v1.1.0 (beta)
+## Release v1.1.0 (beta)
 
 This release features a new mutation and interpretation system, and a feature class system.
 
