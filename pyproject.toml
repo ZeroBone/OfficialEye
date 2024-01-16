@@ -1,7 +1,7 @@
 [project]
 name = "officialeye"
 version = "1.1.1"
-description = "AI-powered document recognition system"
+description = "AI-powered generic document-analysis tool"
 authors = [
     {name = "Alexander Mayorov", email = "zb@zerobone.net"},
 ]
@@ -16,11 +16,24 @@ dependencies = [
 ]
 requires-python = ">=3.10"
 readme = "README.md"
-license = {text = "GPL-3.0-or-later"}
-
+license = { file = "LICENSE" }
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+    "Topic :: Scientific/Engineering :: Image Processing",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "License :: OSI Approved :: GNU General Public License v3 (GPLv3)"
+]
 
 [project.scripts]
 officialeye = "officialeye.officialeye:cli"
+
+[project.urls]
+Homepage = "https://github.com/ZeroBone/OfficialEye"
+Documentation = "https://officialeye.zerobone.net"
+Issues = "https://github.com/ZeroBone/OfficialEye/issues"
+
 [tool.pdm]
 package-type = "application"
 
