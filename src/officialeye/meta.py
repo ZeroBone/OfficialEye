@@ -2,7 +2,7 @@ import click
 
 OFFICIALEYE_NAME = "OfficialEye"
 OFFICIALEYE_GITHUB = "https://github.com/ZeroBone/OfficialEye"
-OFFICIALEYE_VERSION = "1.0.1"
+OFFICIALEYE_VERSION = "1.1.1"
 OFFICIALEYE_CLI_LOGO = """   ____  _________      _       __   ______         
   / __ \\/ __/ __(_)____(_)___ _/ /  / ____/_  _____ 
  / / / / /_/ /_/ / ___/ / __ `/ /  / __/ / / / / _ \\
