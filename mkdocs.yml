@@ -105,7 +105,7 @@ nav:
       - Introduction: index.md
       - usage/examples.md
       - "Getting Started":
-          - usage/getting-started/setup.md
+          - usage/getting-started/index.md
           - usage/getting-started/yaml-basics.md
           - usage/getting-started/architecture.md
       - Scripting:
@@ -114,6 +114,7 @@ nav:
           - usage/scripting/supervision-engines.md
           - usage/scripting/mutators.md
           - usage/scripting/feature-classes.md
+          - usage/scripting/interpretation-methods.md
       - Other:
           - License: usage/other/license.md
   - Development:
