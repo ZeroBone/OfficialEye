@@ -101,15 +101,17 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
 
 nav:
-  - Tutorials:
+  - Usage:
       - Introduction: index.md
+      - usage/examples.md
       - "Getting Started":
-          - tutorials/getting-started/setup.md
-          - tutorials/getting-started/yaml-basics.md
-          - tutorials/getting-started/architecture.md
+          - usage/getting-started/setup.md
+          - usage/getting-started/yaml-basics.md
+          - usage/getting-started/architecture.md
+      - Other:
+          - License: usage/other/license.md
   - Development:
       - dev/changelog.md
-      - License: dev/license.md
   - "API Reference": reference/
 
 extra_css:
