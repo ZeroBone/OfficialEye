@@ -1,6 +1,12 @@
 # Changelog
 
-## Release v1.1.0 (beta)
+## Release 1.1.1 (beta)
+
+* Fixed many minor bugs, typos and inconsistencies.
+* Refactor.
+* Many documentation improvements.
+
+## Release 1.1.0 (beta)
 
 This release features a new mutation and interpretation system, and a feature class system.
 
@@ -20,7 +26,7 @@ This release features a new mutation and interpretation system, and a feature cl
 
 [View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.1.0){ .md-button }
 
-## Pre-Release v1.0.2 (beta)
+## Pre-Release 1.0.2 (beta)
 
 This pre-release features automatic template config generation, engine-specific configurations, performance improvements, and more!
 
@@ -35,7 +41,7 @@ This pre-release features automatic template config generation, engine-specific 
 
 [View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.0.2){ .md-button }
 
-## Pre-Release v1.0.1 (beta)
+## Pre-Release 1.0.1 (beta)
 
 This pre-release features new and improved Supervision Engines, Error Handling, IO Drivers, OCR Support, and more.
 
@@ -49,6 +55,6 @@ This pre-release features new and improved Supervision Engines, Error Handling, 
 
 [View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.0.1){ .md-button }
 
-## Pre-Release v1.0.0 (beta)
+## Pre-Release 1.0.0 (beta)
 
 [View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.0.0){ .md-button }

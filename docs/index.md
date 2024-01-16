@@ -37,6 +37,8 @@ OfficialEye is an advanced tool designed to extract information from flat docume
 
 -   :material-lightbulb-on:{ .lg .middle } __Visualizations__
 
+    ---
+
     OfficialEye offers a debugging mode wherein integrated algorithms generate graphical visualizations, providing users with a transparent view of the tool's internal processes. In case of issues, these visualizations serve as a diagnostic aid, swiftly pinpointing areas for improvement and thus enhancing your document analysis experience.
 
 - :material-scale-balance:{ .lg .middle } __Free and open source__
