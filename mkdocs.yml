@@ -108,6 +108,12 @@ nav:
           - usage/getting-started/setup.md
           - usage/getting-started/yaml-basics.md
           - usage/getting-started/architecture.md
+      - Scripting:
+          - usage/scripting/overview.md
+          - usage/scripting/matching-engines.md
+          - usage/scripting/supervision-engines.md
+          - usage/scripting/mutators.md
+          - usage/scripting/feature-classes.md
       - Other:
           - License: usage/other/license.md
   - Development:

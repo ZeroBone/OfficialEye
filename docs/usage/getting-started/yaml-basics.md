@@ -1,3 +1,7 @@
+---
+icon: material/file-document-edit
+---
+
 # YAML Basics
 
 OfficialEye uses the YAML (`.yml`) format for all configuration files.

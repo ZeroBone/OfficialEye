@@ -1,3 +1,7 @@
+---
+icon: octicons/info-16
+---
+
 <figure markdown>
 ![OfficialEye logo](assets/img/logo/logo_bg_light.svg#only-light)
 ![OfficialEye logo](assets/img/logo/logo_bg_dark.svg#only-dark)

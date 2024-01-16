@@ -1,3 +1,7 @@
+---
+icon: material/hammer-wrench
+---
+
 # Setup Guide
 
 ## Installation
@@ -69,4 +73,4 @@ pdm run install
     ```
     command.
 
-[:octicons-arrow-right-16: YAML Basics](yaml-basics.md){ .md-button .md-button--primary}
+[YAML Basics](yaml-basics.md){ .md-button .md-button--primary}

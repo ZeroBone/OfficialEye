@@ -1,6 +1,6 @@
 [project]
 name = "officialeye"
-version = "1.0.3"
+version = "1.1.1"
 description = "AI-powered document recognition system"
 authors = [
     {name = "Alexander Mayorov", email = "zb@zerobone.net"},

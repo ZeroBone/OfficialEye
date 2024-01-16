@@ -1,3 +1,7 @@
+---
+icon: material/scale-balance
+---
+
 # GNU GENERAL PUBLIC LICENSE
 
 Version 3, 29 June 2007

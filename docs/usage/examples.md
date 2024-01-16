@@ -1,3 +1,7 @@
+---
+icon: octicons/star-16
+---
+
 # Examples
 
 ## Retrieving Information from a Driver's License Photo
@@ -508,3 +512,5 @@ feature_classes:
       config:
         lang: eng
 ```
+
+[Getting started](getting-started/setup.md){ .md-button .md-button--primary}
