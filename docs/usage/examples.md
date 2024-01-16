@@ -513,4 +513,4 @@ feature_classes:
         lang: eng
 ```
 
-[Getting started](getting-started/setup.md){ .md-button .md-button--primary}
+[Getting started](getting-started/index.md){ .md-button .md-button--primary}

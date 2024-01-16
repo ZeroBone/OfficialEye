@@ -61,4 +61,4 @@ OfficialEye is an advanced tool designed to extract information from flat docume
 
 Whether you're a developer, data scientist, or enthusiast, OfficialEye is your go-to solution for accurate and efficient flat document analysis. Experience the future of document analysis with OfficialEye!
 
-[Examples](usage/examples.md){ .md-button .md-button--primary} [Getting started](usage/getting-started/setup.md){ .md-button }
+[Examples](usage/examples.md){ .md-button .md-button--primary} [Getting started](usage/getting-started/index.md){ .md-button }
