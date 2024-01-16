@@ -10,17 +10,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      #- uses: actions/setup-python@v4
-      #  with:
-      #    python-version: 3.x
-      #- uses: actions/cache@v2
-      #  with:
-      #    key: ${{ github.ref }}
-      #    path: .cache
-
-      #- name: Install PDM
-      #  run: curl -sSL https://pdm-project.org/install-pdm.py | python3 -
-
       - name: Setup PDM
         uses: pdm-project/setup-pdm@v3
       - name: Install dependencies
