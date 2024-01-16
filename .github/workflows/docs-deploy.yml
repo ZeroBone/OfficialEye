@@ -21,9 +21,9 @@ jobs:
       #- name: Install PDM
       #  run: curl -sSL https://pdm-project.org/install-pdm.py | python3 -
 
-      #- name: Install dependencies
-      #  run: pdm install
       - name: Setup PDM
         uses: pdm-project/setup-pdm@v3
+      - name: Install dependencies
+        run: pdm install
       - name: Deploy documentation
         run: pdm run docs-deploy
