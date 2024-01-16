@@ -1,10 +1,8 @@
 <div align="center">
 
-# OfficialEye
+![OfficialEye logo](docs/assets/img/logo/logo_bg_light.svg)
 
 An AI-powered generic document-analysis tool.
-
-![OfficialEye logo](docs/assets/img/logo/logo_bg_light.svg)
 
 ![GitHub Release](https://img.shields.io/github/v/release/ZeroBone/OfficialEye?label=latest%20release)
 ![PyPI - Version](https://img.shields.io/pypi/v/officialeye)
