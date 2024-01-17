@@ -13,31 +13,51 @@ OfficialEye requires Python 3.10+ to be installed. It works on multiple platform
 
 ### Installation for usage
 
-The tool can be installed with the standard `pip` installation command:
+#### Recommended installation method
+
+Start by installing [PIPX](https://github.com/pypa/pipx) (if you haven't installed it already).
+
+=== "MacOS"
+
+    ```shell
+    brew install pipx
+    pipx ensurepath
+    ```
+
+=== "Linux"
+
+    ```shell
+    sudo apt install pipx
+    pipx ensurepath
+    ```
+
+=== "Windows"
+
+    ```shell
+    scoop install pipx
+    pipx ensurepath
+    ```
+
+Next, use `pipx` to install OfficialEye.
 
 ```shell
-pip install officialeye
+pipx install officialeye
 ```
 
-Especially if you are deploying the tool on a production server, you might want to set up `OfficialEye` in a `venv` virtual environment, which is an isolated Python runtime:
+#### Installation via PIP
+
+The tool can also be installed with the standard `pip` installation command:
 
 ```shell
-python3 -m venv venv
-source venv/bin/activate
-pip install officialeye
+pip install officialeye --break-system-packages
 ```
 
-To leave the virtual environment, execute
-
-```shell
-deactivate
-```
-
-For more information about `venv` virtual environments, see the [official documentation](https://packaging.python.org/en/latest/guides/installing-using-pip-and-virtual-environments/#creating-a-virtual-environment).
+!!! warning
+    The above command installs the package globally, which is not recommended due to possible conflicts between OS package managers and python-specific package management tools (see [PEP 668](https://peps.python.org/pep-0668/)).
 
 ### Installation for development
 
-To se tup the development environment, start by cloning the [GitHub repository](https://github.com/ZeroBone/OfficialEye) and navigating to the projects' root directory:
+To set up the development environment on a Linux (prefferably Ubuntu) computer, start by cloning the [GitHub repository](https://github.com/ZeroBone/OfficialEye) and navigating to the projects' root directory:
 
 ```shell
 git clone https://github.com/ZeroBone/OfficialEye.git

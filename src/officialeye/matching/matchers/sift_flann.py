@@ -4,18 +4,18 @@ import numpy as np
 
 from officialeye.error.errors.matching import ErrMatchingInvalidEngineConfig
 from officialeye.matching.match import Match
-from officialeye.matching.matcher import KeypointMatcher
+from officialeye.matching.matcher import Matcher
 from officialeye.matching.result import KeypointMatchingResult
 
 _FLANN_INDEX_KDTREE = 1
 
 
-class SiftFlannKeypointMatcher(KeypointMatcher):
+class SiftFlannMatcher(Matcher):
 
     ENGINE_ID = "sift_flann"
 
     def __init__(self, template_id: str, img: cv2.Mat, /):
-        super().__init__(SiftFlannKeypointMatcher.ENGINE_ID, template_id, img)
+        super().__init__(SiftFlannMatcher.ENGINE_ID, template_id, img)
 
         def _preprocess_sensitivity(value: any) -> float:
 
@@ -23,13 +23,13 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
 
             if value < 0.0:
                 raise ErrMatchingInvalidEngineConfig(
-                    f"while loading the '{SiftFlannKeypointMatcher.ENGINE_ID}' keypoint matcher",
+                    f"while loading the '{SiftFlannMatcher.ENGINE_ID}' keypoint matcher",
                     f"The `sensitivity` value ({self._sensitivity}) cannot be negative."
                 )
 
             if value > 1.0:
                 raise ErrMatchingInvalidEngineConfig(
-                    f"while loading the '{SiftFlannKeypointMatcher.ENGINE_ID}' keypoint matcher",
+                    f"while loading the '{SiftFlannMatcher.ENGINE_ID}' keypoint matcher",
                     f"The `sensitivity` value ({self._sensitivity}) cannot exceed 1.0."
                 )
 
@@ -72,19 +72,22 @@ class SiftFlannKeypointMatcher(KeypointMatcher):
 
         # filter matches
         for i, (m, n) in enumerate(matches):
-            if m.distance < self._sensitivity * n.distance:
-                matches_mask[i] = [1, 0]
 
-                pattern_point = keypoints_pattern[m.queryIdx].pt
-                target_point = self._keypoints_target[m.trainIdx].pt
+            if m.distance >= self._sensitivity * n.distance:
+                continue
 
-                # maybe one should consider rounding values here, instead of simply stripping the floating-point part
-                pattern_point = np.array(pattern_point, dtype=int)
-                target_point = np.array(target_point, dtype=int)
+            matches_mask[i] = [1, 0]
 
-                match = Match(self.template_id, keypoint_id, pattern_point, target_point)
-                match.set_score(self._sensitivity * n.distance - m.distance)
-                self._result.add_match(match)
+            pattern_point = keypoints_pattern[m.queryIdx].pt
+            target_point = self._keypoints_target[m.trainIdx].pt
+
+            # maybe one should consider rounding values here, instead of simply stripping the floating-point part
+            pattern_point = np.array(pattern_point, dtype=int)
+            target_point = np.array(target_point, dtype=int)
+
+            match = Match(self.template_id, keypoint_id, pattern_point, target_point)
+            match.set_score(self._sensitivity * n.distance - m.distance)
+            self._result.add_match(match)
 
         if self.in_debug_mode():
             # noinspection PyTypeChecker

@@ -11,7 +11,7 @@ from officialeye.matching.result import KeypointMatchingResult
 from officialeye.util.logger import oe_warn
 
 
-class KeypointMatcher(ABC, Debuggable):
+class Matcher(ABC, Debuggable):
 
     def __init__(self, engine_id: str, template_id: str, img: cv2.Mat, /):
         super().__init__()

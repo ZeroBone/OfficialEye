@@ -1,10 +1,26 @@
 # Changelog
 
+## Release 1.1.3 (beta)
+
+* The `tesseract_ocr` interpretation method no longer has default Tesseract OCR configuration values predefined.
+* Added a new `file_temp` interpretation method that allows one to save features as temporary files.
+* Substrantial refactor & architecture improvements.
+
+[View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.1.3){ .md-button }
+
+## Release 1.1.2 (beta)
+
+There are only minor improvements compared to the previous release (version 1.1.1). This release serves as an initial release for PyPI.
+
+[View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.1.2){ .md-button }
+
 ## Release 1.1.1 (beta)
 
 * Fixed many minor bugs, typos and inconsistencies.
 * Refactor.
 * Many documentation improvements.
+
+[View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.1.1){ .md-button }
 
 ## Release 1.1.0 (beta)
 

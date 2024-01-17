@@ -1,8 +1,10 @@
 import click
 
+__version__ = "1.1.3"
+
 OFFICIALEYE_NAME = "OfficialEye"
 OFFICIALEYE_GITHUB = "https://github.com/ZeroBone/OfficialEye"
-OFFICIALEYE_VERSION = "1.1.2"
+OFFICIALEYE_VERSION = __version__
 OFFICIALEYE_CLI_LOGO = """   ____  _________      _       __   ______         
   / __ \\/ __/ __(_)____(_)___ _/ /  / ____/_  _____ 
  / / / / /_/ /_/ / ___/ / __ `/ /  / __/ / / / / _ \\

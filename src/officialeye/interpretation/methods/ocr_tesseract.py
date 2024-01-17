@@ -4,7 +4,7 @@ from typing import Dict
 import cv2
 from pytesseract import pytesseract
 
-from officialeye.interpretation import InterpretationMethod
+from officialeye.interpretation import InterpretationMethod, Serializable
 
 
 class TesseractInterpretationMethod(InterpretationMethod):
@@ -15,7 +15,7 @@ class TesseractInterpretationMethod(InterpretationMethod):
         super().__init__(TesseractInterpretationMethod.METHOD_ID, config_dict)
 
         self._tesseract_lang = self.get_config().get("lang", default="eng")
-        self._tesseract_config = self.get_config().get("config", default="--dpi 10000 --oem 3 --psm 6")
+        self._tesseract_config = self.get_config().get("config", default="")
 
-    def interpret(self, feature_img: cv2.Mat, feature_id: str, /) -> any:
+    def interpret(self, feature_img: cv2.Mat, feature_id: str, /) -> Serializable:
         return pytesseract.image_to_string(feature_img, lang=self._tesseract_lang, config=self._tesseract_config).strip()

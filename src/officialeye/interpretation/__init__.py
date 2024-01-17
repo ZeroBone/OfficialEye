@@ -1,10 +1,13 @@
 import abc
-from typing import Dict
+from typing import Dict, TypeAlias
 
 # noinspection PyPackageRequirements
 import cv2
 
 from officialeye.interpretation.config import InterpretationMethodConfig
+
+
+Serializable: TypeAlias = dict[str, "Serializable"] | list["Serializable"] | str | int | float | bool | None
 
 
 class InterpretationMethod(abc.ABC):
@@ -20,5 +23,5 @@ class InterpretationMethod(abc.ABC):
         return self._config
 
     @abc.abstractmethod
-    def interpret(self, feature_img: cv2.Mat, feature_id: str, /) -> any:
+    def interpret(self, feature_img: cv2.Mat, feature_id: str, /) -> Serializable:
         raise NotImplementedError()

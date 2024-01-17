@@ -9,8 +9,8 @@ from officialeye.context.singleton import oe_context
 from officialeye.error.errors.io import ErrIOInvalidPath
 from officialeye.error.errors.template import ErrTemplateInvalidSupervisionEngine, ErrTemplateInvalidMatchingEngine, ErrTemplateInvalidKeypoint, \
     ErrTemplateInvalidFeature
-from officialeye.matching.matcher import KeypointMatcher
-from officialeye.matching.matchers.sift_flann import SiftFlannKeypointMatcher
+from officialeye.matching.matcher import Matcher
+from officialeye.matching.matchers.sift_flann import SiftFlannMatcher
 from officialeye.matching.result import KeypointMatchingResult
 from officialeye.mutator.loader import load_mutator_from_dict
 from officialeye.mutator.mutator import Mutator
@@ -117,11 +117,11 @@ class Template:
     def get_feature_classes(self) -> FeatureClassManager:
         return self._feature_class_manager
 
-    def load_keypoint_matcher(self, target_img: cv2.Mat, /) -> KeypointMatcher:
+    def load_keypoint_matcher(self, target_img: cv2.Mat, /) -> Matcher:
         matching_engine = self.get_matching_engine()
 
-        if matching_engine == SiftFlannKeypointMatcher.ENGINE_ID:
-            return SiftFlannKeypointMatcher(self.template_id, target_img)
+        if matching_engine == SiftFlannMatcher.ENGINE_ID:
+            return SiftFlannMatcher(self.template_id, target_img)
 
         raise ErrTemplateInvalidMatchingEngine(
             "while loading keypoint matcher",
