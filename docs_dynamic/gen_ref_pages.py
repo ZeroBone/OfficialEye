@@ -6,7 +6,7 @@ import mkdocs_gen_files
 
 
 def snake_case_to_title(input_str: str, /) -> str:
-    return " ".join([f"{word[0].upper()}{word[1:]}" for word in input_str.split("_")])
+    return " ".join([f"{word[0].upper()}{word[1:]}" for word in input_str.split("_") if len(word) > 0])
 
 
 nav = mkdocs_gen_files.Nav()
