@@ -3,17 +3,18 @@ from typing import Dict
 
 # noinspection PyPackageRequirements
 import cv2
-from pytesseract import pytesseract
 
-from officialeye.interpretation import InterpretationMethod, Serializable
+from officialeye.context.context import Context
+from officialeye.interpretation.method import InterpretationMethod
+from officialeye.interpretation.serializable import Serializable
 
 
 class FileTempMethod(InterpretationMethod):
 
     METHOD_ID = "file_temp"
 
-    def __init__(self, config_dict: Dict[str, any]):
-        super().__init__(FileTempMethod.METHOD_ID, config_dict)
+    def __init__(self, context: Context, config_dict: Dict[str, any]):
+        super().__init__(context, FileTempMethod.METHOD_ID, config_dict)
 
         self._format = self.get_config().get("format", default="png")
 

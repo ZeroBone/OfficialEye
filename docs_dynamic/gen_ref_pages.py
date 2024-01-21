@@ -5,8 +5,8 @@ from pathlib import Path
 import mkdocs_gen_files
 
 
-def snake_case_to_title(input: str, /) -> str:
-    return " ".join([f"{word[0].upper()}{word[1:]}" for word in input.split("_")])
+def snake_case_to_title(input_str: str, /) -> str:
+    return " ".join([f"{word[0].upper()}{word[1:]}" for word in input_str.split("_")])
 
 
 nav = mkdocs_gen_files.Nav()

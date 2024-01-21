@@ -5,15 +5,16 @@ from typing import Dict, Union, List
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.context.singleton import oe_context
+from officialeye.context.context import Context
 from officialeye.error.errors.io import ErrIOInvalidPath
 from officialeye.error.errors.template import ErrTemplateInvalidSupervisionEngine, ErrTemplateInvalidMatchingEngine, ErrTemplateInvalidKeypoint, \
     ErrTemplateInvalidFeature
+from officialeye.logger.singleton import get_logger
 from officialeye.matching.matcher import Matcher
 from officialeye.matching.matchers.sift_flann import SiftFlannMatcher
-from officialeye.matching.result import KeypointMatchingResult
-from officialeye.mutator.loader import load_mutator_from_dict
-from officialeye.mutator.mutator import Mutator
+from officialeye.matching.result import MatchingResult
+from officialeye.mutation.mutator import Mutator
+from officialeye.mutation.loader import load_mutator_from_dict
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisors.combinatorial import CombinatorialSupervisor
 from officialeye.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor
@@ -23,12 +24,14 @@ from officialeye.template.feature_class.loader import load_template_feature_clas
 from officialeye.template.feature_class.manager import FeatureClassManager
 from officialeye.template.region.feature import TemplateFeature
 from officialeye.template.region.keypoint import TemplateKeypoint
-from officialeye.util.logger import oe_debug, oe_info
 
 
 class Template:
 
-    def __init__(self, yaml_dict: dict, path_to_template: str, /):
+    def __init__(self, context: Context, yaml_dict: Dict[str, any], path_to_template: str, /):
+
+        self._context = context
+
         self._path_to_template = path_to_template
 
         self.template_id = yaml_dict["id"]
@@ -51,7 +54,7 @@ class Template:
         for keypoint_id in yaml_dict["keypoints"]:
             keypoint_dict = yaml_dict["keypoints"][keypoint_id]
             keypoint_dict["id"] = keypoint_id
-            keypoint = TemplateKeypoint(keypoint_dict, self)
+            keypoint = TemplateKeypoint(self._context, self.template_id, keypoint_dict)
 
             if keypoint.region_id in self._keypoints:
                 raise ErrTemplateInvalidKeypoint(
@@ -77,7 +80,7 @@ class Template:
         for feature_id in yaml_dict["features"]:
             feature_dict = yaml_dict["features"][feature_id]
             feature_dict["id"] = feature_id
-            feature = TemplateFeature(feature_dict, self)
+            feature = TemplateFeature(self._context, self.template_id, feature_dict)
 
             if feature.region_id in self._keypoints:
                 raise ErrTemplateInvalidFeature(
@@ -95,7 +98,7 @@ class Template:
 
             self._features[feature.region_id] = feature
 
-        oe_context().on_template_loaded(self)
+        self._context.add_template(self)
 
     def get_matching_engine(self) -> str:
         return self._matching["engine"]
@@ -117,11 +120,12 @@ class Template:
     def get_feature_classes(self) -> FeatureClassManager:
         return self._feature_class_manager
 
-    def load_keypoint_matcher(self, target_img: cv2.Mat, /) -> Matcher:
+    def _load_keypoint_matcher(self, target_img: cv2.Mat, /) -> Matcher:
+
         matching_engine = self.get_matching_engine()
 
         if matching_engine == SiftFlannMatcher.ENGINE_ID:
-            return SiftFlannMatcher(self.template_id, target_img)
+            return SiftFlannMatcher(self._context, self.template_id, target_img)
 
         raise ErrTemplateInvalidMatchingEngine(
             "while loading keypoint matcher",
@@ -187,22 +191,22 @@ class Template:
 
         # apply template mutators to the target image
         for mutator in self._source_mutators:
-            oe_debug(f"Applying mutator '{mutator.mutator_id}' to the source image of template '{self.template_id}'.")
+            get_logger().debug(f"Applying mutator '{mutator.mutator_id}' to the source image of template '{self.template_id}'.")
             img = mutator.mutate(img)
 
         return self._show(img, **kwargs)
 
-    def _load_supervisor(self, kmr: KeypointMatchingResult):
+    def _load_supervisor(self, kmr: MatchingResult):
         superivision_engine = self.get_supervision_engine()
 
         if superivision_engine == LeastSquaresRegressionSupervisor.ENGINE_ID:
-            return LeastSquaresRegressionSupervisor(self.template_id, kmr)
+            return LeastSquaresRegressionSupervisor(self._context, self.template_id, kmr)
 
         if superivision_engine == OrthogonalRegressionSupervisor.ENGINE_ID:
-            return OrthogonalRegressionSupervisor(self.template_id, kmr)
+            return OrthogonalRegressionSupervisor(self._context, self.template_id, kmr)
 
         if superivision_engine == CombinatorialSupervisor.ENGINE_ID:
-            return CombinatorialSupervisor(self.template_id, kmr)
+            return CombinatorialSupervisor(self._context, self.template_id, kmr)
 
         raise ErrTemplateInvalidSupervisionEngine(
             "while loading supervisor",
@@ -216,21 +220,20 @@ class Template:
 
         # apply mutators to the target image
         for mutator in self._target_mutators:
-            oe_debug(f"Applying mutator '{mutator.mutator_id}' to input image.")
+            get_logger().debug(f"Applying mutator '{mutator.mutator_id}' to input image.")
             target = mutator.mutate(target)
 
         # start matching
-        matcher = self.load_keypoint_matcher(target)
+        matcher = self._load_keypoint_matcher(target)
 
         for keypoint in self.keypoints():
             keypoint_pattern = keypoint.to_image()
-            oe_debug(f"Running matcher for keypoint '{keypoint.region_id}'.")
+            get_logger().debug(f"Running matcher for keypoint '{keypoint.region_id}'.")
             matcher.match_keypoint(keypoint_pattern, keypoint.region_id)
 
         keypoint_matching_result = matcher.match_finish()
 
-        if oe_context().debug_mode:
-            matcher.debug().export()
+        if self._context.visualization_generation_enabled():
             keypoint_matching_result.debug_print()
 
         keypoint_matching_result.validate()
@@ -238,8 +241,8 @@ class Template:
 
         _matching_ended_time = time.perf_counter(), time.process_time()
 
-        oe_info(f"Matching succeeded in {_matching_ended_time[0] - _analysis_start_time[0]:.2f} seconds of real time "
-                f"and {_matching_ended_time[1] - _analysis_start_time[1]:.2f} seconds of CPU time.")
+        get_logger().info(f"Matching succeeded in {_matching_ended_time[0] - _analysis_start_time[0]:.2f} seconds of real time "
+                          f"and {_matching_ended_time[1] - _analysis_start_time[1]:.2f} seconds of CPU time.")
 
         # run supervision to obtain correspondence between template and target regions
         supervisor = self._load_supervisor(keypoint_matching_result)
@@ -248,16 +251,15 @@ class Template:
         if supervision_result is None:
             return None
 
-        if oe_context().debug_mode:
-            supervision_result_visualizer = SupervisionResultVisualizer(supervision_result, target)
+        if self._context.visualization_generation_enabled():
+            supervision_result_visualizer = SupervisionResultVisualizer(self._context, supervision_result, target)
             visualization = supervision_result_visualizer.render()
-            supervisor.debug().add_image(visualization)
-            supervisor.debug().export()
+            self._context.export_image(visualization, file_name="matches.png")
 
         _supervision_ended_time = time.perf_counter(), time.process_time()
 
-        oe_info(f"Supervision succeeded in {_supervision_ended_time[0] - _matching_ended_time[0]:.2f} seconds of real time "
-                f"and {_supervision_ended_time[1] - _matching_ended_time[1]:.2f} seconds of CPU time.")
+        get_logger().info(f"Supervision succeeded in {_supervision_ended_time[0] - _matching_ended_time[0]:.2f} seconds of real time "
+                          f"and {_supervision_ended_time[1] - _matching_ended_time[1]:.2f} seconds of CPU time.")
 
         return supervision_result
 

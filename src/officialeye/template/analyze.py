@@ -5,22 +5,23 @@ from typing import List, Union, Tuple
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.context.singleton import oe_context
-from officialeye.error import OEError
+from officialeye.context.context import Context
+from officialeye.error.error import OEError
 from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
 from officialeye.error.errors.template import ErrTemplateInvalidConcurrencyConfig
-from officialeye.error.printing import oe_error_print_debug
+from officialeye.logger.singleton import get_logger
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.template import Template
-from officialeye.util.logger import oe_debug
 
 
 class AnalysisWorker(Thread):
 
     def __init__(self, worker_id: int, queue: Queue, target: cv2.Mat, /):
         Thread.__init__(self)
+
         self.worker_id = worker_id
         self.queue = queue
+
         self._target = target
         self._results: List[Tuple[Union[SupervisionResult, None], Union[OEError, None]]] = []
 
@@ -49,9 +50,7 @@ class AnalysisWorker(Thread):
                 yield error
 
 
-
-
-def do_analyze(target: cv2.Mat, templates: List[Template], /, *, num_workers: int):
+def do_analyze(context: Context, target: cv2.Mat, templates: List[Template], /, *, num_workers: int):
 
     if len(templates) == 0:
         # the program should be a noop if there are no templates provided
@@ -107,8 +106,8 @@ def do_analyze(target: cv2.Mat, templates: List[Template], /, *, num_workers: in
             if not error.is_regular:
                 raise error
             else:
-                oe_debug(f"Worker {worker.worker_id} returned the following non-regular error {error.code_text}:")
-                oe_error_print_debug(error)
+                get_logger().debug(f"Worker {worker.worker_id} returned the following non-regular error {error.code_text}:")
+                get_logger().debug_oe_error(error)
                 regular_errors.append(error)
 
     # note: best_result may be None here
@@ -125,4 +124,4 @@ def do_analyze(target: cv2.Mat, templates: List[Template], /, *, num_workers: in
 
         raise error
 
-    oe_context().io_driver.output_supervision_result(target, best_result)
+    context.get_io_driver().output_supervision_result(target, best_result)

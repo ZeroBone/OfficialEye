@@ -4,7 +4,7 @@ from typing import Dict
 import cv2
 
 from officialeye.error.errors.template import ErrTemplateInvalidMutator
-from officialeye.mutator.mutator import Mutator
+from officialeye.mutation.mutator import Mutator
 
 
 class NonLocalMeansDenoisingMutator(Mutator):

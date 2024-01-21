@@ -1,23 +1,24 @@
-from typing import Union
+from typing import Union, Dict
 
 # noinspection PyPackageRequirements
 import cv2
 
+from officialeye.context.context import Context
 from officialeye.error.errors.template import ErrTemplateInvalidFeature
 from officialeye.interpretation.loader import load_interpretation_method
-from officialeye.mutator.loader import load_mutator_from_dict
+from officialeye.logger.singleton import get_logger
+from officialeye.mutation.loader import load_mutator_from_dict
 from officialeye.template.feature_class.feature_class import FeatureClass
 from officialeye.template.feature_class.manager import FeatureClassManager
-from officialeye.template.region import TemplateRegion
-from officialeye.util.logger import oe_debug
+from officialeye.template.region.region import TemplateRegion
 
 _FEATURE_RECT_COLOR = (0, 0xff, 0)
 
 
 class TemplateFeature(TemplateRegion):
 
-    def __init__(self, feature_dict: dict, template, /):
-        super().__init__(feature_dict, template)
+    def __init__(self, context: Context, template_id: str, feature_dict: Dict[str, any], /):
+        super().__init__(context, template_id, feature_dict)
 
         if "class" in feature_dict:
             self._class_id = feature_dict["class"]
@@ -33,11 +34,11 @@ class TemplateFeature(TemplateRegion):
         if self._class_id is None:
             return
 
-        feature_classes: FeatureClassManager = self._template.get_feature_classes()
+        feature_classes: FeatureClassManager = self.get_template().get_feature_classes()
 
         if not feature_classes.contains_class(self._class_id):
             raise ErrTemplateInvalidFeature(
-                f"while loading class for feature '{self.region_id}' in template '{self._template.template_id}'.",
+                f"while loading class for feature '{self.region_id}' in template '{self.get_template().template_id}'.",
                 f"Specified feature class '{self._class_id}' is not defined."
             )
 
@@ -45,7 +46,7 @@ class TemplateFeature(TemplateRegion):
 
         if feature_class.is_abstract():
             raise ErrTemplateInvalidFeature(
-                f"while loading class for feature '{self.region_id}' in template '{self._template.template_id}'.",
+                f"while loading class for feature '{self.region_id}' in template '{self.get_template().template_id}'.",
                 f"Cannot instantiate an abstract feature class '{self._class_id}'."
             )
 
@@ -55,7 +56,7 @@ class TemplateFeature(TemplateRegion):
         if self._class_id is None:
             return None
 
-        feature_classes: FeatureClassManager = self._template.get_feature_classes()
+        feature_classes: FeatureClassManager = self.get_template().get_feature_classes()
 
         assert feature_classes.contains_class(self._class_id)
 
@@ -87,7 +88,7 @@ class TemplateFeature(TemplateRegion):
 
         for mutator_dict in mutators:
             mutator = load_mutator_from_dict(mutator_dict)
-            oe_debug(f"Applying mutator '{mutator.mutator_id}'.")
+            get_logger().debug(f"Applying mutator '{mutator.mutator_id}'.")
             img = mutator.mutate(img)
 
         return img
@@ -114,6 +115,6 @@ class TemplateFeature(TemplateRegion):
         assert isinstance(interpretation_method_id, str)
         assert isinstance(interpretation_method_config, dict)
 
-        interpretation_method = load_interpretation_method(interpretation_method_id, interpretation_method_config)
+        interpretation_method = load_interpretation_method(self._context, interpretation_method_id, interpretation_method_config)
 
         return interpretation_method.interpret(img, self.region_id)

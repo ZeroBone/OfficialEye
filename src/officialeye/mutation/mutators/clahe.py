@@ -3,12 +3,12 @@ from typing import Dict
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.mutator.mutator import Mutator
+from officialeye.mutation.mutator import Mutator
 
 
 class CLAHEMutator(Mutator):
     """
-    Implementation of constrast increase via Contrast Limited Adaptive Histogram Equalization
+    Implementation of constrast increase via Contrast Limited Adaptive Histogram Equalization.
     """
 
     MUTATOR_ID = "clahe"

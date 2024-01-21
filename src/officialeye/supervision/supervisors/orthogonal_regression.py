@@ -4,20 +4,21 @@ import numpy as np
 # noinspection PyPackageRequirements
 import z3
 
+from officialeye.context.context import Context
 from officialeye.error.errors.supervision import ErrSupervisionInvalidEngineConfig
+from officialeye.logger.singleton import get_logger
 from officialeye.matching.match import Match
-from officialeye.matching.result import KeypointMatchingResult
+from officialeye.matching.result import MatchingResult
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor import Supervisor
-from officialeye.util.logger import oe_debug
 
 
 class OrthogonalRegressionSupervisor(Supervisor):
 
     ENGINE_ID = "orthogonal_regression"
 
-    def __init__(self, template_id: str, kmr: KeypointMatchingResult, /):
-        super().__init__(OrthogonalRegressionSupervisor.ENGINE_ID, template_id, kmr)
+    def __init__(self, context: Context, template_id: str, kmr: MatchingResult, /):
+        super().__init__(context, OrthogonalRegressionSupervisor.ENGINE_ID, template_id, kmr)
 
         def _z3_timeout_preprocessor(v: any) -> int:
 
@@ -43,7 +44,7 @@ class OrthogonalRegressionSupervisor(Supervisor):
 
         # keys: matches (instances of Match)
         # values: z3 integer variables representing the errors for each match,
-        # i.e. how consistent the match is with the affine transformation model
+        # i.e., how consistent the match is with the affine transformation model
         self._match_error: Dict[Match, z3.ArithRef] = {}
 
         for match in self._kmr.get_matches():
@@ -97,11 +98,11 @@ class OrthogonalRegressionSupervisor(Supervisor):
             _result = solver.check()
 
             if _result == z3.unsat:
-                oe_debug("Z3 returned unsat.")
+                get_logger().debug("Z3 returned unsat.")
                 return
 
             if _result == z3.unknown:
-                oe_debug("Z3 returned unknown.")
+                get_logger().debug("Z3 returned unknown.")
                 return
 
             assert _result == z3.sat
@@ -115,6 +116,6 @@ class OrthogonalRegressionSupervisor(Supervisor):
 
             _result = SupervisionResult(self.template_id, self._kmr, delta, delta_prime, transformation_matrix)
 
-            oe_debug(f"Error: {_result.get_weighted_mse()}")
+            get_logger().debug(f"Error: {_result.get_weighted_mse()}")
 
             yield _result

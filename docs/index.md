@@ -41,7 +41,7 @@ OfficialEye is an advanced tool designed to extract information from flat docume
 
     ---
     
-    Out-of-the box, OfficialEye's supports an innovative consistency-driven detection approach, finely tuned for flat documents. Imagine the human ability to detect formatted documents at a glance: with an innate understanding of how a document appears, our brains effortlessly filters out incongruent elements. OfficialEye mirrors this by operating under the assumption that the document in the image is a flat surface and leveraging this inherent knowledge to significantly enhance the accuracy of the results.
+    Out-of-the box, OfficialEye's supports an innovative consistency-driven detection approach, finely tuned for flat documents. Imagine the human ability to detect formatted documents at a glance: with an innate understanding of how a document appears, our brain effortlessly filters out incongruent elements. OfficialEye mirrors this by operating under the assumption that the document in the image is a flat surface, and leveraging this inherent knowledge to significantly enhance the accuracy of the results.
 
 -   :material-lightbulb-on:{ .lg .middle } __Visualizations__
 

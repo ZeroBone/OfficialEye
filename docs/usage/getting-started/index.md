@@ -60,8 +60,7 @@ pip install officialeye --break-system-packages
 To set up the development environment on a Linux (prefferably Ubuntu) computer, start by cloning the [GitHub repository](https://github.com/ZeroBone/OfficialEye) and navigating to the projects' root directory:
 
 ```shell
-git clone https://github.com/ZeroBone/OfficialEye.git
-cd OfficialEye
+git clone https://github.com/ZeroBone/OfficialEye.git && cd OfficialEye
 ```
 
 Next, install the [PDM package manager](https://pdm-project.org/):
@@ -73,17 +72,19 @@ curl -sSL https://pdm-project.org/install-pdm.py | python3 -
 !!! note
     PDM will not work without the `python3-venv` package. Make sure to have `curl` and `python3-venv` installed before running the above command.
 
-Next, initialize a new `venv` environment and enter it:
+Next, initialize a new `venv` environment via
 ```shell
 pdm venv create
+```
+and enter it by running
+```shell
 source .venv/bin/activate
 ```
 
-At this point, a prefix of the form `(officialeye-x.xx)` should appear in the terminal. To complete the setup, run the following commands to install the dependencies and the `officialeye` package in development mode.
+At this point, a prefix of the form `(officialeye-x.xx)` should appear in the terminal. To complete the setup, run the following commands to install the dependencies and the `officialeye` package in editable mode.
 
 ```shell
 pdm install
-pdm run install
 ```
 
 !!! success

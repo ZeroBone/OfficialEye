@@ -1,10 +1,10 @@
 from typing import Dict
 
 from officialeye.error.errors.template import ErrTemplateInvalidMutator
-from officialeye.mutator.mutator import Mutator
-from officialeye.mutator.mutators.clahe import CLAHEMutator
-from officialeye.mutator.mutators.grayscale import GrayscaleMutator
-from officialeye.mutator.mutators.non_local_means_denoising import NonLocalMeansDenoisingMutator
+from officialeye.mutation.mutator import Mutator
+from officialeye.mutation.mutators.clahe import CLAHEMutator
+from officialeye.mutation.mutators.grayscale import GrayscaleMutator
+from officialeye.mutation.mutators.non_local_means_denoising import NonLocalMeansDenoisingMutator
 
 
 def load_mutator(mutator_id: str, config: Dict[str, any], /) -> Mutator:

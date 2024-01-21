@@ -1,19 +1,25 @@
 import numpy as np
 
-from officialeye.context.singleton import oe_context
+from officialeye.context.context import Context
 from officialeye.template.region.keypoint import TemplateKeypoint
 
 
 class Match:
 
-    def __init__(self, template_id: str, keypoint_region_id: str,
+    def __init__(self, context: Context, template_id: str, keypoint_region_id: str,
                  region_point: np.ndarray, target_point: np.ndarray, /, *, score: float = 0.0):
-        assert region_point.shape[0] == 2
-        assert target_point.shape[0] == 2
+
+        self._context = context
+
         self.template_id = template_id
         self.keypoint_id = keypoint_region_id
+
+        assert region_point.shape[0] == 2
+        assert target_point.shape[0] == 2
+
         self._region_point = region_point
         self._target_point = target_point
+
         self._score = score
 
     def set_score(self, new_score: float, /):
@@ -25,14 +31,15 @@ class Match:
     def get_template_point(self) -> np.ndarray:
         return self._region_point.copy()
 
-    def get_original_template_point(self) -> np.ndarray:
-        """Returns the region point in the coordinate system of the underlying template."""
-        template = oe_context().get_template(self.template_id)
-        keypoint = template.get_keypoint(self.keypoint_id)
-        return self._region_point + keypoint.get_top_left_vec()
+    def get_template(self):
+        return self._context.get_template(self.template_id)
 
     def get_keypoint(self) -> TemplateKeypoint:
-        return oe_context().get_template(self.template_id).get_keypoint(self.keypoint_id)
+        return self.get_template().get_keypoint(self.keypoint_id)
+
+    def get_original_template_point(self) -> np.ndarray:
+        """Returns the coordinates of the point lying in the keypoint, in the coordinate system of the underlying template."""
+        return self._region_point + self.get_keypoint().get_top_left_vec()
 
     def get_target_point(self) -> np.ndarray:
         return self._target_point.copy()

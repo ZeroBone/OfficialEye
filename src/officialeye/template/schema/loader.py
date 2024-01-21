@@ -1,21 +1,22 @@
 import strictyaml as yml
 
+from officialeye.context.context import Context
 from officialeye.error.errors.template import ErrTemplateInvalidSyntax
-from officialeye.template.parser.schema import generate_template_schema
+from officialeye.logger.singleton import get_logger
 from officialeye.template.template import Template
-from officialeye.util.logger import oe_error, oe_info
+from officialeye.template.schema.schema import generate_template_schema
 
 _oe_template_schema = generate_template_schema()
 
 
 def _print_error_message(err: yml.StrictYAMLError, template_path: str):
 
-    oe_error("Error ", bold=True, nl=False)
+    get_logger().error("Error ", bold=True, nl=False)
 
     if err.context is not None:
-        oe_error(err.context, prefix=False)
+        get_logger().error(err.context, prefix=False)
     else:
-        oe_error("while parsing", prefix=False)
+        get_logger().error("while parsing", prefix=False)
 
     if err.context_mark is not None and (
             err.problem is None
@@ -24,21 +25,22 @@ def _print_error_message(err: yml.StrictYAMLError, template_path: str):
             or err.context_mark.line != err.problem_mark.line
             or err.context_mark.column != err.problem_mark.column
     ):
-        oe_error(str(err.context_mark).replace("<unicode string>", template_path))
+        get_logger().error(str(err.context_mark).replace("<unicode string>", template_path))
 
     if err.problem is not None:
-        oe_error("Problem", bold=True, nl=False)
-        oe_error(f": {err.problem}", prefix=False)
+        get_logger().error("Problem", bold=True, nl=False)
+        get_logger().error(f": {err.problem}", prefix=False)
 
     if err.problem_mark is not None:
-        oe_error(str(err.problem_mark).replace("<unicode string>", template_path))
+        get_logger().error(str(err.problem_mark).replace("<unicode string>", template_path))
 
 
-def load_template(path: str) -> Template:
+def load_template(context: Context, path: str) -> Template:
     """
     Loads a template from a file located at the specified path.
 
     Arguments:
+        context: The global officialeye context.
         path: The path to the YAML template configuration file.
 
     Returns:
@@ -66,9 +68,9 @@ def load_template(path: str) -> Template:
 
     data = yaml_document.data
 
-    template = Template(data, path)
+    template = Template(context, data, path)
 
-    oe_info(f"Loaded template: ", nl=False)
-    oe_info(str(template), prefix=False, bold=True)
+    get_logger().info(f"Loaded template: ", nl=False)
+    get_logger().info(str(template), prefix=False, bold=True)
 
     return template

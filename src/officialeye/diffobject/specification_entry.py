@@ -27,6 +27,6 @@ class DiffObjectSpecificationEntry(ABC):
             The new value obtained by combining current_value with diff_value using diff_mode.
 
         Raises:
-            DiffObjectException: If the difference mode cannot be applied to the present entry, for example due to its type.
+            DiffObjectException: If the difference mode cannot be applied to the present entry, for example, due to its type.
         """
         raise NotImplementedError()

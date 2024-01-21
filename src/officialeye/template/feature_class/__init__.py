@@ -1,1 +1,3 @@
-# Comment needed to avoid this file being empty
+"""
+Module containing everything needed to use feature classes.
+"""

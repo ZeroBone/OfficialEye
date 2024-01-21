@@ -1,1 +1,3 @@
-# Comment needed to avoid this file being empty
+"""
+This module contains all supervisors built into OfficialEye.
+"""

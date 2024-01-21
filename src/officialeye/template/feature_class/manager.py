@@ -2,8 +2,8 @@ from typing import Dict
 
 from officialeye.diffobject.exception import DiffObjectException
 from officialeye.error.errors.template import ErrTemplateInvalidFeatureClass
-from officialeye.template.feature_class.const import IMPLICIT_FEATURE_CLASS_BASE_INSTANCE_ID
 from officialeye.template.feature_class.feature_class import FeatureClass
+from officialeye.template.feature_class.const import IMPLICIT_FEATURE_CLASS_BASE_INSTANCE_ID
 
 
 class FeatureClassManager:

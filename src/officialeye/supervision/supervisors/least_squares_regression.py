@@ -2,10 +2,11 @@ from typing import Generator
 
 import numpy as np
 
-from officialeye.matching.result import KeypointMatchingResult
+from officialeye.context.context import Context
+from officialeye.logger.singleton import get_logger
+from officialeye.matching.result import MatchingResult
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor import Supervisor
-from officialeye.util.logger import oe_debug
 
 _IND_A = 0
 _IND_B = 1
@@ -17,8 +18,8 @@ class LeastSquaresRegressionSupervisor(Supervisor):
 
     ENGINE_ID = "least_squares_regression"
 
-    def __init__(self, template_id: str, kmr: KeypointMatchingResult, /):
-        super().__init__(LeastSquaresRegressionSupervisor.ENGINE_ID, template_id, kmr)
+    def __init__(self, context: Context, template_id: str, kmr: MatchingResult, /):
+        super().__init__(context, LeastSquaresRegressionSupervisor.ENGINE_ID, template_id, kmr)
 
     def _run(self) -> Generator[SupervisionResult, None, None]:
 
@@ -58,6 +59,6 @@ class LeastSquaresRegressionSupervisor(Supervisor):
 
             _result = SupervisionResult(self.template_id, self._kmr, delta, delta_prime, transformation_matrix)
 
-            oe_debug(f"Current MSE: {_result.get_weighted_mse()}")
+            get_logger().debug(f"Current MSE: {_result.get_weighted_mse()}")
 
             yield _result

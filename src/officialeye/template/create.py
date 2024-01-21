@@ -1,7 +1,7 @@
 import os
 
 from officialeye.error.errors.io import ErrIOInvalidPath
-from officialeye.util.logger import oe_info
+from officialeye.logger.singleton import get_logger
 
 
 def create_example_template_config_file(template_path: str, template_image: str, template_id: str, template_name: str, force_mode: bool, /):
@@ -172,4 +172,4 @@ feature_classes:
     with open(template_path, "w") as fh:
         fh.write(template_yml)
 
-    oe_info(f"Initialized template configuration file at '{template_path}'.")
+    get_logger().info(f"Initialized template configuration file at '{template_path}'.")

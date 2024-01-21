@@ -4,15 +4,16 @@ from abc import ABC
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.error import OEError
+from officialeye.context.context import Context
+from officialeye.error.error import OEError
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.template import Template
 
 
 class IODriver(ABC):
 
-    def __init__(self):
-        pass
+    def __init__(self, context: Context):
+        self._context = context
 
     @abc.abstractmethod
     def output_supervision_result(self, target: cv2.Mat, result: SupervisionResult, /):

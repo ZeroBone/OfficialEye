@@ -1,14 +1,15 @@
 from typing import List, Dict
 
-from officialeye.context.singleton import oe_context
+from officialeye.context.context import Context
 from officialeye.error.errors.matching import ErrMatchingMatchCountOutOfBounds
+from officialeye.logger.singleton import get_logger
 from officialeye.matching.match import Match
-from officialeye.util.logger import oe_debug, oe_debug_verbose
 
 
-class KeypointMatchingResult:
+class MatchingResult:
 
-    def __init__(self, template_id: str, /):
+    def __init__(self, context: Context, template_id: str, /):
+        self._context = context
         self._template_id = template_id
 
         # keys: keypoint ids
@@ -45,11 +46,11 @@ class KeypointMatchingResult:
             yield match
 
     def get_template(self):
-        return oe_context().get_template(self._template_id)
+        return self._context.get_template(self._template_id)
 
     def validate(self):
 
-        oe_debug("Validating the keypoint matching result.")
+        get_logger().debug(self._context, "Validating the keypoint matching result.")
 
         assert len(self._matches_dict) > 0
 
@@ -72,14 +73,16 @@ class KeypointMatchingResult:
                 )
 
             if keypoint_matches_count > keypoint_matches_max:
-                oe_debug(f"Keypoint '{keypoint_id}' of template '{self._template_id}' has too many matches "
-                         f"(matches: {keypoint_matches_count} max: {keypoint_matches_max}). Cherry-picking the best matches.")
+                get_logger().debug(
+                    self._context,
+                    f"Keypoint '{keypoint_id}' of template '{self._template_id}' has too many matches "
+                    f"(matches: {keypoint_matches_count} max: {keypoint_matches_max}). Cherry-picking the best matches.")
                 # cherry-pick the best matches
                 self._matches_dict[keypoint_id] = sorted(self._matches_dict[keypoint_id])[:keypoint_matches_max]
                 keypoint_matches_count = keypoint_matches_max
 
-            oe_debug(f"Keypoint '{keypoint_id}' of template '{self._template_id}' has been matched {keypoint_matches_count} times "
-                     f"(min: {keypoint_matches_min} max: {keypoint_matches_max}).")
+            get_logger().debug(f"Keypoint '{keypoint_id}' of template '{self._template_id}' has been matched {keypoint_matches_count} times "
+                               f"(min: {keypoint_matches_min} max: {keypoint_matches_max}).")
 
             total_match_count += keypoint_matches_count
 
@@ -91,8 +94,8 @@ class KeypointMatchingResult:
             )
 
     def debug_print(self):
-        oe_debug(f"Found {self.get_total_match_count()} matched points!")
+        get_logger().debug(f"Found {self.get_total_match_count()} matched points!")
 
-        oe_debug_verbose(f"Listing matched points:")
+        get_logger().debug_verbose(f"Listing matched points:")
         for match in self.get_matches():
-            oe_debug_verbose(f"> {match}")
+            get_logger().debug_verbose(f"> {match}")

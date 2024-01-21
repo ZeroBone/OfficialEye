@@ -2,7 +2,7 @@ from typing import Dict
 
 from officialeye.diffobject.difference_expansion import DiffObjectExpansion
 from officialeye.template.feature_class.const import IMPLICIT_FEATURE_CLASS_BASE_INSTANCE_ID
-from officialeye.template.parser.schema import feature_class_object_specification
+from officialeye.template.schema.schema import feature_class_object_specification
 
 
 class FeatureClass:

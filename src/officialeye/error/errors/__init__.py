@@ -1,1 +1,4 @@
-# Comment needed to avoid this file being empty
+"""
+Package containing classes for officialeye's concrete errors.
+The errors are grouped into files by module name.
+"""

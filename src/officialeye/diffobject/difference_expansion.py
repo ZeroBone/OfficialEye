@@ -4,7 +4,7 @@ from officialeye.diffobject.difference_modes import DIFF_MODE_OVERRIDE, DIFF_MOD
 from officialeye.diffobject.exception import DiffObjectException
 from officialeye.diffobject.specification import DiffObjectSpecification
 from officialeye.diffobject.specification_entry import DiffObjectSpecificationEntry
-from officialeye.util.logger import oe_debug_verbose
+from officialeye.logger.singleton import get_logger
 
 
 class DiffObjectExpansion:
@@ -57,11 +57,11 @@ class DiffObjectExpansion:
 
                 full_key = f"{previous_keys}{key}"
 
-                oe_debug_verbose(f"Key: '{full_key}' Specification value: {specification_entry} "
-                                 f"Object value: {object_value} Current value: {current_value}")
+                get_logger().debug_verbose(f"Key: '{full_key}' Specification value: {specification_entry} "
+                                           f"Object value: {object_value} Current value: {current_value}")
 
                 if isinstance(specification_entry, dict):
-                    # the specification says that there is a nested dictionary at the present key
+                    # the specification says that there is a nested dictionary at the present key.
                     # therefore, we need to recursively apply the diffs
                     if current_value is not None:
                         new_current_dict = current_value

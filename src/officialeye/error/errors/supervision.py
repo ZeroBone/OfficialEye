@@ -1,5 +1,6 @@
-from officialeye.error import ERR_MODULE_SUPERVISION, OEError
+from officialeye.error.error import OEError
 from officialeye.error.codes import ERR_SUPERVISION_CORRESPONDENCE_NOT_FOUND, ERR_SUPERVISION_INVALID_ENGINE_CONFIG
+from officialeye.error.modules import ERR_MODULE_SUPERVISION
 
 
 class ErrSupervision(OEError):

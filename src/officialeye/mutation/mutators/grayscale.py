@@ -3,7 +3,7 @@ from typing import Dict
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.mutator.mutator import Mutator
+from officialeye.mutation.mutator import Mutator
 
 
 class GrayscaleMutator(Mutator):

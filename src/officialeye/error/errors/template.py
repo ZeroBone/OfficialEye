@@ -1,5 +1,6 @@
-from officialeye.error import OEError, ERR_MODULE_TEMPLATE
+from officialeye.error.error import OEError
 from officialeye.error.codes import *
+from officialeye.error.modules import ERR_MODULE_TEMPLATE
 
 
 class ErrTemplate(OEError):

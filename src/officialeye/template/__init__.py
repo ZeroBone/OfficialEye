@@ -1,1 +1,3 @@
-# Comment needed to avoid this file being empty
+"""
+Module implementing the template system.
+"""

@@ -1,5 +1,6 @@
-from officialeye.error import OEError, ERR_MODULE_IO
+from officialeye.error.error import OEError
 from officialeye.error.codes import ERR_IO_INVALID_SUPERVISION_ENGINE, ERR_IO_OPERATION_NOT_SUPPORTED_BY_DRIVER, ERR_IO_INVALID_PATH
+from officialeye.error.modules import ERR_MODULE_IO
 
 
 class ErrIO(OEError):

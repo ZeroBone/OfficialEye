@@ -1,5 +1,3 @@
-import click
-
 __version__ = "1.1.3"
 
 OFFICIALEYE_NAME = "OfficialEye"
@@ -12,7 +10,3 @@ OFFICIALEYE_CLI_LOGO = """   ____  _________      _       __   ______
 \\____/_/ /_/ /_/\\___/_/\\__,_/_/  /_____/\\__, /\\___/ 
                                        /____/                   
 """
-
-
-def print_logo():
-    click.secho(OFFICIALEYE_CLI_LOGO, fg="red")

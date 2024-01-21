@@ -86,9 +86,9 @@ feature_classes: # (31)!
 11. Width of the rectangle (measured in pixels).
 12. Height of the rectangle (measured in pixels).
 13. A match is a correspondence between a point in the template image and a point in the input image.
-14. Minimum amount of matches that should be identified within this keypoint's region when analyzing an image.
-15. Maximum amount of matches that should be identified within this keypoint's region when analyzing an image.
-16. Matching is the process of finding equal patterns in the given image and the template source image, thus establishing correspondences between positions. Although better matchings will of course contribute to the accuracy of the document analysis, it is completely fine for a matching algorithm to err in some cases.
+14. Minimum number of matches that should be identified within this keypoint's region when analyzing an image.
+15. Maximum number of matches that should be identified within this keypoint's region when analyzing an image.
+16. Matching is the process of finding equal patterns in the given image and the template source image, thus establishing correspondences between positions. Although better matchings will contribute to the accuracy of the document analysis, it is completely fine for a matching algorithm to err in some cases.
 17. Here you can specify the name of the matching engine that should be used to find correspondences between positions of the given image and those of the template source image provided above.
 18. Engine-specific configuration.
 19. Configuration specific to the `sift_flann` matching engine.
@@ -106,7 +106,7 @@ feature_classes: # (31)!
 31. A feature class can be used to group similar features together. Feature classes are identified by a unique name, and can inherit other classes.
 32. For example, the following entry defines a feature class named `example_feature_class`.
 33. Optional. By default, feature classes are not abstract. An abstract class cannot be directly used by any concrete feature, but can be incomplete. To use an abstract class, a non-abstract subclass has to be created. A non-abstract class can be used by concrete features, but cannot be incomplete.
-34. A sequence of mutators that should be applied to the region of a feature, before it is processed further.
+34. A sequence of mutators that should be applied to the region of a feature before it is processed further.
 35. Name of the mutator.
 36. Optional mutator-specific configuration.
 37. An interpretation method defines the way in which the mutated feature location should be processed further. For example, the `ocr_tesseract` method will apply the Tesseract OCR to the image.

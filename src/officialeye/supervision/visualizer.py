@@ -4,14 +4,15 @@ from typing import List
 import cv2
 import numpy as np
 
-from officialeye.context.singleton import oe_context
+from officialeye.context.context import Context
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.region.keypoint import TemplateKeypoint
 
 
 class SupervisionResultVisualizer:
 
-    def __init__(self, result: SupervisionResult, target: cv2.Mat):
+    def __init__(self, context: Context, result: SupervisionResult, target: cv2.Mat):
+        self._context = context
         self._result = result
         self._target = target
 
@@ -23,7 +24,7 @@ class SupervisionResultVisualizer:
                                   for keypoint_id in self._relevant_keypoint_ids)
 
     def get_template(self):
-        return oe_context().get_template(self._result.template_id)
+        return self._context.get_template(self._result.template_id)
 
     def get_padded_keypoint_image(self, keypoint: TemplateKeypoint) -> np.ndarray:
 
@@ -63,8 +64,8 @@ class SupervisionResultVisualizer:
         assert keypoints_palette.shape[1] == self._palette_width
 
         if keypoints_palette.shape[0] > self._target.shape[0]:
-            # the height of the palette is greater than the height of the target image
-            # pad the target image from below, to ensure that the height is at least the height of the palette
+            # the height of the palette is greater than the height of the target image.
+            # we pad the target image from below, to ensure that the height is at least the height of the palette
             padding_height = keypoints_palette.shape[0] - self._target.shape[0]
             padding = np.full((padding_height, self._target.shape[1], 3), 0xff, dtype=np.uint8)
             img = np.concatenate((self._target, padding), axis=0)
@@ -90,8 +91,8 @@ class SupervisionResultVisualizer:
             for keypoint_id in self._relevant_keypoint_ids:
                 if keypoint_id == match.keypoint_id:
                     break
-                # in the palette, there is a keypoint above the keypoint corresponding to the current match
-                # therefore, we need to adjust the palette location
+                # in the palette, there is a keypoint above the keypoint corresponding to the current match.
+                # therefore, we need to adjust the palette location.
                 match_palette_location[1] += self.get_template().get_keypoint(keypoint_id).h
 
             # compute the location of the match in the target image part of the visualization

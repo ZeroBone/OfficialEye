@@ -1,21 +1,18 @@
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.context.singleton import oe_context
-from officialeye.error import OEError
-from officialeye.error.printing import oe_error_print_error
+from officialeye.context.context import Context
+from officialeye.error.error import OEError
 from officialeye.io.driver import IODriver
+from officialeye.logger.singleton import get_logger
 from officialeye.supervision.result import SupervisionResult
 from officialeye.template.template import Template
-from officialeye.util.cli_utils import export_and_show_image, export_image
 
 
 class TestIODriver(IODriver):
 
-    DRIVER_ID = "test"
-
-    def __init__(self):
-        super().__init__()
+    def __init__(self, context: Context, /):
+        super().__init__(context)
 
         self.visualize_features: bool = True
 
@@ -23,7 +20,7 @@ class TestIODriver(IODriver):
 
         assert result is not None
 
-        template = oe_context().get_template(result.template_id)
+        template = self._context.get_template(result.template_id)
 
         application_image = template.load_source_image()
 
@@ -38,16 +35,10 @@ class TestIODriver(IODriver):
             for feature in template.features():
                 application_image = feature.visualize(application_image)
 
-        if oe_context().quiet_mode:
-            export_image(application_image, file_name="supervision_result.png")
-        else:
-            export_and_show_image(application_image, file_name="supervision_result.png")
+        self._context.export_primary_image(application_image, file_name="supervision_result.png")
 
     def output_show_result(self, template: Template, img: cv2.Mat, /):
-        if oe_context().quiet_mode:
-            export_image(img, file_name=f"{template.template_id}.png")
-        else:
-            export_and_show_image(img, file_name=f"{template.template_id}.png")
+        self._context.export_primary_image(img, file_name=f"{template.template_id}.png")
 
     def output_error(self, error: OEError, /):
-        oe_error_print_error(error)
+        get_logger().error_oe_error(error)

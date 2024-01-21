@@ -6,12 +6,12 @@ import cv2
 import numpy as np
 
 from officialeye.matching.match import Match
-from officialeye.matching.result import KeypointMatchingResult
+from officialeye.matching.result import MatchingResult
 
 
 class SupervisionResult:
 
-    def __init__(self, template_id: str, kmr: KeypointMatchingResult,
+    def __init__(self, template_id: str, kmr: MatchingResult,
                  delta: np.ndarray, delta_prime: np.ndarray, transformation_matrix: np.ndarray, /):
 
         self.template_id = template_id
@@ -25,14 +25,14 @@ class SupervisionResult:
         self._delta = delta
         # offset in the target image's coordinates
         self._delta_prime = delta_prime
-        self.dpo = delta_prime.copy()
+        # self.dpo = delta_prime.copy()
 
         self._transformation_matrix = transformation_matrix
 
         # keys: matches
         # values: weights assigned by the supervision engine to each match (assigning is optional)
-        # the higher the weight, the more we trust the correctness of the match and greater its individual impact should be
-        # by default, the weight is 1
+        # the higher the weight, the more we trust the correctness of the match and the greater its individual impact should be.
+        # by default, the weight is 1.
         self._match_weights: Dict[Match, float] = {}
 
         # an optional value the supervision engine can set, representing how confident the engine is that the result is of high quality
@@ -97,7 +97,7 @@ class SupervisionResult:
         assert len(rk) > 0
         return rk
 
-    def get_keypoint_matching_result(self) -> KeypointMatchingResult:
+    def get_keypoint_matching_result(self) -> MatchingResult:
         return self._kmr
 
     def get_weighted_mse(self, /) -> float:

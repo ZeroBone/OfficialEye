@@ -3,12 +3,11 @@ import random
 from abc import ABC
 from typing import Union, Generator
 
-from officialeye.context.singleton import oe_context
-from officialeye.debug.debuggable import Debuggable
-from officialeye.matching.result import KeypointMatchingResult
+from officialeye.context.context import Context
+from officialeye.logger.singleton import get_logger
+from officialeye.matching.result import MatchingResult
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor_config import SupervisorConfig
-from officialeye.util.logger import oe_debug, oe_debug_verbose, oe_warn
 
 _SUPERVISION_RESULT_FIRST = "first"
 _SUPERVISION_RESULT_RANDOM = "random"
@@ -16,32 +15,34 @@ _SUPERVISION_RESULT_BEST_MSE = "best_mse"
 _SUPERVISION_RESULT_BEST_SCORE = "best_score"
 
 
-class Supervisor(ABC, Debuggable):
+class Supervisor(ABC):
 
-    def __init__(self, engine_id: str, template_id: str, kmr: KeypointMatchingResult, /):
+    def __init__(self, context: Context, engine_id: str, template_id: str, kmr: MatchingResult, /):
         super().__init__()
 
-        self.__engine_id = engine_id
+        self._context = context
+        self._engine_id = engine_id
+
         self.template_id = template_id
         self._kmr = kmr
 
-        oe_debug(f"Total match count: {self._kmr.get_total_match_count()}")
+        get_logger().debug(f"Total match count: {self._kmr.get_total_match_count()}")
 
         # initialize configuration manager
         supervision_config = self.get_template().get_supervision_config()
 
         assert isinstance(supervision_config, dict)
 
-        if self.__engine_id in supervision_config:
-            config_dict = supervision_config[self.__engine_id]
+        if self._engine_id in supervision_config:
+            config_dict = supervision_config[self._engine_id]
         else:
-            oe_warn(f"Could not find any configuration entries for the '{self.__engine_id}' supervision engine.")
+            get_logger().warn(f"Could not find any configuration entries for the '{self._engine_id}' supervision engine.")
             config_dict = {}
 
-        self._config = SupervisorConfig(config_dict, self.__engine_id)
+        self._config = SupervisorConfig(config_dict, self._engine_id)
 
     def get_template(self):
-        return oe_context().get_template(self.template_id)
+        return self._context.get_template(self.template_id)
 
     @abc.abstractmethod
     def _run(self) -> Generator[SupervisionResult, None, None]:
@@ -68,13 +69,13 @@ class Supervisor(ABC, Debuggable):
         for result_id, result in enumerate(results):
             result_mse = result.get_weighted_mse()
 
-            oe_debug_verbose(f"Result #{result_id + 1} has MSE {result_mse}")
+            get_logger().debug_verbose(f"Result #{result_id + 1} has MSE {result_mse}")
 
             if result_mse < best_result_mse:
                 best_result_mse = result_mse
                 best_result = result
 
-        oe_debug(f"Best result has MSE {best_result_mse}")
+        get_logger().debug(f"Best result has MSE {best_result_mse}")
 
         return best_result
 
@@ -92,7 +93,7 @@ class Supervisor(ABC, Debuggable):
         for result_id, result in enumerate(results):
             result_score = result.get_score()
 
-            oe_debug_verbose(f"Result #{result_id + 1} has score {result_score}")
+            get_logger().debug_verbose(f"Result #{result_id + 1} has score {result_score}")
 
             if result_score > best_result_score:
                 best_result_score = result_score
@@ -104,7 +105,7 @@ class Supervisor(ABC, Debuggable):
                     best_result_mse = current_result_mse
                     best_result = result
 
-        oe_debug(f"Best result has score {best_result_score} and MSE {best_result_mse}")
+        get_logger().debug(f"Best result has score {best_result_score} and MSE {best_result_mse}")
 
         return best_result
 
@@ -115,7 +116,7 @@ class Supervisor(ABC, Debuggable):
 
         supervision_result_choice_engine = self.get_template().get_supervision_result()
 
-        oe_debug(f"Applying '{supervision_result_choice_engine}' supervision result choice engine.")
+        get_logger().debug(f"Applying '{supervision_result_choice_engine}' supervision result choice engine.")
 
         if supervision_result_choice_engine == _SUPERVISION_RESULT_FIRST:
             return self._run_first()

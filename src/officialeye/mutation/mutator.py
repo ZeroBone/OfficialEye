@@ -4,17 +4,17 @@ from typing import Dict
 # noinspection PyPackageRequirements
 import cv2
 
-from officialeye.mutator.config import MutatorConfig
+from officialeye.mutation.config import MutatorConfig
 
 
 class Mutator(abc.ABC):
 
-    def __init__(self, mutator_id: str, config: Dict[str, any], /):
+    def __init__(self, mutator_id: str, config_dict: Dict[str, any], /):
         super().__init__()
 
         self.mutator_id = mutator_id
 
-        self._config = MutatorConfig(config, mutator_id)
+        self._config = MutatorConfig(config_dict, mutator_id)
 
     def get_config(self) -> MutatorConfig:
         return self._config

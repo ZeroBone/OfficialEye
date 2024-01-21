@@ -5,20 +5,21 @@ import numpy as np
 # noinspection PyPackageRequirements
 import z3
 
+from officialeye.context.context import Context
 from officialeye.error.errors.supervision import ErrSupervisionInvalidEngineConfig
+from officialeye.logger.singleton import get_logger
 from officialeye.matching.match import Match
-from officialeye.matching.result import KeypointMatchingResult
+from officialeye.matching.result import MatchingResult
 from officialeye.supervision.result import SupervisionResult
 from officialeye.supervision.supervisor import Supervisor
-from officialeye.util.logger import oe_warn, oe_debug
 
 
 class CombinatorialSupervisor(Supervisor):
 
     ENGINE_ID = "combinatorial"
 
-    def __init__(self, template_id: str, kmr: KeypointMatchingResult, /):
-        super().__init__(CombinatorialSupervisor.ENGINE_ID, template_id, kmr)
+    def __init__(self, context: Context, template_id: str, kmr: MatchingResult, /):
+        super().__init__(context, CombinatorialSupervisor.ENGINE_ID, template_id, kmr)
 
         # setup configuration
         def _min_match_factor_preprocessor(v: any) -> float:
@@ -86,14 +87,14 @@ class CombinatorialSupervisor(Supervisor):
 
         # keys: matches (instances of Match)
         # values: z3 integer variables representing the errors for each match,
-        # i.e. how consistent the match is with the affine transformation model
+        # i.e., how consistent the match is with the affine transformation model
         self._match_weight: Dict[Match, z3.ArithRef] = {}
 
         for match in self._kmr.get_matches():
             self._match_weight[match] = z3.Real(f"w_{match.get_debug_identifier()}", ctx=self._z3_context)
 
         _config_min_match_factor = self.get_config().get("min_match_factor", default=0.1)
-        oe_debug(f"Min match factor: {_config_min_match_factor}")
+        get_logger().debug(f"Min match factor: {_config_min_match_factor}")
 
         self._minimum_weight_to_enforce = self._kmr.get_total_match_count() * _config_min_match_factor
         self._max_transformation_error = self.get_config().get("max_transformation_error")
@@ -165,12 +166,12 @@ class CombinatorialSupervisor(Supervisor):
             result = solver.check()
 
             if result == z3.unsat:
-                oe_warn("Could not satisfy the imposed constraints.", fg="red")
+                get_logger().warn("Could not satisfy the imposed constraints.", fg="red")
                 solver.pop()
                 continue
 
             if result == z3.unknown:
-                oe_warn("Could not decide the satifiability of the imposed constraints.", fg="red")
+                get_logger().warn("Could not decide the satifiability of the imposed constraints.", fg="red")
                 solver.pop()
                 continue
 
@@ -179,7 +180,7 @@ class CombinatorialSupervisor(Supervisor):
             model = solver.model()
             model_evaluator = np.vectorize(lambda var: model.eval(var, model_completion=True).as_fraction())
 
-            # extract total weight and maximization target from model
+            # extract total weight and maximization target from the model
             model_total_weight = float(model_evaluator(total_weight))
 
             # extract transformation matrix from model
@@ -193,8 +194,7 @@ class CombinatorialSupervisor(Supervisor):
                 match_weight = model_evaluator(self._match_weight[match])
                 _result.set_match_weight(match, match_weight)
 
-            oe_debug(f"Error: {_result.get_weighted_mse()} "
-                     f"Total weight and score: {model_total_weight}")
+            get_logger().debug(f"Error: {_result.get_weighted_mse()} Total weight and score: {model_total_weight}")
 
             yield _result
 

@@ -101,8 +101,8 @@ keypoints:
 4. Width of the rectangle (measured in pixels).
 5. Height of the rectangle (measured in pixels).
 6. A match is a correspondence between a point in the template image and a point in the input image.
-7. Minimum amount of matches that should be identified within this keypoint's region when analyzing an image.
-8. Maximum amount of matches that should be identified within this keypoint's region when analyzing an image.
+7. Minimum number of matches that should be identified within this keypoint's region when analyzing an image.
+8. Maximum number of matches that should be identified within this keypoint's region when analyzing an image.
 
 !!! question "Not familiar with the above syntax?"
     Above we have used `YAML` syntax. If you are not familiar with it, read [this page](./getting-started/yaml-basics.md).
@@ -123,7 +123,14 @@ officialeye show driver_license_ru.yml --hide-features
 
 #### Features
 
-Features are rectangular regions located in the template image and containing specific information of interest, such as text within a document. Similar to keypoints, features are defined by providing the x, y coordinates of the top left corner of the rectangle, together with a width and height. In addition to this, every feature may belong to a specific feature class. Its name can be specified via the `class` field. In the present example, it makes sense to define the following features describing all the information of interest located in the driver's license template image.
+Features are rectangular regions located in the template image and containing specific information of interest,
+such as a piece of text within a document.
+Similar to keypoints, features are defined by providing the x,
+y coordinates of the top left corner of the rectangle, together with a width and height.
+In addition to this, every feature may belong to a specific feature class.
+Its name can be specified via the `class` field.
+In the present example,
+it makes sense to define the following features describing all the information of interest located in the driver's license template image.
 
 ```yaml title="driver_license_ru.yml (fragment)"
 features:
@@ -223,9 +230,9 @@ features:
 
 #### Feature classes
 
-Feature classes are a mechanism for grouping similar feature configurations together. This ensures readability and maintainability of large sets of features and their corresponding configurations. Apart from that, by organizing features into classes, you streamline the configuration process and ensure consistent settings for similar types of information.
+Feature classes are a mechanism for grouping similar feature configurations together. This ensures readability and maintainability of large feature sets and their corresponding configurations. Apart from that, by organizing features into classes, you streamline the configuration process and ensure consistent settings for similar types of information.
 
-Above, we have already used two feature classes - `line_with_russian_text` and `line_with_english_text`. Therefore, we have to define these classes, for example in the following way.
+Above, we have already used two feature classes - `line_with_russian_text` and `line_with_english_text`. Therefore, we have to define these classes, for example, in the following way.
 
 ```yaml title="driver_license_ru.yml (fragment)"
 feature_classes:
@@ -279,7 +286,7 @@ officialeye show driver_license_ru.yml --hide-keypoints
 
 ### Testing document analysis
 
-To test OfficialEye's document analysis and processing, we need an example image containing the document type the template is configured for, in this case a photo of a driver's license. For the sake of the present demonstration, we shall use the following image.
+To test OfficialEye's document analysis and processing, we need an example image containing the document type the template is configured for, in this case, a photo of a driver's license. For the sake of the present demonstration, we shall use the following image.
 
 ???+ example "example_01.jpg"
     ![Driver license photo](../assets/img/demo/driver_license_ru/examples/01.jpg){ loading=lazy }

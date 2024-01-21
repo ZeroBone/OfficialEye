@@ -27,7 +27,7 @@ classifiers = [
 ]
 
 [project.scripts]
-officialeye = "officialeye:cli"
+officialeye = "officialeye.main:cli"
 
 [project.urls]
 Homepage = "https://github.com/ZeroBone/OfficialEye"
@@ -35,23 +35,17 @@ Documentation = "https://officialeye.zerobone.net"
 Issues = "https://github.com/ZeroBone/OfficialEye/issues"
 
 [tool.pdm]
-package-type = "application"
+distribution = "false"
 
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
 [tool.pdm.scripts]
-# installation scripts
-install = {shell = "pip install -e ."}
-
 # documentation-related scripts
 docs-serve = "mkdocs serve"
 docs-build = "mkdocs build"
 docs-deploy = "mkdocs gh-deploy --force"
-
-# scripts that call officialeye's cli
-oe-demo-test = {shell = "officialeye -q -d --dedir .docs_temp --edir .docs_temp test demo/input_images/driver_license_ru_01.jpg demo/templates/driver_license_ru.yml"}
 
 # other scripts
 tests-integration = {shell = "pytest src/tests/integration/*.py"}

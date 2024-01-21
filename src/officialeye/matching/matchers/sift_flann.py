@@ -2,10 +2,11 @@
 import cv2
 import numpy as np
 
+from officialeye.context.context import Context
 from officialeye.error.errors.matching import ErrMatchingInvalidEngineConfig
 from officialeye.matching.match import Match
 from officialeye.matching.matcher import Matcher
-from officialeye.matching.result import KeypointMatchingResult
+from officialeye.matching.result import MatchingResult
 
 _FLANN_INDEX_KDTREE = 1
 
@@ -14,8 +15,8 @@ class SiftFlannMatcher(Matcher):
 
     ENGINE_ID = "sift_flann"
 
-    def __init__(self, template_id: str, img: cv2.Mat, /):
-        super().__init__(SiftFlannMatcher.ENGINE_ID, template_id, img)
+    def __init__(self, context: Context, template_id: str, img: cv2.Mat, /):
+        super().__init__(context, SiftFlannMatcher.ENGINE_ID, template_id, img)
 
         def _preprocess_sensitivity(value: any) -> float:
 
@@ -40,7 +41,7 @@ class SiftFlannMatcher(Matcher):
         self._sensitivity = self.get_config().get("sensitivity", default=0.7)
 
         self._debug_images = []
-        self._result = KeypointMatchingResult(template_id)
+        self._result = MatchingResult(self._context, template_id)
 
         # initialize the SIFT engine in CV2
         # noinspection PyUnresolvedReferences
@@ -85,11 +86,13 @@ class SiftFlannMatcher(Matcher):
             pattern_point = np.array(pattern_point, dtype=int)
             target_point = np.array(target_point, dtype=int)
 
-            match = Match(self.template_id, keypoint_id, pattern_point, target_point)
+            match = Match(self._context, self.template_id, keypoint_id, pattern_point, target_point)
             match.set_score(self._sensitivity * n.distance - m.distance)
+
             self._result.add_match(match)
 
-        if self.in_debug_mode():
+        if self._context.visualization_generation_enabled():
+
             # noinspection PyTypeChecker
             debug_image = cv2.drawMatchesKnn(
                 pattern,
@@ -103,7 +106,8 @@ class SiftFlannMatcher(Matcher):
                 matchesMask=matches_mask,
                 flags=cv2.DrawMatchesFlags_DEFAULT
             )
-            self._debug.add_image(debug_image, name=f"match_{keypoint_id}")
+
+            self._context.export_image(debug_image, file_name=f"match_{keypoint_id}.png")
 
     def match_finish(self):
         return self._result

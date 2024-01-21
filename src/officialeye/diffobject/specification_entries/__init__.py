@@ -1,1 +1,3 @@
-# Comment needed to avoid this file being empty
+"""
+A collection of all classes extending DiffObjectSpecificationEntry.
+"""

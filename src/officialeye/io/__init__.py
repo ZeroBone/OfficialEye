@@ -1,1 +1,5 @@
-# Comment needed to avoid this file being empty
+"""
+Module responsible for handling IO (input and output).
+In this context, IO means everything related to the way we output complex data.
+Simply logging does not count as
+"""
