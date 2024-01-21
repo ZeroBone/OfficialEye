@@ -1,3 +1,4 @@
+import os
 from typing import Dict
 
 import cv2
@@ -29,6 +30,8 @@ class FileMethod(InterpretationMethod):
                 "while applying the '{FileMethod.METHOD_ID}' interpretation method.",
                 f"This method cannot be applied if there are at least two features inheriting the feature class defining this method."
             )
+
+        os.makedirs(os.path.dirname(self._path), exist_ok=True)
 
         cv2.imwrite(self._path, feature_img)
 
