@@ -25,7 +25,8 @@ _context_manager: ContextManager = ContextManager()
 @click.option("-q", "--quiet", is_flag=True, show_default=True, default=False, help="Disable standard output messages.")
 @click.option("-v", "--verbose", is_flag=True, show_default=True, default=False, help="Enable verbose logging.")
 @click.option("-dl", "--disable-logo", is_flag=True, show_default=True, default=False, help="Disable the officialeye logo.")
-def cli(debug: bool, edir: str, quiet: bool, verbose: bool, disable_logo: bool):
+@click.option("-re", "--raw-errors", is_flag=True, show_default=False, default=False, help="Do not handle errors.")
+def cli(debug: bool, edir: str, quiet: bool, verbose: bool, disable_logo: bool, raw_errors: bool):
     global _context_manager
 
     # configure logger
@@ -34,16 +35,16 @@ def cli(debug: bool, edir: str, quiet: bool, verbose: bool, disable_logo: bool):
     get_logger().verbose_mode = verbose
     get_logger().disable_logo = disable_logo
 
+    # print OfficialEye logo if necessary
+    get_logger().logo()
+
     # configure context manager
     if edir is not None:
         _context_manager.export_directory = edir
 
-    if get_logger().debug_mode:
-        # enable raw tracebacks if debugging
+    if raw_errors:
+        get_logger().warn("Raw error mode enabled. Use this mode only if you know precisely what you are doing!")
         _context_manager.handle_exceptions = False
-
-    # print OfficialEye logo if necessary
-    get_logger().logo()
 
     # print preliminary warning if necessary
     if get_logger().debug_mode:

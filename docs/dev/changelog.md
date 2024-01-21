@@ -8,6 +8,8 @@
 * Fixed multiple bugs, including one critical bug.
 * Added a possibility of using external errors as causes of OfficialEye errors.
 * Added support for non-shape-preserving mutators.
+* Added a new `-re` flag allowing one to disable built-in error handling.
+* Slightly changed logging style.
 * Refactor.
 
 [View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.1.4){ .md-button }
