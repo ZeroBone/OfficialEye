@@ -27,7 +27,7 @@ classifiers = [
 ]
 
 [project.scripts]
-officialeye = "officialeye.main:cli"
+officialeye = "officialeye._internal.main:cli"
 
 [project.urls]
 Homepage = "https://github.com/ZeroBone/OfficialEye"
