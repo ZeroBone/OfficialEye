@@ -1,3 +1,6 @@
+from typing import List
+
+
 class OEError(Exception):
     """
     Base class for all officialeye-related errors.
@@ -21,10 +24,21 @@ class OEError(Exception):
         # on the other hand, the template configuration file does not count as end user input
         self.is_regular = is_regular
 
-        self._causes = []
+        self._causes: List[OEError] = []
+        self._external_causes: List[BaseException] = []
 
-    def add_cause(self, cause: Exception, /):
+    def add_cause(self, cause, /):
+        assert isinstance(cause, OEError)
         self._causes.append(cause)
+
+    def get_causes(self):
+        return self._causes
+
+    def add_external_cause(self, cause: BaseException, /):
+        self._external_causes.append(cause)
+
+    def get_external_causes(self) -> List[BaseException]:
+        return self._external_causes
 
     def serialize(self) -> dict:
 
@@ -40,5 +54,8 @@ class OEError(Exception):
             "while_text": self.while_text,
             "problem_text": self.problem_text,
             "is_regular": self.is_regular,
-            "causes": causes
+            "causes": causes,
+            "external_causes": [
+                str(ec) for ec in self._external_causes
+            ]
         }

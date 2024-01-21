@@ -1,7 +1,6 @@
 import abc
 from typing import Dict
 
-# noinspection PyPackageRequirements
 import cv2
 
 from officialeye._internal.mutation.config import MutatorConfig

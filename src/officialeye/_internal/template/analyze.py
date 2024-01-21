@@ -2,7 +2,6 @@ from queue import Queue
 from threading import Thread
 from typing import List, Union, Tuple
 
-# noinspection PyPackageRequirements
 import cv2
 
 from officialeye._internal.context.context import Context
@@ -28,10 +27,10 @@ class AnalysisWorker(Thread):
     def run(self):
 
         while True:
-            template = self.queue.get()
+            template: Template = self.queue.get()
 
             try:
-                _current_result = template.analyze(self._target)
+                _current_result = template.run_analysis(self._target)
                 self._results.append((_current_result, None))
             except OEError as err:
                 self._results.append((None, err))
@@ -124,4 +123,5 @@ def do_analyze(context: Context, target: cv2.Mat, templates: List[Template], /, 
 
         raise error
 
-    context.get_io_driver().output_supervision_result(target, best_result)
+    io_driver = context.get_io_driver()
+    io_driver.handle_supervision_result(target, best_result)

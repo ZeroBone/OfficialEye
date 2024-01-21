@@ -1,5 +1,17 @@
 # Changelog
 
+## Release 1.1.4 (beta)
+
+* Added a new `rotate` mutator, that rotates an image by a multiple of 90 degrees.
+* Added a new `file` interpretation method that is similar to `file_temp`, but can save a file at the specified path.
+* Improved the error handling system.
+* Fixed multiple bugs, including one critical bug.
+* Added a possibility of using external errors as causes of OfficialEye errors.
+* Added support for non-shape-preserving mutators.
+* Refactor.
+
+[View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.1.4){ .md-button }
+
 ## Release 1.1.3 (beta)
 
 * The `tesseract_ocr` interpretation method no longer has default Tesseract OCR configuration values predefined.
@@ -11,6 +23,7 @@
 * Rewritten the context and context management system, making the API much closer to being stable.
 * Other substrantial refactor.
 * Other architecture improvements.
+* Fixed numerous typos and inconsistencies in comments and strings.
 
 [View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.1.3){ .md-button }
 

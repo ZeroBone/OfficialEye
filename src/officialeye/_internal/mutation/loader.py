@@ -5,9 +5,12 @@ from officialeye._internal.mutation.mutator import Mutator
 from officialeye._internal.mutation.mutators.clahe import CLAHEMutator
 from officialeye._internal.mutation.mutators.grayscale import GrayscaleMutator
 from officialeye._internal.mutation.mutators.non_local_means_denoising import NonLocalMeansDenoisingMutator
+from officialeye._internal.mutation.mutators.rotate import RotateMutator
 
 
 def load_mutator(mutator_id: str, config: Dict[str, any], /) -> Mutator:
+
+    # TODO: make a container allowing one to dynamically load mutators (add such a container to OfficialEye's context).
 
     if mutator_id == GrayscaleMutator.MUTATOR_ID:
         return GrayscaleMutator(config)
@@ -17,6 +20,9 @@ def load_mutator(mutator_id: str, config: Dict[str, any], /) -> Mutator:
 
     if mutator_id == CLAHEMutator.MUTATOR_ID:
         return CLAHEMutator(config)
+
+    if mutator_id == RotateMutator.MUTATOR_ID:
+        return RotateMutator(config)
 
     raise ErrTemplateInvalidMutator(
         f"while loading mutator '{mutator_id}'.",

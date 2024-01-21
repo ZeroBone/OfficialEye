@@ -7,11 +7,10 @@ from typing import List, Dict, Union
 from typing import TYPE_CHECKING
 
 import click
-# noinspection PyPackageRequirements
 import cv2
-# noinspection PyPackageRequirements
 import z3
 
+from officialeye._internal.error.error import OEError
 from officialeye._internal.error.errors.internal import ErrInternal
 from officialeye._internal.error.errors.template import ErrTemplateIdNotUnique
 from officialeye._internal.logger.singleton import get_logger
@@ -38,9 +37,6 @@ class Context:
         # keys: template ids
         # values: template
         self._loaded_templates: Dict[str, Template] = {}
-
-        # make the logger inherit manager's settings
-        self._manager.configure_logger(get_logger())
 
         z3.set_param("parallel.enable", True)
 
@@ -70,6 +66,14 @@ class Context:
             )
 
         self._loaded_templates[template.template_id] = template
+
+        try:
+            template.validate()
+        except OEError as err:
+            # rollback the loaded template
+            del self._loaded_templates[template.template_id]
+            # reraise the cause
+            raise err
 
     def get_template(self, template_id: str, /) -> Template:
         assert template_id in self._loaded_templates, "Unknown template id"

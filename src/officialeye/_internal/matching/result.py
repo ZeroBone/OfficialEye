@@ -50,7 +50,7 @@ class MatchingResult:
 
     def validate(self):
 
-        get_logger().debug(self._context, "Validating the keypoint matching result.")
+        get_logger().debug("Validating the keypoint matching result.")
 
         assert len(self._matches_dict) > 0
 
@@ -74,7 +74,6 @@ class MatchingResult:
 
             if keypoint_matches_count > keypoint_matches_max:
                 get_logger().debug(
-                    self._context,
                     f"Keypoint '{keypoint_id}' of template '{self._template_id}' has too many matches "
                     f"(matches: {keypoint_matches_count} max: {keypoint_matches_max}). Cherry-picking the best matches.")
                 # cherry-pick the best matches

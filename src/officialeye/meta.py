@@ -1,4 +1,4 @@
-__version__ = "1.1.3"
+from officialeye.__version__ import __version__
 
 OFFICIALEYE_NAME = "OfficialEye"
 OFFICIALEYE_GITHUB = "https://github.com/ZeroBone/OfficialEye"

@@ -13,7 +13,7 @@ class ContextManager:
 
         self._context: Union[Context, None] = None
 
-        self._handle_exceptions = handle_exceptions
+        self.handle_exceptions = handle_exceptions
 
         self.visualization_generation = visualization_generation
 
@@ -41,7 +41,7 @@ class ContextManager:
 
         self._context.dispose()
 
-        if not self._handle_exceptions:
+        if not self.handle_exceptions:
             return
 
         # handle the possible exception
@@ -51,14 +51,16 @@ class ContextManager:
 
         if isinstance(exception_value, OEError):
             oe_error = exception_value
-        else:
+        elif isinstance(exception_value, BaseException):
             oe_error = ErrInternal(
                 "while leaving an officialeye context.",
                 "An internal error occurred.",
-                external_cause=exception_value
             )
+            oe_error.add_external_cause(exception_value)
+        else:
+            assert False
 
-        self._context.get_io_driver().output_error(oe_error)
+        self._context.get_io_driver().handle_error(oe_error)
 
         # tell python that we have handled the exception ourselves
         return True

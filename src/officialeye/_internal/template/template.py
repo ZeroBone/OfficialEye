@@ -1,14 +1,13 @@
 import os
 import time
-from typing import Dict, Union, List
+from typing import Dict, Union, List, Generator
 
-# noinspection PyPackageRequirements
 import cv2
 
 from officialeye._internal.context.context import Context
 from officialeye._internal.error.errors.io import ErrIOInvalidPath
-from officialeye._internal.error.errors.template import ErrTemplateInvalidSupervisionEngine, ErrTemplateInvalidMatchingEngine, ErrTemplateInvalidKeypoint, \
-    ErrTemplateInvalidFeature
+from officialeye._internal.error.errors.template import (ErrTemplateInvalidSupervisionEngine, ErrTemplateInvalidMatchingEngine,
+                                                         ErrTemplateInvalidKeypoint, ErrTemplateInvalidFeature)
 from officialeye._internal.logger.singleton import get_logger
 from officialeye._internal.matching.matcher import Matcher
 from officialeye._internal.matching.matchers.sift_flann import SiftFlannMatcher
@@ -74,7 +73,7 @@ class Template:
         self._supervision = yaml_dict["supervision"]
 
         # load feature classes
-        self._feature_class_manager = load_template_feature_classes(yaml_dict["feature_classes"], self.template_id)
+        self._feature_class_manager = load_template_feature_classes(self._context, yaml_dict["feature_classes"], self.template_id)
 
         # load features
         for feature_id in yaml_dict["features"]:
@@ -94,11 +93,13 @@ class Template:
                     f"There is already a feature with the same identifier '{feature.region_id}'."
                 )
 
-            feature.validate_feature_class()
-
             self._features[feature.region_id] = feature
 
         self._context.add_template(self)
+
+    def validate(self):
+        for feature in self.features():
+            feature.validate_feature_class()
 
     def get_matching_engine(self) -> str:
         return self._matching["engine"]
@@ -132,7 +133,7 @@ class Template:
             f"unknown matching engine '{matching_engine}'"
         )
 
-    def features(self):
+    def features(self) -> Generator[TemplateFeature, None, None]:
         for feature_id in self._features:
             yield self._features[feature_id]
 
@@ -140,7 +141,7 @@ class Template:
         assert feature_id in self._features, "Invalid feature id"
         return self._features[feature_id]
 
-    def keypoints(self):
+    def keypoints(self) -> Generator[TemplateKeypoint, None, None]:
         for keypoint_id in self._keypoints:
             yield self._keypoints[keypoint_id]
 
@@ -213,7 +214,7 @@ class Template:
             f"unknown supervision engine '{superivision_engine}'"
         )
 
-    def analyze(self, target: cv2.Mat, /) -> Union[SupervisionResult, None]:
+    def run_analysis(self, target: cv2.Mat, /) -> Union[SupervisionResult, None]:
         # find all patterns in the target image
 
         _analysis_start_time = time.perf_counter(), time.process_time()

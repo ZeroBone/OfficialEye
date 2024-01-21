@@ -2,7 +2,6 @@ import random
 from typing import Dict, Generator
 
 import numpy as np
-# noinspection PyPackageRequirements
 import z3
 
 from officialeye._internal.context.context import Context

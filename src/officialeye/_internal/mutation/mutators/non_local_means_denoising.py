@@ -1,6 +1,5 @@
 from typing import Dict
 
-# noinspection PyPackageRequirements
 import cv2
 
 from officialeye._internal.error.errors.template import ErrTemplateInvalidMutator

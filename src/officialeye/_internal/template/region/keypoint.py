@@ -1,4 +1,3 @@
-# noinspection PyPackageRequirements
 import cv2
 
 from officialeye._internal.context.context import Context

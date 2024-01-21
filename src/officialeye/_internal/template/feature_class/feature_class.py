@@ -29,10 +29,33 @@ class FeatureClass:
     def is_abstract(self) -> bool:
         return self._data["abstract"]
 
+    def get_features(self):
+        """
+        Generates all features that inherit this class (or belong to it directly)
+        """
+
+        template = self._manager.get_template()
+
+        for cur_feature in template.features():
+            cur_feature_class = cur_feature.get_feature_class()
+
+            if cur_feature_class is None:
+                continue
+
+            # search in cur_feature's parents for the present class
+            while not cur_feature_class.is_global_base_class():
+
+                if cur_feature_class == self:
+                    yield cur_feature
+                    # we already found this class among the parents, no need to go deeper
+                    break
+
+                cur_feature_class = cur_feature_class.get_parent_class()
+
     def inline(self):
         """
         Computes all inherited attributes and applies diffs accordingly.
-        The result gets cached so thatso that they do not have to be computed every time.
+        The result gets cached so that they do not have to be computed every time.
 
         Raises: DiffObjectException
         """

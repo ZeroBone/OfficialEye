@@ -1,6 +1,5 @@
 from typing import Union, Dict
 
-# noinspection PyPackageRequirements
 import cv2
 
 from officialeye._internal.context.context import Context
@@ -117,4 +116,4 @@ class TemplateFeature(TemplateRegion):
 
         interpretation_method = load_interpretation_method(self._context, interpretation_method_id, interpretation_method_config)
 
-        return interpretation_method.interpret(img, self.region_id)
+        return interpretation_method.interpret(img, self._template_id, self.region_id)

@@ -5,7 +5,6 @@ OfficialEye main entry point.
 from typing import List
 
 import click
-# noinspection PyPackageRequirements
 import cv2
 
 from officialeye._internal.context.manager import ContextManager
@@ -38,6 +37,10 @@ def cli(debug: bool, edir: str, quiet: bool, verbose: bool, disable_logo: bool):
     # configure context manager
     if edir is not None:
         _context_manager.export_directory = edir
+
+    if get_logger().debug_mode:
+        # enable raw tracebacks if debugging
+        _context_manager.handle_exceptions = False
 
     # print OfficialEye logo if necessary
     get_logger().logo()
@@ -79,7 +82,7 @@ def show(template_path: str, hide_features: bool, hide_keypoints: bool):
         img = template.show(hide_features=hide_features, hide_keypoints=hide_keypoints)
 
         # show rendered image
-        oe_context.get_io_driver().output_show_result(template, img)
+        oe_context.get_io_driver().handle_show_result(template, img)
 
 
 @click.command()

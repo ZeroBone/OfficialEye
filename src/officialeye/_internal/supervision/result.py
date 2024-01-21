@@ -1,7 +1,6 @@
 import sys
 from typing import Set, Dict
 
-# noinspection PyPackageRequirements
 import cv2
 import numpy as np
 

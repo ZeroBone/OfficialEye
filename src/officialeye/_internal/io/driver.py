@@ -1,7 +1,6 @@
 import abc
 from abc import ABC
 
-# noinspection PyPackageRequirements
 import cv2
 
 from officialeye._internal.context.context import Context
@@ -16,13 +15,13 @@ class IODriver(ABC):
         self._context = context
 
     @abc.abstractmethod
-    def output_supervision_result(self, target: cv2.Mat, result: SupervisionResult, /):
+    def handle_supervision_result(self, target: cv2.Mat, result: SupervisionResult, /):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def output_show_result(self, template: Template, img: cv2.Mat, /):
+    def handle_show_result(self, template: Template, img: cv2.Mat, /):
         raise NotImplementedError()
 
     @abc.abstractmethod
-    def output_error(self, error: OEError, /):
+    def handle_error(self, error: OEError, /):
         raise NotImplementedError()

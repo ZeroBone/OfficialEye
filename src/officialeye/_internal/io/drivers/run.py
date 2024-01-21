@@ -1,7 +1,6 @@
 import json
 import sys
 
-# noinspection PyPackageRequirements
 import cv2
 
 from officialeye._internal.context.context import Context
@@ -23,19 +22,19 @@ class RunIODriver(IODriver):
     def __init__(self, context: Context, /):
         super().__init__(context)
 
-    def output_show_result(self, template: Template, img: cv2.Mat, /):
+    def handle_show_result(self, template: Template, img: cv2.Mat, /):
         raise ErrIOOperationNotSupportedByDriver(
             f"while trying to output the result of showing the template '{template.template_id}'",
             f"Driver 'run' does not support this operation."
         )
 
-    def output_error(self, error: OEError, /):
+    def handle_error(self, error: OEError, /):
         _output_dict({
             "ok": False,
             "err": error.serialize()
         })
 
-    def output_supervision_result(self, target: cv2.Mat, result: SupervisionResult, /):
+    def handle_supervision_result(self, target: cv2.Mat, result: SupervisionResult, /):
 
         assert result is not None
 
@@ -52,9 +51,7 @@ class RunIODriver(IODriver):
                 continue
 
             feature_img = result.get_feature_warped_region(target, feature)
-
             feature_img_mutated = feature.apply_mutators_to_image(feature_img)
-
             interpretation = feature.interpret_image(feature_img_mutated)
 
             interpretation_dict[feature.region_id] = interpretation

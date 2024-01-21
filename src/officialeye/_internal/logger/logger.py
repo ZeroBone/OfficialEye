@@ -1,7 +1,27 @@
+from typing import Callable
+
 import click
 
 from officialeye._internal.error.error import OEError
 from officialeye.meta import OFFICIALEYE_CLI_LOGO
+
+
+def _do_print_oe_error(output_func: Callable[[str], None], error: OEError, /):
+    output_func(f"Error {error.code} in module {error.module}: {error.code_text}")
+    output_func(f"Error occurred {error.while_text}")
+    output_func(f"Problem: {error.problem_text}")
+
+    causes = error.get_causes()
+    external_causes = error.get_external_causes()
+
+    if len(causes) + len(external_causes) > 0:
+        output_func("The above error has been caused by the following error(s).")
+
+    for cause in causes:
+        _do_print_oe_error(output_func, cause)
+
+    for external_cause in external_causes:
+        output_func(str(external_cause))
 
 
 class Logger:
@@ -88,11 +108,7 @@ class Logger:
         click.secho(OFFICIALEYE_CLI_LOGO, fg="red")
 
     def error_oe_error(self, error: OEError, /):
-        self.error(f"Error {error.code} in module {error.module}: {error.code_text}")
-        self.error(f"Error occurred {error.while_text}")
-        self.error(f"Problem: {error.problem_text}")
+        _do_print_oe_error(self.error, error)
 
     def debug_oe_error(self, error: OEError, /):
-        self.debug(f"Error {error.code} in module {error.module}: {error.code_text}")
-        self.debug(f"Error occurred {error.while_text}")
-        self.debug(f"Problem: {error.problem_text}")
+        _do_print_oe_error(self.debug, error)

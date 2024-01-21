@@ -1,6 +1,5 @@
 from typing import Dict
 
-# noinspection PyPackageRequirements
 import cv2
 from pytesseract import pytesseract
 
@@ -19,5 +18,5 @@ class TesseractMethod(InterpretationMethod):
         self._tesseract_lang = self.get_config().get("lang", default="eng")
         self._tesseract_config = self.get_config().get("config", default="")
 
-    def interpret(self, feature_img: cv2.Mat, feature_id: str, /) -> Serializable:
+    def interpret(self, feature_img: cv2.Mat, template_id: str, feature_id: str, /) -> Serializable:
         return pytesseract.image_to_string(feature_img, lang=self._tesseract_lang, config=self._tesseract_config).strip()

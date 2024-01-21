@@ -1,7 +1,6 @@
 import tempfile
 from typing import Dict
 
-# noinspection PyPackageRequirements
 import cv2
 
 from officialeye._internal.context.context import Context
@@ -18,7 +17,7 @@ class FileTempMethod(InterpretationMethod):
 
         self._format = self.get_config().get("format", default="png")
 
-    def interpret(self, feature_img: cv2.Mat, feature_id: str, /) -> Serializable:
+    def interpret(self, feature_img: cv2.Mat, template_id: str, feature_id: str, /) -> Serializable:
 
         with tempfile.NamedTemporaryFile(prefix="officialeye_", suffix=f".{self._format}", delete=False) as fp:
             fp.close()

@@ -1,6 +1,5 @@
 from typing import List
 
-# noinspection PyPackageRequirements
 import cv2
 import numpy as np
 

@@ -1,7 +1,6 @@
 import abc
 from typing import Tuple, Dict
 
-# noinspection PyPackageRequirements
 import cv2
 import numpy as np
 
