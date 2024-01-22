@@ -1,5 +1,5 @@
 import sys
-from typing import Set, Dict
+from typing import Dict, Set
 
 import cv2
 import numpy as np

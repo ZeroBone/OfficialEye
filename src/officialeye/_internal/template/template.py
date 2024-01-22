@@ -1,19 +1,23 @@
 import os
 import time
-from typing import Dict, Union, List, Generator
+from typing import Dict, Generator, List, Union
 
 import cv2
 
 from officialeye._internal.context.context import Context
 from officialeye._internal.error.errors.io import ErrIOInvalidPath
-from officialeye._internal.error.errors.template import (ErrTemplateInvalidSupervisionEngine, ErrTemplateInvalidMatchingEngine,
-                                                         ErrTemplateInvalidKeypoint, ErrTemplateInvalidFeature)
+from officialeye._internal.error.errors.template import (
+    ErrTemplateInvalidFeature,
+    ErrTemplateInvalidKeypoint,
+    ErrTemplateInvalidMatchingEngine,
+    ErrTemplateInvalidSupervisionEngine,
+)
 from officialeye._internal.logger.singleton import get_logger
 from officialeye._internal.matching.matcher import Matcher
 from officialeye._internal.matching.matchers.sift_flann import SiftFlannMatcher
 from officialeye._internal.matching.result import MatchingResult
-from officialeye._internal.mutation.mutator import Mutator
 from officialeye._internal.mutation.loader import load_mutator_from_dict
+from officialeye._internal.mutation.mutator import Mutator
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.supervision.supervisors.combinatorial import CombinatorialSupervisor
 from officialeye._internal.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor

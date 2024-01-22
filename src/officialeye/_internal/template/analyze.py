@@ -1,6 +1,6 @@
 from queue import Queue
 from threading import Thread
-from typing import List, Union, Tuple
+from typing import List, Tuple, Union
 
 import cv2
 

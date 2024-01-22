@@ -25,7 +25,7 @@ class RunIODriver(IODriver):
     def handle_show_result(self, template: Template, img: cv2.Mat, /):
         raise ErrIOOperationNotSupportedByDriver(
             f"while trying to output the result of showing the template '{template.template_id}'",
-            f"Driver 'run' does not support this operation."
+            "Driver 'run' does not support this operation."
         )
 
     def handle_error(self, error: OEError, /):

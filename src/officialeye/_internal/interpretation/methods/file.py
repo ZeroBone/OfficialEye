@@ -25,10 +25,10 @@ class FileMethod(InterpretationMethod):
         feature_class_generator = feature.get_feature_class().get_features()
 
         # check if the generator generates at least two elements
-        if sum(1 for _ in zip(range(2), feature_class_generator)) == 2:
+        if sum(1 for _ in zip(range(2), feature_class_generator, strict=False)) == 2:
             raise ErrTemplateInvalidInterpretation(
                 "while applying the '{FileMethod.METHOD_ID}' interpretation method.",
-                f"This method cannot be applied if there are at least two features inheriting the feature class defining this method."
+                "This method cannot be applied if there are at least two features inheriting the feature class defining this method."
             )
 
         os.makedirs(os.path.dirname(self._path), exist_ok=True)

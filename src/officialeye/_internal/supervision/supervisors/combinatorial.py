@@ -21,7 +21,7 @@ class CombinatorialSupervisor(Supervisor):
         super().__init__(context, CombinatorialSupervisor.ENGINE_ID, template_id, kmr)
 
         # setup configuration
-        def _min_match_factor_preprocessor(v: any) -> float:
+        def _min_match_factor_preprocessor(v: str) -> float:
 
             v = float(v)
 
@@ -41,7 +41,7 @@ class CombinatorialSupervisor(Supervisor):
 
         self.get_config().set_value_preprocessor("min_match_factor", _min_match_factor_preprocessor)
 
-        def _max_transformation_error_preprocessor(v: any) -> int:
+        def _max_transformation_error_preprocessor(v: str) -> int:
 
             v = int(v)
 
@@ -61,7 +61,7 @@ class CombinatorialSupervisor(Supervisor):
 
         self.get_config().set_value_preprocessor("max_transformation_error", _max_transformation_error_preprocessor)
 
-        def _z3_timeout_preprocessor(v: any) -> int:
+        def _z3_timeout_preprocessor(v: str) -> int:
 
             v = int(v)
 
@@ -177,7 +177,7 @@ class CombinatorialSupervisor(Supervisor):
             assert result == z3.sat
 
             model = solver.model()
-            model_evaluator = np.vectorize(lambda var: model.eval(var, model_completion=True).as_fraction())
+            model_evaluator = np.vectorize(lambda var: model.eval(var, model_completion=True).as_fraction())  # noqa: B023
 
             # extract total weight and maximization target from the model
             model_total_weight = float(model_evaluator(total_weight))

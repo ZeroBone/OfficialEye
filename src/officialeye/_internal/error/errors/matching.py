@@ -1,5 +1,5 @@
+from officialeye._internal.error.codes import ERR_MATCHING_INVALID_ENGINE_CONFIG, ERR_MATCHING_MATCH_COUNT_OUT_OF_BOUNDS
 from officialeye._internal.error.error import OEError
-from officialeye._internal.error.codes import ERR_MATCHING_MATCH_COUNT_OUT_OF_BOUNDS, ERR_MATCHING_INVALID_ENGINE_CONFIG
 from officialeye._internal.error.modules import ERR_MODULE_MATCHING
 
 

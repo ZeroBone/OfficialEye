@@ -33,7 +33,7 @@ class DiffObjectSpecification:
                     _validator(value)
                     continue
 
-                assert False
+                raise AssertionError()
 
         _validator(self._spec)
 
@@ -62,7 +62,7 @@ class DiffObjectSpecification:
                     mapped_dict[yml.Optional(key)] = _mapper(value)
                     continue
 
-                assert False
+                raise AssertionError()
 
             return yml.Map(mapped_dict)
 

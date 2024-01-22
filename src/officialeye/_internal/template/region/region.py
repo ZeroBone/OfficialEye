@@ -1,5 +1,5 @@
 import abc
-from typing import Tuple, Dict
+from typing import Dict, Tuple
 
 import cv2
 import numpy as np

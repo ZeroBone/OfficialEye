@@ -4,8 +4,8 @@ from typing import Dict
 import cv2
 
 from officialeye._internal.context.context import Context
-from officialeye._internal.interpretation.serializable import Serializable
 from officialeye._internal.interpretation.config import InterpretationMethodConfig
+from officialeye._internal.interpretation.serializable import Serializable
 
 
 class InterpretationMethod(abc.ABC):

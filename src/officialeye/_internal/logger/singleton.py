@@ -1,6 +1,5 @@
 from officialeye._internal.logger.logger import Logger
 
-
 _logger = Logger()
 
 

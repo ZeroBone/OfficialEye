@@ -3,8 +3,8 @@ from typing import Dict
 from officialeye._internal.context.context import Context
 from officialeye._internal.diffobject.exception import DiffObjectException
 from officialeye._internal.error.errors.template import ErrTemplateInvalidFeatureClass
-from officialeye._internal.template.feature_class.feature_class import FeatureClass
 from officialeye._internal.template.feature_class.const import IMPLICIT_FEATURE_CLASS_BASE_INSTANCE_ID
+from officialeye._internal.template.feature_class.feature_class import FeatureClass
 
 
 class FeatureClassManager:
@@ -44,4 +44,4 @@ class FeatureClassManager:
             raise ErrTemplateInvalidFeatureClass(
                 f"while loading feature classes of template '{self._template_id}'.",
                 err.problem
-            )
+            ) from err

@@ -1,5 +1,3 @@
-from typing import Union
-
 from officialeye._internal.error.codes import ERR_INTERNAL
 from officialeye._internal.error.error import OEError
 from officialeye._internal.error.modules import ERR_MODULE_INTERNAL

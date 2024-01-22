@@ -10,7 +10,7 @@ def create_example_template_config_file(template_path: str, template_image: str,
     if os.path.isdir(template_path):
         raise ErrIOInvalidPath(
             f"while making sure that '{template_path}' references a file",
-            f"This path references a directory."
+            "This path references a directory."
         )
 
     # determine source config value
@@ -27,7 +27,7 @@ def create_example_template_config_file(template_path: str, template_image: str,
     if os.path.exists(template_path) and not force_mode:
         raise ErrIOInvalidPath(
             f"while making sure that path '{template_path}' exists",
-            f"There is already a file at this path. Use --force to suppress this error."
+            "There is already a file at this path. Use --force to suppress this error."
         )
 
     dir_name = os.path.dirname(template_path)
@@ -37,7 +37,7 @@ def create_example_template_config_file(template_path: str, template_image: str,
         else:
             raise ErrIOInvalidPath(
                 f"while making sure that path '{template_path}' exists",
-                f"Not all directories leading to the file exist. Use --force to create the missing directories."
+                "Not all directories leading to the file exist. Use --force to create the missing directories."
             )
 
     template_yml = f'''# This is the ID of the template. It is needed to identify this template in the API and must be alphanumeric and unique.

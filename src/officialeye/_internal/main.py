@@ -11,10 +11,10 @@ from officialeye._internal.context.manager import ContextManager
 from officialeye._internal.io.drivers.run import RunIODriver
 from officialeye._internal.io.drivers.test import TestIODriver
 from officialeye._internal.logger.singleton import get_logger
-from officialeye.meta import OFFICIALEYE_GITHUB, OFFICIALEYE_VERSION
 from officialeye._internal.template.analyze import do_analyze
 from officialeye._internal.template.create import create_example_template_config_file
 from officialeye._internal.template.schema.loader import load_template
+from officialeye.meta import OFFICIALEYE_GITHUB, OFFICIALEYE_VERSION
 
 _context_manager: ContextManager = ContextManager()
 

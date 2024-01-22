@@ -48,8 +48,10 @@ docs-build = "mkdocs build"
 docs-deploy = "mkdocs gh-deploy --force"
 
 # other scripts
-tests-integration = {shell = "pytest src/tests/integration/*.py"}
 count-loc = {shell = "find src/officialeye -name '*.py' | xargs wc -l"}
+
+ci-pytest = {shell = "pytest src/tests/"}
+ci-ruff = {shell = "ruff check --output-format=github"}
 
 [tool.pdm.dev-dependencies]
 doc = [
@@ -64,3 +66,61 @@ doc = [
 test = [
     "pytest"
 ]
+lint = [
+    "ruff"
+]
+
+[tool.ruff]
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".ipynb_checkpoints",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pyenv",
+    ".pytest_cache",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    ".vscode",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "site-packages",
+    "venv"
+]
+line-length = 150
+
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+    # pycodestyle
+    "E",
+    # Pyflakes
+    "F",
+    # flake8-bugbear
+    "B",
+    # flake8-simplify
+    "SIM",
+    # isort
+    "I",
+]
+
+ignore = [
+    "D417",
+    "SIM108" # Usage of ternary operators instead of if-then-else
+]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"

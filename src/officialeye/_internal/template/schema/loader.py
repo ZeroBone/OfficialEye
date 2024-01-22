@@ -3,8 +3,8 @@ import strictyaml as yml
 from officialeye._internal.context.context import Context
 from officialeye._internal.error.errors.template import ErrTemplateInvalidSyntax
 from officialeye._internal.logger.singleton import get_logger
-from officialeye._internal.template.template import Template
 from officialeye._internal.template.schema.schema import generate_template_schema
+from officialeye._internal.template.template import Template
 
 _oe_template_schema = generate_template_schema()
 
@@ -60,17 +60,17 @@ def load_template(context: Context, path: str) -> Template:
     except yml.StrictYAMLError as err:
         _print_error_message(err, path)
         exit(4)
-    except yml.YAMLError:
+    except yml.YAMLError as err:
         raise ErrTemplateInvalidSyntax(
             f"while loading template configuration file at '{path}'.",
-            f"General parsing error. Check the syntax and the encoding of the file."
-        )
+            "General parsing error. Check the syntax and the encoding of the file."
+        ) from err
 
     data = yaml_document.data
 
     template = Template(context, data, path)
 
-    get_logger().info(f"Loaded template: ", nl=False)
+    get_logger().info("Loaded template: ", nl=False)
     get_logger().info(str(template), prefix=False, bold=True)
 
     return template

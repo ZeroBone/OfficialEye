@@ -108,7 +108,7 @@ class OrthogonalRegressionSupervisor(Supervisor):
 
             model = solver.model()
 
-            evaluator = np.vectorize(lambda var: float(model.eval(var, model_completion=True).as_fraction()))
+            evaluator = np.vectorize(lambda var: float(model.eval(var, model_completion=True).as_fraction()))  # noqa: B023
 
             # extract transformation matrix from model
             transformation_matrix = evaluator(self._transformation_matrix)

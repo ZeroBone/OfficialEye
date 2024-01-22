@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import Dict, List
 
 from officialeye._internal.context.context import Context
 from officialeye._internal.error.errors.matching import ErrMatchingMatchCountOutOfBounds
@@ -89,12 +89,12 @@ class MatchingResult:
         if total_match_count == 0:
             raise ErrMatchingMatchCountOutOfBounds(
                 f"while checking that there has been at least one match for template '{self._template_id}'.",
-                f"There have been no matches."
+                "There have been no matches."
             )
 
     def debug_print(self):
         get_logger().debug(f"Found {self.get_total_match_count()} matched points!")
 
-        get_logger().debug_verbose(f"Listing matched points:")
+        get_logger().debug_verbose("Listing matched points:")
         for match in self.get_matches():
             get_logger().debug_verbose(f"> {match}")

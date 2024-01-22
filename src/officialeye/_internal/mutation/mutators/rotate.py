@@ -44,6 +44,6 @@ class RotateMutator(Mutator):
         elif self._angle == 270:
             cv2_rotate_code = cv2.ROTATE_90_COUNTERCLOCKWISE
         else:
-            assert False
+            raise AssertionError()
 
         return cv2.rotate(img, cv2_rotate_code)

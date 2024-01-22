@@ -1,5 +1,16 @@
+from officialeye._internal.error.codes import (
+    ERR_TEMPLATE_ID_NOT_UNIQUE,
+    ERR_TEMPLATE_INVALID_CONCURRENCY_CONFIG,
+    ERR_TEMPLATE_INVALID_FEATURE,
+    ERR_TEMPLATE_INVALID_FEATURE_CLASS,
+    ERR_TEMPLATE_INVALID_INTERPRETATION,
+    ERR_TEMPLATE_INVALID_KEYPOINT,
+    ERR_TEMPLATE_INVALID_MATCHING_ENGINE,
+    ERR_TEMPLATE_INVALID_MUTATOR,
+    ERR_TEMPLATE_INVALID_SUPERVISION_ENGINE,
+    ERR_TEMPLATE_INVALID_SYNTAX,
+)
 from officialeye._internal.error.error import OEError
-from officialeye._internal.error.codes import *
 from officialeye._internal.error.modules import ERR_MODULE_TEMPLATE
 
 

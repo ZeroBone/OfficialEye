@@ -36,9 +36,6 @@ def load_mutator_from_dict(mutator_dict: Dict[str, any], /) -> Mutator:
 
     mutator_id = mutator_dict["id"]
 
-    if "config" in mutator_dict:
-        mutator_config = mutator_dict["config"]
-    else:
-        mutator_config = {}
+    mutator_config = mutator_dict["config"] if "config" in mutator_dict else {}
 
     return load_mutator(mutator_id, mutator_config)

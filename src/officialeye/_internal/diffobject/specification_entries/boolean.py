@@ -2,7 +2,7 @@ from typing import Union
 
 import strictyaml as yml
 
-from officialeye._internal.diffobject.difference_modes import DIFF_MODE_OVERRIDE, DIFF_MODE_ADD
+from officialeye._internal.diffobject.difference_modes import DIFF_MODE_ADD, DIFF_MODE_OVERRIDE
 from officialeye._internal.diffobject.exception import DiffObjectException
 from officialeye._internal.diffobject.specification_entry import DiffObjectSpecificationEntry
 

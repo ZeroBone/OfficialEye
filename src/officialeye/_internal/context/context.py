@@ -3,8 +3,7 @@ from __future__ import annotations
 
 import os
 import tempfile
-from typing import List, Dict, Union
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List, Union
 
 import click
 import cv2
@@ -16,8 +15,8 @@ from officialeye._internal.error.errors.template import ErrTemplateIdNotUnique
 from officialeye._internal.logger.singleton import get_logger
 
 if TYPE_CHECKING:
-    from officialeye._internal.template.template import Template
     from officialeye._internal.io.driver import IODriver
+    from officialeye._internal.template.template import Template
 
 
 # TODO: move part of the Context class methods to IO driver

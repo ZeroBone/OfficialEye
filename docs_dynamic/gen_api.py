@@ -13,13 +13,25 @@ nav = mkdocs_gen_files.Nav()
 
 src = Path(__file__).parent.parent / "src"
 
+internal_module = src / "officialeye" / "_internal"
+api_module = src / "officialeye" / "api"
+
 mod_symbol = '<code class="doc-symbol doc-symbol-nav doc-symbol-module"></code>'
 
 for path in sorted(src.rglob("officialeye/**/*.py")):
 
     module_path = path.relative_to(src).with_suffix("")
-    doc_path = path.relative_to(src).with_suffix(".md")
-    full_doc_path = Path("reference", doc_path)
+
+    if internal_module in path.parents:
+        # the current module is a submodule of the internal api
+        doc_path = path.relative_to(internal_module).with_suffix(".md")
+        full_doc_path = Path("dev", "api", doc_path)
+    elif api_module in path.parents:
+        # the current module is part of the public api
+        doc_path = path.relative_to(api_module).with_suffix(".md")
+        full_doc_path = Path("api", doc_path)
+    else:
+        continue
 
     parts = tuple(module_path.parts)
 
@@ -40,6 +52,3 @@ for path in sorted(src.rglob("officialeye/**/*.py")):
         fd.write(f"::: {ident}")
 
     mkdocs_gen_files.set_edit_path(full_doc_path, path)
-
-with mkdocs_gen_files.open("reference/summary.md", "w") as nav_file:
-    nav_file.writelines(nav.build_literate_nav())

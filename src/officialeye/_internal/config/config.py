@@ -1,5 +1,5 @@
 import abc
-from typing import Dict, Callable
+from typing import Callable, Dict
 
 
 class Config(abc.ABC):

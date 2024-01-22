@@ -1,7 +1,7 @@
 import abc
 import random
 from abc import ABC
-from typing import Union, Generator
+from typing import Generator, Union
 
 from officialeye._internal.context.context import Context
 from officialeye._internal.logger.singleton import get_logger
@@ -130,4 +130,4 @@ class Supervisor(ABC):
         if supervision_result_choice_engine == _SUPERVISION_RESULT_BEST_SCORE:
             return self._run_best_score()
 
-        assert False, "Invalid supervision result"
+        raise AssertionError("Invalid supervision result")

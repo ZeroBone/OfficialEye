@@ -58,7 +58,7 @@ class ContextManager:
             )
             oe_error.add_external_cause(exception_value)
         else:
-            assert False
+            raise AssertionError()
 
         self._context.get_io_driver().handle_error(oe_error)
 

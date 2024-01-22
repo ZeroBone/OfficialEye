@@ -1,14 +1,11 @@
 import strictyaml as yml
 
-from officialeye.diffobject.difference_expansion import DiffObjectExpansion
-from officialeye.diffobject.difference_modes import DIFF_MODE_ADD, DIFF_MODE_OVERRIDE
-from officialeye.diffobject.specification import DiffObjectSpecification
-from officialeye.diffobject.specification_entries.integer import IntegerSpecificationEntry
-from officialeye.diffobject.specification_entries.list import ListSpecificationEntry
-from officialeye.diffobject.specification_entries.string import StringSpecificationEntry
-
 
 def test_01():
+    from officialeye._internal.diffobject.difference_expansion import DiffObjectExpansion
+    from officialeye._internal.diffobject.specification import DiffObjectSpecification
+    from officialeye._internal.diffobject.specification_entries.string import StringSpecificationEntry
+
     spec = DiffObjectSpecification({
         "one": StringSpecificationEntry(yml.Any()),
         "two": StringSpecificationEntry(yml.Any()),
@@ -46,6 +43,11 @@ def test_01():
 
 
 def test_02():
+    from officialeye._internal.diffobject.difference_expansion import DiffObjectExpansion
+    from officialeye._internal.diffobject.difference_modes import DIFF_MODE_ADD, DIFF_MODE_OVERRIDE
+    from officialeye._internal.diffobject.specification import DiffObjectSpecification
+    from officialeye._internal.diffobject.specification_entries.string import StringSpecificationEntry
+
     spec = DiffObjectSpecification({
         "one": StringSpecificationEntry(yml.Any()),
         "two": StringSpecificationEntry(yml.Any()),
@@ -86,6 +88,13 @@ def test_02():
 
 
 def test_03():
+    from officialeye._internal.diffobject.difference_expansion import DiffObjectExpansion
+    from officialeye._internal.diffobject.difference_modes import DIFF_MODE_ADD
+    from officialeye._internal.diffobject.specification import DiffObjectSpecification
+    from officialeye._internal.diffobject.specification_entries.integer import IntegerSpecificationEntry
+    from officialeye._internal.diffobject.specification_entries.list import ListSpecificationEntry
+    from officialeye._internal.diffobject.specification_entries.string import StringSpecificationEntry
+
     spec = DiffObjectSpecification({
         "one": StringSpecificationEntry(yml.Any()),
         "two": {
