@@ -1,5 +1,9 @@
-from officialeye._internal.error.codes import ERR_IO_INVALID_PATH, ERR_IO_INVALID_SUPERVISION_ENGINE, ERR_IO_OPERATION_NOT_SUPPORTED_BY_DRIVER, \
-    ERR_IO_INVALID_IMAGE
+from officialeye._internal.error.codes import (
+    ERR_IO_INVALID_IMAGE,
+    ERR_IO_INVALID_PATH,
+    ERR_IO_INVALID_SUPERVISION_ENGINE,
+    ERR_IO_OPERATION_NOT_SUPPORTED_BY_DRIVER,
+)
 from officialeye._internal.error.error import OEError
 from officialeye._internal.error.modules import ERR_MODULE_IO
 
