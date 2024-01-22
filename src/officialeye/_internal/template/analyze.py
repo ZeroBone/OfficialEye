@@ -6,6 +6,7 @@ import cv2
 
 from officialeye._internal.context.context import Context
 from officialeye._internal.error.error import OEError
+from officialeye._internal.error.errors.io import ErrIOInvalidImage
 from officialeye._internal.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
 from officialeye._internal.error.errors.template import ErrTemplateInvalidConcurrencyConfig
 from officialeye._internal.logger.singleton import get_logger
@@ -49,12 +50,28 @@ class AnalysisWorker(Thread):
                 yield error
 
 
-def do_analyze(context: Context, target: cv2.Mat, templates: List[Template], /, *, num_workers: int):
+def do_analyze(context: Context, target: cv2.Mat, templates: List[Template], /, *,
+               num_workers: int, interpretation_target: Union[cv2.Mat, None] = None):
 
     if len(templates) == 0:
         # the program should be a noop if there are no templates provided
         return
 
+    if interpretation_target is None:
+        # if not specified, interpret the given image
+        interpretation_target = target
+    else:
+        # there is a custom interpretation target specified.
+        # it is essential that it has the same shape as the target image.
+        # for this reason, we should verify this here
+        if interpretation_target.shape != target.shape:
+            raise ErrIOInvalidImage(
+                "while making sure that the target image and the interpretation target images have the same shape.",
+                f"The shapes mismatch. "
+                f"The target image has shape {target.shape}, while the interpretation target image has shape {interpretation_target.shape}."
+            )
+
+    assert interpretation_target is not None
     assert num_workers is not None
 
     if num_workers < 1:
@@ -124,4 +141,4 @@ def do_analyze(context: Context, target: cv2.Mat, templates: List[Template], /, 
         raise error
 
     io_driver = context.get_io_driver()
-    io_driver.handle_supervision_result(target, best_result)
+    io_driver.handle_supervision_result(interpretation_target, best_result)

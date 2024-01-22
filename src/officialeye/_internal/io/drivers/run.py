@@ -40,7 +40,7 @@ class RunIODriver(IODriver):
 
         template = self._context.get_template(result.template_id)
 
-        interpretation_dict = {}
+        feature_interpretation_dict = {}
 
         # extract the features from the target image
         for feature in template.features():
@@ -54,11 +54,11 @@ class RunIODriver(IODriver):
             feature_img_mutated = feature.apply_mutators_to_image(feature_img)
             interpretation = feature.interpret_image(feature_img_mutated)
 
-            interpretation_dict[feature.region_id] = interpretation
+            feature_interpretation_dict[feature.region_id] = interpretation
 
         _output_dict({
             "ok": True,
             "template": result.template_id,
             "score": result.get_score(),
-            "features": interpretation_dict
+            "features": feature_interpretation_dict
         })

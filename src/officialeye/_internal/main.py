@@ -2,7 +2,7 @@
 OfficialEye main entry point.
 """
 
-from typing import List
+from typing import List, Union
 
 import click
 import cv2
@@ -89,10 +89,12 @@ def show(template_path: str, hide_features: bool, hide_keypoints: bool):
 @click.command()
 @click.argument("target_path", type=click.Path(exists=True, file_okay=True, readable=True))
 @click.argument("template_paths", type=click.Path(exists=True, file_okay=True, readable=True), nargs=-1)
-@click.option("--workers", type=int, default=4, show_default=True)
+@click.option("--workers", type=int, default=4, show_default=True, help="Specify number of threads to use for the pool of workers.")
+@click.option("--interpret", type=click.Path(exists=True, file_okay=True, readable=True),
+              default=None, help="Use the image at the specified path to run the interpretation phase.")
 @click.option("--show-features", is_flag=True, show_default=False, default=False, help="Visualize the locations of features.")
 @click.option("--visualize", is_flag=True, show_default=False, default=False, help="Generate visualizations of intermediate steps.")
-def test(target_path: str, template_paths: List[str], workers: int, show_features: bool, visualize: bool):
+def test(target_path: str, template_paths: List[str], workers: int, interpret: Union[str, None], show_features: bool, visualize: bool):
     """Visualizes the analysis of an image using one or more templates."""
 
     global _context_manager
@@ -102,7 +104,7 @@ def test(target_path: str, template_paths: List[str], workers: int, show_feature
     if _context_manager.visualization_generation:
         get_logger().warn("Visualization generation mode enabled. Disable for production use to improve performance.")
 
-    with _context_manager as oe_context:
+    with (_context_manager as oe_context):
 
         # setup IO driver
         io_driver = TestIODriver(oe_context)
@@ -112,19 +114,25 @@ def test(target_path: str, template_paths: List[str], workers: int, show_feature
         # load target image
         target = cv2.imread(target_path, cv2.IMREAD_COLOR)
 
+        # load interpretation target image if necessary
+        interpretation_target: Union[cv2.Mat, None] = \
+            None if interpret is None else cv2.imread(interpret, cv2.IMREAD_COLOR)
+
         # load templates
         templates = [load_template(oe_context, template_path) for template_path in template_paths]
 
         # perform analysis
-        do_analyze(oe_context, target, templates, num_workers=workers)
+        do_analyze(oe_context, target, templates, num_workers=workers, interpretation_target=interpretation_target)
 
 
 @click.command()
 @click.argument("target_path", type=click.Path(exists=True, file_okay=True, readable=True))
 @click.argument("template_paths", type=click.Path(exists=True, file_okay=True, readable=True), nargs=-1)
-@click.option("--workers", type=int, default=4, show_default=True)
+@click.option("--workers", type=int, default=4, show_default=True, help="Specify number of threads to use for the pool of workers.")
+@click.option("--interpret", type=click.Path(exists=True, file_okay=True, readable=True),
+              default=None, help="Use the image at the specified path to run the interpretation phase.")
 @click.option("--visualize", is_flag=True, show_default=False, default=False, help="Generate visualizations of intermediate steps.")
-def run(target_path: str, template_paths: List[str], workers: int, visualize: bool):
+def run(target_path: str, template_paths: List[str], workers: int, interpret: Union[str, None], visualize: bool):
     """Applies one or more templates to an image."""
 
     global _context_manager
@@ -141,11 +149,15 @@ def run(target_path: str, template_paths: List[str], workers: int, visualize: bo
         # load target image
         target = cv2.imread(target_path, cv2.IMREAD_COLOR)
 
+        # load interpretation target image if necessary
+        interpretation_target: Union[cv2.Mat, None] = \
+            None if interpret is None else cv2.imread(interpret, cv2.IMREAD_COLOR)
+
         # load templates
         templates = [load_template(oe_context, template_path) for template_path in template_paths]
 
         # perform analysis
-        do_analyze(oe_context, target, templates, num_workers=workers)
+        do_analyze(oe_context, target, templates, num_workers=workers, interpretation_target=interpretation_target)
 
 
 @click.command()

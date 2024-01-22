@@ -1,5 +1,13 @@
 # Changelog
 
+## Release 1.1.5 (beta)
+
+* Added an `--interpret` option to the `run` and `test` commands, allowing one to optionally use a different target image for the interpretation phase.
+* Set up linting and basic unit testing to ensure better code quality.
+* Minor improvements and bug fixes.
+
+[View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.1.5){ .md-button }
+
 ## Release 1.1.4 (beta)
 
 * Added a new `rotate` mutator, that rotates an image by a multiple of 90 degrees.

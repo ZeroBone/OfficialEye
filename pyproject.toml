@@ -50,8 +50,11 @@ docs-deploy = "mkdocs gh-deploy --force"
 # other scripts
 count-loc = {shell = "find src/officialeye -name '*.py' | xargs wc -l"}
 
+# scripts to be called by the CI (i.e., GitHub actions)
 ci-pytest = {shell = "pytest src/tests/"}
 ci-ruff = {shell = "ruff check --output-format=github"}
+
+dev-ruff = {shell = "ruff check"}
 
 [tool.pdm.dev-dependencies]
 doc = [
