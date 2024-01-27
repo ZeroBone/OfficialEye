@@ -26,7 +26,7 @@ _context_manager: ContextManager = ContextManager()
 @click.option("-v", "--verbose", is_flag=True, show_default=True, default=False, help="Enable verbose logging.")
 @click.option("-dl", "--disable-logo", is_flag=True, show_default=True, default=False, help="Disable the officialeye logo.")
 @click.option("-re", "--raw-errors", is_flag=True, show_default=False, default=False, help="Do not handle errors.")
-def cli(debug: bool, edir: str, quiet: bool, verbose: bool, disable_logo: bool, raw_errors: bool):
+def main(debug: bool, edir: str, quiet: bool, verbose: bool, disable_logo: bool, raw_errors: bool):
     global _context_manager
 
     # configure logger
@@ -173,12 +173,12 @@ def version():
     get_logger().info(f"Version: {OFFICIALEYE_VERSION}")
 
 
-cli.add_command(create)
-cli.add_command(show)
-cli.add_command(test)
-cli.add_command(run)
-cli.add_command(homepage)
-cli.add_command(version)
+main.add_command(create)
+main.add_command(show)
+main.add_command(test)
+main.add_command(run)
+main.add_command(homepage)
+main.add_command(version)
 
 if __name__ == "__main__":
-    cli()
+    main()
