@@ -1,4 +1,4 @@
-from officialeye._internal.error.codes import (
+from officialeye.api.error.codes import (
     ERR_TEMPLATE_ID_NOT_UNIQUE,
     ERR_TEMPLATE_INVALID_CONCURRENCY_CONFIG,
     ERR_TEMPLATE_INVALID_FEATURE,
@@ -10,8 +10,8 @@ from officialeye._internal.error.codes import (
     ERR_TEMPLATE_INVALID_SUPERVISION_ENGINE,
     ERR_TEMPLATE_INVALID_SYNTAX,
 )
-from officialeye._internal.error.error import OEError
-from officialeye._internal.error.modules import ERR_MODULE_TEMPLATE
+from officialeye.api.error.error import OEError
+from officialeye.api.error.modules import ERR_MODULE_TEMPLATE
 
 
 class ErrTemplate(OEError):

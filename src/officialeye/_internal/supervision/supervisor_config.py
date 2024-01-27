@@ -1,7 +1,7 @@
 from typing import Dict
 
 from officialeye._internal.config.config import Config
-from officialeye._internal.error.errors.supervision import ErrSupervisionInvalidEngineConfig
+from officialeye.api.error.errors.supervision import ErrSupervisionInvalidEngineConfig
 
 
 class SupervisorConfig(Config):

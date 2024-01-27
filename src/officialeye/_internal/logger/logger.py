@@ -2,8 +2,8 @@ from typing import Callable
 
 import click
 
-from officialeye._internal.error.error import OEError
-from officialeye.meta import OFFICIALEYE_CLI_LOGO
+from officialeye.__version__ import __ascii_logo__
+from officialeye.api.error.error import OEError
 
 
 def _do_print_oe_error(output_func: Callable[[str], None], error: OEError, /):
@@ -105,7 +105,7 @@ class Logger:
         if self.disable_logo:
             return
 
-        click.secho(OFFICIALEYE_CLI_LOGO, fg="red")
+        click.secho(__ascii_logo__, fg="red")
 
     def error_oe_error(self, error: OEError, /):
         _do_print_oe_error(self.error, error)

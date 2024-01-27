@@ -5,7 +5,7 @@
 groups = ["default", "doc", "test"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:7407a60c5a1e01c58e023cbb663a36b5489822383c30c34fcc44dd9f56de029f"
+content_hash = "sha256:7dcc5b397d044fd48a992675e75661fff2f88eac1b003f7c9e542527dc22354f"
 
 [[package]]
 name = "babel"
@@ -469,6 +469,24 @@ dependencies = [
 files = [
     {file = "mkdocs_literate_nav-0.6.1-py3-none-any.whl", hash = "sha256:e70bdc4a07050d32da79c0b697bd88e9a104cf3294282e9cb20eec94c6b0f401"},
     {file = "mkdocs_literate_nav-0.6.1.tar.gz", hash = "sha256:78a7ab6d878371728acb0cdc6235c9b0ffc6e83c997b037f4a5c6ff7cef7d759"},
+]
+
+[[package]]
+name = "mkdocs-macros-plugin"
+version = "1.0.5"
+requires_python = ">=3.8"
+summary = "Unleash the power of MkDocs with macros and variables"
+groups = ["doc"]
+dependencies = [
+    "jinja2",
+    "mkdocs>=0.17",
+    "python-dateutil",
+    "pyyaml",
+    "termcolor",
+]
+files = [
+    {file = "mkdocs-macros-plugin-1.0.5.tar.gz", hash = "sha256:fe348d75f01c911f362b6d998c57b3d85b505876dde69db924f2c512c395c328"},
+    {file = "mkdocs_macros_plugin-1.0.5-py3-none-any.whl", hash = "sha256:f60e26f711f5a830ddf1e7980865bf5c0f1180db56109803cdd280073c1a050a"},
 ]
 
 [[package]]
@@ -995,6 +1013,17 @@ dependencies = [
 files = [
     {file = "strictyaml-1.7.3-py3-none-any.whl", hash = "sha256:fb5c8a4edb43bebb765959e420f9b3978d7f1af88c80606c03fb420888f5d1c7"},
     {file = "strictyaml-1.7.3.tar.gz", hash = "sha256:22f854a5fcab42b5ddba8030a0e4be51ca89af0267961c8d6cfa86395586c407"},
+]
+
+[[package]]
+name = "termcolor"
+version = "2.4.0"
+requires_python = ">=3.8"
+summary = "ANSI color formatting for output in terminal"
+groups = ["doc"]
+files = [
+    {file = "termcolor-2.4.0-py3-none-any.whl", hash = "sha256:9297c0df9c99445c2412e832e882a7884038a25617c60cea2ad69488d4040d63"},
+    {file = "termcolor-2.4.0.tar.gz", hash = "sha256:aab9e56047c8ac41ed798fa36d892a37aca6b3e9159f3e0c24bc64a9b3ac7b7a"},
 ]
 
 [[package]]

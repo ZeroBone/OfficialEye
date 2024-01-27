@@ -1,7 +1,7 @@
 from typing import Dict
 
 from officialeye._internal.config.config import Config
-from officialeye._internal.error.errors.template import ErrTemplateInvalidMutator
+from officialeye.api.error.errors.template import ErrTemplateInvalidMutator
 
 
 class MutatorConfig(Config):

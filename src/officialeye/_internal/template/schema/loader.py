@@ -1,7 +1,7 @@
 import strictyaml as yml
 
 from officialeye._internal.context.context import Context
-from officialeye._internal.error.errors.template import ErrTemplateInvalidSyntax
+from officialeye.api.error.errors.template import ErrTemplateInvalidSyntax
 from officialeye._internal.logger.singleton import get_logger
 from officialeye._internal.template.schema.schema import generate_template_schema
 from officialeye._internal.template.template import Template

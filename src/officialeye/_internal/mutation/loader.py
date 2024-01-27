@@ -1,6 +1,6 @@
 from typing import Dict
 
-from officialeye._internal.error.errors.template import ErrTemplateInvalidMutator
+from officialeye.api.error.errors.template import ErrTemplateInvalidMutator
 from officialeye._internal.mutation.mutator import Mutator
 from officialeye._internal.mutation.mutators.clahe import CLAHEMutator
 from officialeye._internal.mutation.mutators.grayscale import GrayscaleMutator

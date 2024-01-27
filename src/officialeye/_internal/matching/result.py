@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 from officialeye._internal.context.context import Context
-from officialeye._internal.error.errors.matching import ErrMatchingMatchCountOutOfBounds
+from officialeye.api.error.errors.matching import ErrMatchingMatchCountOutOfBounds
 from officialeye._internal.logger.singleton import get_logger
 from officialeye._internal.matching.match import Match
 

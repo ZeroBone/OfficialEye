@@ -4,7 +4,7 @@ from abc import ABC
 import cv2
 
 from officialeye._internal.context.context import Context
-from officialeye._internal.error.error import OEError
+from officialeye.api.error.error import OEError
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.template.template import Template
 

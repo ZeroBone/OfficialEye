@@ -28,7 +28,7 @@ classifiers = [
 ]
 
 [project.scripts]
-officialeye = "officialeye._internal.cli.main:main"
+officialeye = "officialeye._cli.main:main"
 
 [project.urls]
 Homepage = "https://github.com/ZeroBone/OfficialEye"
@@ -65,7 +65,8 @@ doc = [
     "mkdocstrings",
     "mkdocstrings[python]",
     "mkdocs-gen-files",
-    "mkdocs-literate-nav"
+    "mkdocs-literate-nav",
+    "mkdocs-macros-plugin"
 ]
 test = [
     "pytest"

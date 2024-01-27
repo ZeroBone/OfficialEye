@@ -1,5 +1,5 @@
 from officialeye._internal.context.context import Context
-from officialeye._internal.error.errors.template import ErrTemplateInvalidFeatureClass
+from officialeye.api.error.errors.template import ErrTemplateInvalidFeatureClass
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
 
 

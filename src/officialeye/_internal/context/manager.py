@@ -2,8 +2,8 @@ from types import TracebackType
 from typing import Union
 
 from officialeye._internal.context.context import Context
-from officialeye._internal.error.error import OEError
-from officialeye._internal.error.errors.internal import ErrInternal
+from officialeye.api.error.error import OEError
+from officialeye.api.error.errors.internal import ErrInternal
 
 
 class ContextManager:

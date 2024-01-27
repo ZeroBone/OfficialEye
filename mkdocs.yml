@@ -52,6 +52,8 @@ plugins:
   - social
   - search:
       separator: '[\s\u200b\-_,:!=\[\]()"`/]+|\.(?!\d)|&[lg]t;|(?!\b)(?=[A-Z][a-z])'
+  - macros:
+      render_by_default: false
   - minify:
       minify_html: true
   - privacy:

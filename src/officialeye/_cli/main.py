@@ -7,6 +7,7 @@ from typing import List, Union
 import click
 import cv2
 
+from officialeye.__version__ import __version__, __github__
 from officialeye._internal.context.manager import ContextManager
 from officialeye._internal.io.drivers.run import RunIODriver
 from officialeye._internal.io.drivers.test import TestIODriver
@@ -14,7 +15,6 @@ from officialeye._internal.logger.singleton import get_logger
 from officialeye._internal.template.analyze import do_analyze
 from officialeye._internal.template.create import create_example_template_config_file
 from officialeye._internal.template.schema.loader import load_template
-from officialeye.meta import OFFICIALEYE_GITHUB, OFFICIALEYE_VERSION
 
 _context_manager: ContextManager = ContextManager()
 
@@ -163,14 +163,14 @@ def run(target_path: str, template_paths: List[str], workers: int, interpret: Un
 @click.command()
 def homepage():
     """Go to the officialeye's official GitHub homepage."""
-    get_logger().info(f"Opening {OFFICIALEYE_GITHUB}")
-    click.launch(OFFICIALEYE_GITHUB)
+    get_logger().info(f"Opening {__github__}")
+    click.launch(__github__)
 
 
 @click.command()
 def version():
     """Print the version of OfficialEye."""
-    get_logger().info(f"Version: {OFFICIALEYE_VERSION}")
+    get_logger().info(f"Version: {__version__}")
 
 
 main.add_command(create)

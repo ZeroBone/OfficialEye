@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 from officialeye._internal.context.context import Context
-from officialeye._internal.error.errors.matching import ErrMatchingInvalidEngineConfig
+from officialeye.api.error.errors.matching import ErrMatchingInvalidEngineConfig
 from officialeye._internal.matching.match import Match
 from officialeye._internal.matching.matcher import Matcher
 from officialeye._internal.matching.result import MatchingResult

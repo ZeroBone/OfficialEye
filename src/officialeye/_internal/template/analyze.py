@@ -5,10 +5,10 @@ from typing import List, Tuple, Union
 import cv2
 
 from officialeye._internal.context.context import Context
-from officialeye._internal.error.error import OEError
-from officialeye._internal.error.errors.io import ErrIOInvalidImage
-from officialeye._internal.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
-from officialeye._internal.error.errors.template import ErrTemplateInvalidConcurrencyConfig
+from officialeye.api.error.error import OEError
+from officialeye.api.error.errors.io import ErrIOInvalidImage
+from officialeye.api.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
+from officialeye.api.error.errors.template import ErrTemplateInvalidConcurrencyConfig
 from officialeye._internal.logger.singleton import get_logger
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.template.template import Template

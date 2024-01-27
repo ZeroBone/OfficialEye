@@ -2,7 +2,7 @@ from typing import Dict
 
 import cv2
 
-from officialeye._internal.error.errors.template import ErrTemplateInvalidMutator
+from officialeye.api.error.errors.template import ErrTemplateInvalidMutator
 from officialeye._internal.mutation.mutator import Mutator
 
 

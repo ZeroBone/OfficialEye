@@ -11,9 +11,6 @@ icon: octicons/info-16
 
 OfficialEye is an advanced tool designed to extract information from flat documents, such as passports or application forms, through image analysis. Leveraging state-of-the-art symbolic AI techniques, OfficialEye empowers users to effortlessly transform raw images into standardized canonical forms, facilitating the seamless extraction and processing of crucial information.
 
-![GitHub Release](https://img.shields.io/github/v/release/ZeroBone/OfficialEye?label=latest%20release)
-![PyPI - Version](https://img.shields.io/pypi/v/officialeye)
-
 
 ## Key features
 

@@ -3,7 +3,7 @@ from typing import Dict, Union
 import cv2
 
 from officialeye._internal.context.context import Context
-from officialeye._internal.error.errors.template import ErrTemplateInvalidFeature
+from officialeye.api.error.errors.template import ErrTemplateInvalidFeature
 from officialeye._internal.interpretation.loader import load_interpretation_method
 from officialeye._internal.logger.singleton import get_logger
 from officialeye._internal.mutation.loader import load_mutator_from_dict

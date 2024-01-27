@@ -5,7 +5,7 @@ import numpy as np
 import z3
 
 from officialeye._internal.context.context import Context
-from officialeye._internal.error.errors.supervision import ErrSupervisionInvalidEngineConfig
+from officialeye.api.error.errors.supervision import ErrSupervisionInvalidEngineConfig
 from officialeye._internal.logger.singleton import get_logger
 from officialeye._internal.matching.match import Match
 from officialeye._internal.matching.result import MatchingResult

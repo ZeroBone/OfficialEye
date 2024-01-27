@@ -5,8 +5,8 @@ from typing import Dict, Generator, List, Union
 import cv2
 
 from officialeye._internal.context.context import Context
-from officialeye._internal.error.errors.io import ErrIOInvalidPath
-from officialeye._internal.error.errors.template import (
+from officialeye.api.error.errors.io import ErrIOInvalidPath
+from officialeye.api.error.errors.template import (
     ErrTemplateInvalidFeature,
     ErrTemplateInvalidKeypoint,
     ErrTemplateInvalidMatchingEngine,

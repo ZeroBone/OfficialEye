@@ -1,6 +1,6 @@
 import os
 
-from officialeye._internal.error.errors.io import ErrIOInvalidPath
+from officialeye.api.error.errors.io import ErrIOInvalidPath
 from officialeye._internal.logger.singleton import get_logger
 
 

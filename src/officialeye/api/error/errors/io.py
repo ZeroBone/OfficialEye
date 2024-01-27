@@ -1,11 +1,11 @@
-from officialeye._internal.error.codes import (
+from officialeye.api.error.codes import (
     ERR_IO_INVALID_IMAGE,
     ERR_IO_INVALID_PATH,
     ERR_IO_INVALID_SUPERVISION_ENGINE,
     ERR_IO_OPERATION_NOT_SUPPORTED_BY_DRIVER,
 )
-from officialeye._internal.error.error import OEError
-from officialeye._internal.error.modules import ERR_MODULE_IO
+from officialeye.api.error.error import OEError
+from officialeye.api.error.modules import ERR_MODULE_IO
 
 
 class ErrIO(OEError):

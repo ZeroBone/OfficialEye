@@ -1,7 +1,7 @@
 from typing import Dict
 
 from officialeye._internal.context.context import Context
-from officialeye._internal.error.errors.template import ErrTemplateInvalidInterpretation
+from officialeye.api.error.errors.template import ErrTemplateInvalidInterpretation
 from officialeye._internal.interpretation.method import InterpretationMethod
 from officialeye._internal.interpretation.methods.file import FileMethod
 from officialeye._internal.interpretation.methods.file_temp import FileTempMethod

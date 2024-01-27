@@ -5,4 +5,12 @@ __version__ = "1.1.5"
 __author__ = "Alexander Mayorov"
 __author_email__ = "zb@zerobone.net"
 __license__ = "GPL-3.0"
-__copyright__ = "Copyright Alexander Mayorov"
+__copyright__ = "Copyright 2024 Alexander Mayorov (zb@zerobone.net, zerobone.net)"
+__github__ = "https://github.com/ZeroBone/OfficialEye"
+__ascii_logo__ = """   ____  _________      _       __   ______         
+  / __ \\/ __/ __(_)____(_)___ _/ /  / ____/_  _____ 
+ / / / / /_/ /_/ / ___/ / __ `/ /  / __/ / / / / _ \\
+/ /_/ / __/ __/ / /__/ / /_/ / /  / /___/ /_/ /  __/
+\\____/_/ /_/ /_/\\___/_/\\__,_/_/  /_____/\\__, /\\___/ 
+                                       /____/                   
+"""

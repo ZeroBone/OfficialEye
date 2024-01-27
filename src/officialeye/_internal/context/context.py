@@ -7,11 +7,10 @@ from typing import TYPE_CHECKING, Dict, List, Union
 
 import click
 import cv2
-import z3
 
-from officialeye._internal.error.error import OEError
-from officialeye._internal.error.errors.internal import ErrInternal
-from officialeye._internal.error.errors.template import ErrTemplateIdNotUnique
+from officialeye.api.error.error import OEError
+from officialeye.api.error.errors.internal import ErrInternal
+from officialeye.api.error.errors.template import ErrTemplateIdNotUnique
 from officialeye._internal.logger.singleton import get_logger
 
 if TYPE_CHECKING:
@@ -36,8 +35,6 @@ class Context:
         # keys: template ids
         # values: template
         self._loaded_templates: Dict[str, Template] = {}
-
-        z3.set_param("parallel.enable", True)
 
     def visualization_generation_enabled(self) -> bool:
         return self._visualization_generation
