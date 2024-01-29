@@ -1,10 +1,12 @@
 import os
 
+# noinspection PyProtectedMember
+from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._cli.context import CLIContext
 from officialeye.error.errors.io import ErrIOInvalidPath
 
 
-
-def create_example_template_config_file(template_path: str, template_image: str, template_id: str, template_name: str, force_mode: bool, /):
+def do_create(context: CLIContext, /, *, template_path: str, template_image: str, template_id: str, template_name: str, force_mode: bool):
 
     # validate the path first
     if os.path.isdir(template_path):
@@ -172,4 +174,4 @@ feature_classes:
     with open(template_path, "w") as fh:
         fh.write(template_yml)
 
-    get_logger().info(f"Initialized template configuration file at '{template_path}'.")
+    context.get_terminal_ui().echo(Verbosity.INFO, f":party_popper: Initialized template configuration file at '{template_path}'!")

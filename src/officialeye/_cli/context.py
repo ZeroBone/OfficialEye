@@ -1,4 +1,5 @@
 import os
+import random
 from types import TracebackType
 from tempfile import NamedTemporaryFile
 from typing import List
@@ -65,7 +66,7 @@ class CLIContext:
         if len(self._not_deleted_temporary_files) > 0:
 
             if self.verbosity == Verbosity.QUIET or Confirm.ask(
-                "Should temporary files created by the command be cleaned up now?",
+                ":question: Should temporary files created by the command be cleaned up now?",
                 default=True, console=self._ui.get_console()
             ):
 
@@ -111,16 +112,24 @@ class CLIContext:
         # tell python that we have handled the exception ourselves
         return True
 
-    def _print_logo(self):
+    def print_logo(self):
 
         if self.disable_logo:
             return
 
-        self._ui.echo(Verbosity.INFO, __ascii_logo__, style="bold purple")
+        logo_color = random.choice([
+            "purple",
+            "yellow",
+            "red",
+            "green",
+            "cyan"
+        ])
+
+        self._ui.echo(Verbosity.INFO, __ascii_logo__, style=f"bold {logo_color}")
 
     def print_intro(self):
 
-        self._print_logo()
+        self.print_logo()
 
         # print preliminary warnings if necessary
         if not self.handle_exceptions:
@@ -173,7 +182,7 @@ class CLIContext:
 
         cv2.imwrite(export_file_path, img)
 
-        self._ui.info(Verbosity.INFO, f"Exported '{export_file_path}'.")
+        self._ui.info(Verbosity.INFO, f"Exported [b]{export_file_path}[/].")
 
         return export_file_path
 
@@ -181,7 +190,7 @@ class CLIContext:
         path = self.export_image(img, file_name=file_name)
 
         if self.verbosity != Verbosity.QUIET and Confirm.ask(
-            "Would you like to open the image in an image viewer (as provided by the OS)?",
+            ":question: Would you like to open the image in an image viewer (as provided by the OS)?",
             default=True, console=self._ui.get_console()
         ):
             click.launch(path, locate=False)

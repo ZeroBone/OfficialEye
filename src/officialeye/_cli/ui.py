@@ -152,6 +152,9 @@ class _ChildrenListener:
     def stop_listening_to(self, child: InternalFeedbackInterface, /):
 
         with self._children_lock:
+
+            print(self._children)
+
             cur_child = None
             task_id = None
             i = None
@@ -165,10 +168,6 @@ class _ChildrenListener:
             assert i is not None
 
             self._children.pop(i)
-
-            if len(self._children) == 0:
-                # removed all children
-                self._progress.stop()
 
     def dispose(self):
 
@@ -220,7 +219,7 @@ class TerminalUI(AbstractFeedbackInterface):
     def info(self, verbosity: Verbosity, message: str, /):
         assert verbosity != Verbosity.QUIET
         _tag = _THEME_MAP[verbosity]
-        self.echo(verbosity, f"[{_tag}]INFO [/] {message}")
+        self.echo(verbosity, f"[{_tag}]INFO [/] {message}", highlight=True)
 
     def warn(self, verbosity: Verbosity, message: str, /):
         assert verbosity != Verbosity.QUIET
@@ -259,9 +258,7 @@ class TerminalUI(AbstractFeedbackInterface):
         self._print_oe_error(_wrap_exception(exception_value))
 
         if self._verbosity >= Verbosity.DEBUG_VERBOSE:
-
-            self._err_console.rule("Error details")
-
+            # self._err_console.rule("Error details")
             rich_traceback = Traceback.from_exception(exception_type, exception_value, traceback)
             self._err_console.print(rich_traceback)
 

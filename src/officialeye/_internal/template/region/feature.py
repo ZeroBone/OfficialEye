@@ -2,6 +2,9 @@ from typing import Dict, Union
 
 import cv2
 
+# noinspection PyProtectedMember
+from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._internal.context.singleton import get_internal_afi
 from officialeye._internal.template.utils import load_mutator_from_dict
 from officialeye.error.errors.template import ErrTemplateInvalidFeature
 from officialeye._internal.interpretation.loader import load_interpretation_method
@@ -81,7 +84,7 @@ class TemplateFeature(TemplateRegion):
 
         for mutator_dict in mutators:
             mutator = load_mutator_from_dict(mutator_dict)
-            get_logger().debug(f"Applying mutator '{mutator.mutator_id}'.")
+            get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Applying mutator '{mutator.mutator_id}'.")
             img = mutator.mutate(img)
 
         return img

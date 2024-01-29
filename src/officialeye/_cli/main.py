@@ -1,5 +1,5 @@
 """
-OfficialEye main entry point.
+OfficialEye CLI frontend main entry point.
 """
 
 from typing import List, Union
@@ -9,15 +9,14 @@ import cv2
 
 from officialeye.__version__ import __version__, __github_url__, __github_full_url__
 from officialeye._cli.context import CLIContext
+from officialeye._cli.create import do_create
 from officialeye._cli.run import do_run
 from officialeye._cli.show import do_show
 from officialeye._cli.ui import Verbosity
 
 # TODO: get rid of all imports from _internal
-from officialeye._internal.io.drivers.run import RunIODriver
 from officialeye._internal.io.drivers.test import TestIODriver
 from officialeye._internal.template.analyze import do_analyze
-from officialeye._internal.template.create import create_example_template_config_file
 from officialeye._internal.template.schema.loader import load_template
 
 
@@ -66,7 +65,20 @@ def main(debug: bool, edir: str, quiet: bool, verbose: bool, disable_logo: bool,
 @click.option("--force", is_flag=True, show_default=True, default=False, help="Create missing directories and overwrite file.")
 def create(template_path: str, template_image: str, id: str, name: str, force: bool):
     """Creates a new template configuration file at the specified path."""
-    create_example_template_config_file(template_path, template_image, id, name, force)
+
+    global _context
+
+    with _context as context:
+        context.print_logo()
+
+        do_create(
+            context,
+            template_path=template_path,
+            template_image=template_image,
+            template_id=id,
+            template_name=name,
+            force_mode=force
+        )
 
 
 @click.command()
@@ -85,12 +97,11 @@ def show(template_path: str, hide_features: bool, hide_keypoints: bool):
 @click.command()
 @click.argument("target_path", type=click.Path(exists=True, file_okay=True, readable=True))
 @click.argument("template_paths", type=click.Path(exists=True, file_okay=True, readable=True), nargs=-1)
-@click.option("--workers", type=int, default=4, show_default=True, help="Specify number of threads to use for the pool of workers.")
 @click.option("--interpret", type=click.Path(exists=True, file_okay=True, readable=True),
               default=None, help="Use the image at the specified path to run the interpretation phase.")
 @click.option("--show-features", is_flag=True, show_default=False, default=False, help="Visualize the locations of features.")
 @click.option("--visualize", is_flag=True, show_default=False, default=False, help="Generate visualizations of intermediate steps.")
-def test(target_path: str, template_paths: List[str], workers: int, interpret: Union[str, None], show_features: bool, visualize: bool):
+def test(target_path: str, template_paths: List[str], interpret: Union[str, None], show_features: bool, visualize: bool):
     """Visualizes the analysis of an image using one or more templates."""
 
     global _context
@@ -134,6 +145,9 @@ def run(target_path: str, template_paths: List[str], interpret: Union[str, None]
 
     global _context
 
+    # TODO: think whether this is a good design choice
+    _context.set_params(visualization_generation=visualize)
+
     with _context as context:
         do_run(
             context,
@@ -143,28 +157,11 @@ def run(target_path: str, template_paths: List[str], interpret: Union[str, None]
             visualize=visualize
         )
 
-        _context_manager = None
-        with _context_manager as oe_context:
-            # setup IO driver
-            oe_context.set_io_driver(RunIODriver(oe_context))
-
-            # load target image
-            target = cv2.imread(target_path, cv2.IMREAD_COLOR)
-
-            # load interpretation target image if necessary
-            interpretation_target: Union[cv2.Mat, None] = \
-                None if interpret is None else cv2.imread(interpret, cv2.IMREAD_COLOR)
-
-            # load templates
-            templates = [load_template(oe_context, template_path) for template_path in template_paths]
-
-            # perform analysis
-            do_analyze(oe_context, target, templates, num_workers=workers, interpretation_target=interpretation_target)
-
 
 @click.command()
 def homepage():
     """Go to the officialeye's official GitHub homepage."""
+
     global _context
 
     with _context as context:
@@ -180,6 +177,7 @@ def version():
     global _context
 
     with _context as context:
+        context.print_logo()
         context.get_terminal_ui().info(Verbosity.INFO, f"Version: {__version__}")
 
 

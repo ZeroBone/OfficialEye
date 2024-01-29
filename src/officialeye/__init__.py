@@ -12,3 +12,5 @@ from officialeye._api.template.region import Region, Feature, Keypoint
 from officialeye._api.config import Config, MutatorConfig
 # noinspection PyProtectedMember
 from officialeye._api.mutator import Mutator
+# noinspection PyProtectedMember
+from officialeye._api.image import Image

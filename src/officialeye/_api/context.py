@@ -10,13 +10,13 @@ from officialeye._api.feedback.abstract import AbstractFeedbackInterface
 from officialeye._api.feedback.dummy import DummyFeedbackInterface
 
 # noinspection PyProtectedMember
-from officialeye._internal.mutator.clahe import CLAHEMutator
+from officialeye._api_builtins.mutator.clahe import CLAHEMutator
 # noinspection PyProtectedMember
-from officialeye._internal.mutator.grayscale import GrayscaleMutator
+from officialeye._api_builtins.mutator.grayscale import GrayscaleMutator
 # noinspection PyProtectedMember
-from officialeye._internal.mutator.non_local_means_denoising import NonLocalMeansDenoisingMutator
+from officialeye._api_builtins.mutator.non_local_means_denoising import NonLocalMeansDenoisingMutator
 # noinspection PyProtectedMember
-from officialeye._internal.mutator.rotate import RotateMutator
+from officialeye._api_builtins.mutator.rotate import RotateMutator
 
 from officialeye.error.errors.internal import ErrInvalidState
 from officialeye.error.errors.template import ErrTemplateInvalidMutator

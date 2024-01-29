@@ -12,6 +12,7 @@ from officialeye.error.errors.template import ErrTemplateInvalidMutator
 
 class Config(ABC):
 
+    # TODO: migrate from the Dict[str, any] to a more precise type (define in _types.py)
     def __init__(self, config_dict: Dict[str, any], /):
         self._config_dict = config_dict
 

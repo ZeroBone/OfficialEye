@@ -1,5 +1,6 @@
 import cv2
 
+# noinspection PyProtectedMember
 from officialeye._api.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
 from officialeye.error.error import OEError
