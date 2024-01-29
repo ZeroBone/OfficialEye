@@ -1,57 +1,56 @@
 # needed to not break type annotations if we are not in type checking mode
 from __future__ import annotations
 
-import os
-import tempfile
-from typing import TYPE_CHECKING, Dict, List, Union
+from typing import TYPE_CHECKING, Dict, Union, Callable
 
-import click
-import cv2
-
-from officialeye.api.error.error import OEError
-from officialeye.api.error.errors.internal import ErrInternal
-from officialeye.api.error.errors.template import ErrTemplateIdNotUnique
-from officialeye._internal.logger.singleton import get_logger
+from officialeye._api.feedback.abstract import AbstractFeedbackInterface
+from officialeye._api.mutator import Mutator
+from officialeye.error.error import OEError
+from officialeye.error.errors.internal import ErrInternal
+from officialeye.error.errors.template import ErrTemplateIdNotUnique, ErrTemplateInvalidMutator
 
 if TYPE_CHECKING:
     from officialeye._internal.io.driver import IODriver
     from officialeye._internal.template.template import Template
 
 
-# TODO: move part of the Context class methods to IO driver
+class InternalContext:
 
-class Context:
+    def __init__(self, /, *, afi: AbstractFeedbackInterface, mutator_factories: Dict[str, Callable[[Dict[str, any]], Mutator]]):
 
-    def __init__(self, manager, /, *, visualization_generation: bool = False):
-        self._manager = manager
+        assert afi is not None
+        assert mutator_factories is not None
 
+        self._afi = afi
+        self._mutator_factories = mutator_factories
+
+        # TODO: get rid of IO drivers
         self._io_driver: Union[IODriver, None] = None
-
-        self._visualization_generation = visualization_generation
-
-        self._export_counter = 1
-        self._not_deleted_temporary_files: List[str] = []
 
         # keys: template ids
         # values: template
         self._loaded_templates: Dict[str, Template] = {}
 
+    def get_afi(self) -> AbstractFeedbackInterface:
+        return self._afi
+
     def visualization_generation_enabled(self) -> bool:
-        return self._visualization_generation
+        # TODO: remove this method
+        assert False
 
-    def get_io_driver(self) -> IODriver:
+    def get_mutator(self, mutator_id: str, mutator_config: Dict[str, any], /):
 
-        if self._io_driver is None:
-            raise ErrInternal(
-                "while trying to access officialeye's IO driver.",
-                "The present officialeye context does not have an IO Driver set."
+        # TODO: consider caching mutators that have the same id and configuration
+
+        if mutator_id not in self._mutator_factories:
+            raise ErrTemplateInvalidMutator(
+                f"while searching for mutator '{mutator_id}'.",
+                "Unknown mutator id. Has this mutator been properly loaded?"
             )
 
-        return self._io_driver
+        factory = self._mutator_factories[mutator_id]
 
-    def set_io_driver(self, io_driver: IODriver, /):
-        assert io_driver is not None
-        self._io_driver = io_driver
+        return factory(mutator_config)
 
     def add_template(self, template: Template, /):
 
@@ -75,47 +74,18 @@ class Context:
         assert template_id in self._loaded_templates, "Unknown template id"
         return self._loaded_templates[template_id]
 
-    def _allocate_file_name(self) -> str:
-        file_name = "%03d.png" % self._export_counter
-        self._export_counter += 1
-        return file_name
+    # TODO: reconsider the need of all methods beyond this point
 
-    def allocate_file_for_export(self, /, *, file_name: str = "") -> str:
+    def get_io_driver(self) -> IODriver:
 
-        if self._manager.export_directory is None:
-            with tempfile.NamedTemporaryFile(prefix="officialeye_", suffix=".png", delete=False) as fp:
-                fp.close()
-            self._not_deleted_temporary_files.append(fp.name)
-            return fp.name
+        if self._io_driver is None:
+            raise ErrInternal(
+                "while trying to access officialeye's IO driver.",
+                "The present officialeye context does not have an IO Driver set."
+            )
 
-        if file_name == "":
-            file_name = self._allocate_file_name()
+        return self._io_driver
 
-        return os.path.join(self._manager.export_directory, file_name)
-
-    def export_image(self, img: cv2.Mat, /, *, file_name: str = "") -> str:
-        export_file_path = self.allocate_file_for_export(file_name=file_name)
-        cv2.imwrite(export_file_path, img)
-        get_logger().info(f"Exported '{export_file_path}'.")
-        return export_file_path
-
-    def _export_and_show_image(self, img: cv2.Mat, /, *, file_name: str = ""):
-        path = self.export_image(img, file_name=file_name)
-        click.launch(path, locate=False)
-        click.pause()
-
-    def export_primary_image(self, img: cv2.Mat, /, *, file_name: str = ""):
-        if get_logger().quiet_mode:
-            # just save the image, do not export
-            self.export_image(img, file_name=file_name)
-        else:
-            self._export_and_show_image(img, file_name=file_name)
-
-    def _cleanup_temporary_files(self):
-        while len(self._not_deleted_temporary_files) > 0:
-            temp_file = self._not_deleted_temporary_files.pop()
-            if os.path.exists(temp_file):
-                os.unlink(temp_file)
-
-    def dispose(self):
-        self._cleanup_temporary_files()
+    def set_io_driver(self, io_driver: IODriver, /):
+        assert io_driver is not None
+        self._io_driver = io_driver

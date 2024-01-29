@@ -4,12 +4,12 @@ from typing import List, Tuple, Union
 
 import cv2
 
-from officialeye._internal.context.context import Context
-from officialeye.api.error.error import OEError
-from officialeye.api.error.errors.io import ErrIOInvalidImage
-from officialeye.api.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
-from officialeye.api.error.errors.template import ErrTemplateInvalidConcurrencyConfig
-from officialeye._internal.logger.singleton import get_logger
+from officialeye._internal.context.singleton import get_internal_context
+from officialeye.error.error import OEError
+from officialeye.error.errors.io import ErrIOInvalidImage
+from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
+from officialeye.error.errors.template import ErrTemplateInvalidConcurrencyConfig
+
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.template.template import Template
 
@@ -50,7 +50,7 @@ class AnalysisWorker(Thread):
                 yield error
 
 
-def do_analyze(context: Context, target: cv2.Mat, templates: List[Template], /, *,
+def do_analyze(target: cv2.Mat, templates: List[Template], /, *,
                num_workers: int, interpretation_target: Union[cv2.Mat, None] = None):
 
     if len(templates) == 0:
@@ -122,7 +122,7 @@ def do_analyze(context: Context, target: cv2.Mat, templates: List[Template], /, 
             if not error.is_regular:
                 raise error
             else:
-                get_logger().debug(f"Worker {worker.worker_id} returned the following non-regular error {error.code_text}:")
+                get_logger().debug(f"Worker {worker.worker_id} returned the following regular error {error.code_text}:")
                 get_logger().debug_oe_error(error)
                 regular_errors.append(error)
 
@@ -140,5 +140,5 @@ def do_analyze(context: Context, target: cv2.Mat, templates: List[Template], /, 
 
         raise error
 
-    io_driver = context.get_io_driver()
+    io_driver = get_internal_context().get_io_driver()
     io_driver.handle_supervision_result(interpretation_target, best_result)

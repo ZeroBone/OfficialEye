@@ -1,5 +1,23 @@
 # Changelog
 
+## Release 1.2.0 (beta)
+
+### Major changes
+
+* Implemented the OfficialEye API. Now it is possible to interact with the program programatically, without the need of running the CLI.
+* Reimplemented the CLI as a layer on top of the new API. Thus, the API and the internal implementation no longer contain any code that is specific to the CLI user interface. In particular, it is now easy to implement different frontends that rely on OfficialEye as a backend service.
+* Implemented a framework for transparent and process-safe interaction with the API backend.
+* Switched from thread-based to process-based parallelism for resource-intensive backend operations.
+* Substrantially improved the CLI user interface.
+* Numerous other related architecture changes aimed at the long-term stability of the software.
+
+### Minor changes
+
+* Removed the `--worker` argument from the `run` and `test` commands, it has become unnececcary in light of the new architecture.
+* Implemented a new approach to handling image outputting in the CLI, that is much more flexible compared to the previous one.
+
+[View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.2.0){ .md-button }
+
 ## Release 1.1.5 (beta)
 
 * Added an `--interpret` option to the `run` and `test` commands, allowing one to optionally use a different target image for the interpretation phase.

@@ -3,8 +3,8 @@ from typing import Dict
 
 import cv2
 
-from officialeye._internal.context.context import Context
-from officialeye.api.error.errors.template import ErrTemplateInvalidInterpretation
+from officialeye._internal.context.singleton import get_internal_context
+from officialeye.error.errors.template import ErrTemplateInvalidInterpretation
 from officialeye._internal.interpretation.method import InterpretationMethod
 from officialeye._internal.interpretation.serializable import Serializable
 
@@ -13,14 +13,14 @@ class FileMethod(InterpretationMethod):
 
     METHOD_ID = "file"
 
-    def __init__(self, context: Context, config_dict: Dict[str, any]):
-        super().__init__(context, FileMethod.METHOD_ID, config_dict)
+    def __init__(self, config_dict: Dict[str, any]):
+        super().__init__(FileMethod.METHOD_ID, config_dict)
 
         self._path = self.get_config().get("path")
 
     def interpret(self, feature_img: cv2.Mat, template_id: str, feature_id: str, /) -> Serializable:
 
-        feature = self._context.get_template(template_id).get_feature(feature_id)
+        feature = get_internal_context().get_template(template_id).get_feature(feature_id)
 
         feature_class_generator = feature.get_feature_class().get_features()
 

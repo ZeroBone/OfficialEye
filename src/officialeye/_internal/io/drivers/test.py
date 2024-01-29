@@ -1,17 +1,18 @@
 import cv2
 
-from officialeye._internal.context.context import Context
-from officialeye.api.error.error import OEError
+from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
+from officialeye.error.error import OEError
 from officialeye._internal.io.driver import IODriver
-from officialeye._internal.logger.singleton import get_logger
+
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.template.template import Template
 
 
 class TestIODriver(IODriver):
 
-    def __init__(self, context: Context, /):
-        super().__init__(context)
+    def __init__(self, /):
+        super().__init__()
 
         self.visualize_features: bool = True
 
@@ -19,7 +20,7 @@ class TestIODriver(IODriver):
 
         assert result is not None
 
-        template = self._context.get_template(result.template_id)
+        template = get_internal_context().get_template(result.template_id)
 
         application_image = template.load_source_image()
 
@@ -36,9 +37,12 @@ class TestIODriver(IODriver):
                 # some mutator has altered the shape of the feature image.
                 # this means that we can no longer safely insert the mutated feature into the visualization.
                 # therefore, we have to fall back to inserting the feature image unmutated
-                get_logger().warn(f"Could not visualize the '{feature.region_id}' feature of the '{feature.get_template().template_id}' template, "
-                                  f"because one of the mutators (corresponding to this feature) did not preserve the shape of the image. "
-                                  f"Falling back to the non-mutated version of the feature image.")
+                get_internal_afi().warn(
+                    Verbosity.INFO,
+                    f"Could not visualize the '{feature.region_id}' feature of the '{feature.get_template().template_id}' template, "
+                    f"because one of the mutators (corresponding to this feature) did not preserve the shape of the image. "
+                    f"Therefore, the non-mutated version of the feature image had to be used instead."
+                )
                 feature.insert_into_image(application_image, feature_img)
 
         if self.visualize_features:
@@ -46,10 +50,10 @@ class TestIODriver(IODriver):
             for feature in template.features():
                 application_image = feature.visualize(application_image)
 
-        self._context.export_primary_image(application_image, file_name="supervision_result.png")
+        get_internal_context().export_primary_image(application_image, file_name="supervision_result.png")
 
     def handle_show_result(self, template: Template, img: cv2.Mat, /):
-        self._context.export_primary_image(img, file_name=f"{template.template_id}.png")
+        get_internal_context().export_primary_image(img, file_name=f"{template.template_id}.png")
 
     def handle_error(self, error: OEError, /):
         get_logger().error_oe_error(error)

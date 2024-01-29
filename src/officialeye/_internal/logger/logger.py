@@ -3,7 +3,9 @@ from typing import Callable
 import click
 
 from officialeye.__version__ import __ascii_logo__
-from officialeye.api.error.error import OEError
+from officialeye.error.error import OEError
+
+# TODO: completely remove this module (and the logger directory)
 
 
 def _do_print_oe_error(output_func: Callable[[str], None], error: OEError, /):
@@ -96,16 +98,6 @@ class Logger:
                 click.secho("ERROR", bold=True, bg="red", nl=False, err=True)
                 click.echo(" ", nl=False, err=True)
             click.secho(line, *args, **kwargs, err=True)
-
-    def logo(self):
-
-        if self.quiet_mode:
-            return
-
-        if self.disable_logo:
-            return
-
-        click.secho(__ascii_logo__, fg="red")
 
     def error_oe_error(self, error: OEError, /):
         _do_print_oe_error(self.error, error)

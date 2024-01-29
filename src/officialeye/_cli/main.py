@@ -7,16 +7,21 @@ from typing import List, Union
 import click
 import cv2
 
-from officialeye.__version__ import __version__, __github__
-from officialeye._internal.context.manager import ContextManager
+from officialeye.__version__ import __version__, __github_url__, __github_full_url__
+from officialeye._cli.context import CLIContext
+from officialeye._cli.run import do_run
+from officialeye._cli.show import do_show
+from officialeye._cli.ui import Verbosity
+
+# TODO: get rid of all imports from _internal
 from officialeye._internal.io.drivers.run import RunIODriver
 from officialeye._internal.io.drivers.test import TestIODriver
-from officialeye._internal.logger.singleton import get_logger
 from officialeye._internal.template.analyze import do_analyze
 from officialeye._internal.template.create import create_example_template_config_file
 from officialeye._internal.template.schema.loader import load_template
 
-_context_manager: ContextManager = ContextManager()
+
+_context = CLIContext()
 
 
 @click.group()
@@ -27,28 +32,29 @@ _context_manager: ContextManager = ContextManager()
 @click.option("-dl", "--disable-logo", is_flag=True, show_default=True, default=False, help="Disable the officialeye logo.")
 @click.option("-re", "--raw-errors", is_flag=True, show_default=False, default=False, help="Do not handle errors.")
 def main(debug: bool, edir: str, quiet: bool, verbose: bool, disable_logo: bool, raw_errors: bool):
-    global _context_manager
+    global _context
 
-    # configure logger
-    get_logger().debug_mode = debug
-    get_logger().quiet_mode = quiet
-    get_logger().verbose_mode = verbose
-    get_logger().disable_logo = disable_logo
+    # configure context
+    if quiet:
+        verbosity = Verbosity.QUIET
+    elif debug:
+        if verbose:
+            verbosity = Verbosity.DEBUG_VERBOSE
+        else:
+            verbosity = Verbosity.DEBUG
+    else:
+        # info verbosity
+        if verbose:
+            verbosity = Verbosity.INFO_VERBOSE
+        else:
+            verbosity = Verbosity.INFO
 
-    # print OfficialEye logo if necessary
-    get_logger().logo()
-
-    # configure context manager
-    if edir is not None:
-        _context_manager.export_directory = edir
-
-    if raw_errors:
-        get_logger().warn("Raw error mode enabled. Use this mode only if you know precisely what you are doing!")
-        _context_manager.handle_exceptions = False
-
-    # print preliminary warning if necessary
-    if get_logger().debug_mode:
-        get_logger().warn("Debug mode enabled. Disable for production use to improve performance.")
+    _context.set_params(
+        export_directory=edir,
+        handle_exceptions=not raw_errors,
+        verbosity=verbosity,
+        disable_logo=disable_logo
+    )
 
 
 # noinspection PyShadowingBuiltins
@@ -70,20 +76,10 @@ def create(template_path: str, template_image: str, id: str, name: str, force: b
 def show(template_path: str, hide_features: bool, hide_keypoints: bool):
     """Exports template as an image with features visualized."""
 
-    global _context_manager
+    global _context
 
-    with _context_manager as oe_context:
-        # setup IO driver
-        oe_context.set_io_driver(TestIODriver(oe_context))
-
-        # load template
-        template = load_template(oe_context, template_path)
-
-        # render resulting image
-        img = template.show(hide_features=hide_features, hide_keypoints=hide_keypoints)
-
-        # show rendered image
-        oe_context.get_io_driver().handle_show_result(template, img)
+    with _context as context:
+        do_show(context, template_path=template_path, hide_features=hide_features, hide_keypoints=hide_keypoints)
 
 
 @click.command()
@@ -97,12 +93,14 @@ def show(template_path: str, hide_features: bool, hide_keypoints: bool):
 def test(target_path: str, template_paths: List[str], workers: int, interpret: Union[str, None], show_features: bool, visualize: bool):
     """Visualizes the analysis of an image using one or more templates."""
 
-    global _context_manager
+    global _context
 
-    _context_manager.visualization_generation = visualize
+    _context.set_params(visualization_generation=visualize)
 
-    if _context_manager.visualization_generation:
-        get_logger().warn("Visualization generation mode enabled. Disable for production use to improve performance.")
+    with _context as context:
+        # print OfficialEye logo and other introductory information (if necessary)
+        context.print_intro()
+        # TODO
 
     with (_context_manager as oe_context):
 
@@ -128,49 +126,61 @@ def test(target_path: str, template_paths: List[str], workers: int, interpret: U
 @click.command()
 @click.argument("target_path", type=click.Path(exists=True, file_okay=True, readable=True))
 @click.argument("template_paths", type=click.Path(exists=True, file_okay=True, readable=True), nargs=-1)
-@click.option("--workers", type=int, default=4, show_default=True, help="Specify number of threads to use for the pool of workers.")
 @click.option("--interpret", type=click.Path(exists=True, file_okay=True, readable=True),
               default=None, help="Use the image at the specified path to run the interpretation phase.")
 @click.option("--visualize", is_flag=True, show_default=False, default=False, help="Generate visualizations of intermediate steps.")
-def run(target_path: str, template_paths: List[str], workers: int, interpret: Union[str, None], visualize: bool):
+def run(target_path: str, template_paths: List[str], interpret: Union[str, None], visualize: bool):
     """Applies one or more templates to an image."""
 
-    global _context_manager
+    global _context
 
-    _context_manager.visualization_generation = visualize
+    with _context as context:
+        do_run(
+            context,
+            target_path=target_path,
+            template_paths=template_paths,
+            interpret_path=interpret,
+            visualize=visualize
+        )
 
-    if _context_manager.visualization_generation:
-        get_logger().warn("Visualization generation mode enabled. Disable for production use to improve performance.")
+        _context_manager = None
+        with _context_manager as oe_context:
+            # setup IO driver
+            oe_context.set_io_driver(RunIODriver(oe_context))
 
-    with _context_manager as oe_context:
-        # setup IO driver
-        oe_context.set_io_driver(RunIODriver(oe_context))
+            # load target image
+            target = cv2.imread(target_path, cv2.IMREAD_COLOR)
 
-        # load target image
-        target = cv2.imread(target_path, cv2.IMREAD_COLOR)
+            # load interpretation target image if necessary
+            interpretation_target: Union[cv2.Mat, None] = \
+                None if interpret is None else cv2.imread(interpret, cv2.IMREAD_COLOR)
 
-        # load interpretation target image if necessary
-        interpretation_target: Union[cv2.Mat, None] = \
-            None if interpret is None else cv2.imread(interpret, cv2.IMREAD_COLOR)
+            # load templates
+            templates = [load_template(oe_context, template_path) for template_path in template_paths]
 
-        # load templates
-        templates = [load_template(oe_context, template_path) for template_path in template_paths]
-
-        # perform analysis
-        do_analyze(oe_context, target, templates, num_workers=workers, interpretation_target=interpretation_target)
+            # perform analysis
+            do_analyze(oe_context, target, templates, num_workers=workers, interpretation_target=interpretation_target)
 
 
 @click.command()
 def homepage():
     """Go to the officialeye's official GitHub homepage."""
-    get_logger().info(f"Opening {__github__}")
-    click.launch(__github__)
+    global _context
+
+    with _context as context:
+        context.get_terminal_ui().info(Verbosity.INFO, f"GitHub: [link={__github_full_url__}]{__github_url__}[/link]")
+
+    click.launch(__github_full_url__)
 
 
 @click.command()
 def version():
     """Print the version of OfficialEye."""
-    get_logger().info(f"Version: {__version__}")
+
+    global _context
+
+    with _context as context:
+        context.get_terminal_ui().info(Verbosity.INFO, f"Version: {__version__}")
 
 
 main.add_command(create)

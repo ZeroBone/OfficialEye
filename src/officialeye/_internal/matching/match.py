@@ -1,15 +1,13 @@
 import numpy as np
 
-from officialeye._internal.context.context import Context
+from officialeye._internal.context.singleton import get_internal_context
 from officialeye._internal.template.region.keypoint import TemplateKeypoint
 
 
 class Match:
 
-    def __init__(self, context: Context, template_id: str, keypoint_region_id: str,
+    def __init__(self, template_id: str, keypoint_region_id: str,
                  region_point: np.ndarray, target_point: np.ndarray, /, *, score: float = 0.0):
-
-        self._context = context
 
         self.template_id = template_id
         self.keypoint_id = keypoint_region_id
@@ -32,7 +30,7 @@ class Match:
         return self._region_point.copy()
 
     def get_template(self):
-        return self._context.get_template(self.template_id)
+        return get_internal_context().get_template(self.template_id)
 
     def get_keypoint(self) -> TemplateKeypoint:
         return self.get_template().get_keypoint(self.keypoint_id)

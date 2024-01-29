@@ -3,8 +3,9 @@ import random
 from abc import ABC
 from typing import Generator, Union
 
-from officialeye._internal.context.context import Context
-from officialeye._internal.logger.singleton import get_logger
+from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
+
 from officialeye._internal.matching.result import MatchingResult
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.supervision.supervisor_config import SupervisorConfig
@@ -17,16 +18,13 @@ _SUPERVISION_RESULT_BEST_SCORE = "best_score"
 
 class Supervisor(ABC):
 
-    def __init__(self, context: Context, engine_id: str, template_id: str, kmr: MatchingResult, /):
+    def __init__(self, engine_id: str, template_id: str, kmr: MatchingResult, /):
         super().__init__()
 
-        self._context = context
         self._engine_id = engine_id
 
         self.template_id = template_id
         self._kmr = kmr
-
-        get_logger().debug(f"Total match count: {self._kmr.get_total_match_count()}")
 
         # initialize configuration manager
         supervision_config = self.get_template().get_supervision_config()
@@ -42,7 +40,7 @@ class Supervisor(ABC):
         self._config = SupervisorConfig(config_dict, self._engine_id)
 
     def get_template(self):
-        return self._context.get_template(self.template_id)
+        return get_internal_context().get_template(self.template_id)
 
     @abc.abstractmethod
     def _run(self) -> Generator[SupervisionResult, None, None]:
@@ -69,13 +67,13 @@ class Supervisor(ABC):
         for result_id, result in enumerate(results):
             result_mse = result.get_weighted_mse()
 
-            get_logger().debug_verbose(f"Result #{result_id + 1} has MSE {result_mse}")
+            get_internal_afi().info(Verbosity.DEBUG, f"Result #{result_id + 1} has MSE {result_mse}.")
 
             if result_mse < best_result_mse:
                 best_result_mse = result_mse
                 best_result = result
 
-        get_logger().debug(f"Best result has MSE {best_result_mse}")
+        get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Best result has MSE {best_result_mse}.")
 
         return best_result
 
@@ -93,7 +91,7 @@ class Supervisor(ABC):
         for result_id, result in enumerate(results):
             result_score = result.get_score()
 
-            get_logger().debug_verbose(f"Result #{result_id + 1} has score {result_score}")
+            get_internal_afi().info(Verbosity.DEBUG, f"Result #{result_id + 1} has score {result_score}.")
 
             if result_score > best_result_score:
                 best_result_score = result_score
@@ -105,7 +103,7 @@ class Supervisor(ABC):
                     best_result_mse = current_result_mse
                     best_result = result
 
-        get_logger().debug(f"Best result has score {best_result_score} and MSE {best_result_mse}")
+        get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Best result has score {best_result_score} and MSE {best_result_mse}.")
 
         return best_result
 
@@ -116,7 +114,7 @@ class Supervisor(ABC):
 
         supervision_result_choice_engine = self.get_template().get_supervision_result()
 
-        get_logger().debug(f"Applying '{supervision_result_choice_engine}' supervision result choice engine.")
+        get_internal_afi().info(Verbosity.DEBUG, f"Applying '{supervision_result_choice_engine}' supervision result choice engine.")
 
         if supervision_result_choice_engine == _SUPERVISION_RESULT_FIRST:
             return self._run_first()

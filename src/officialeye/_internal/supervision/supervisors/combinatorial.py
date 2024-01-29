@@ -4,9 +4,8 @@ from typing import Dict, Generator
 import numpy as np
 import z3
 
-from officialeye._internal.context.context import Context
-from officialeye.api.error.errors.supervision import ErrSupervisionInvalidEngineConfig
-from officialeye._internal.logger.singleton import get_logger
+from officialeye.error.errors.supervision import ErrSupervisionInvalidEngineConfig
+
 from officialeye._internal.matching.match import Match
 from officialeye._internal.matching.result import MatchingResult
 from officialeye._internal.supervision.result import SupervisionResult
@@ -17,8 +16,8 @@ class CombinatorialSupervisor(Supervisor):
 
     ENGINE_ID = "combinatorial"
 
-    def __init__(self, context: Context, template_id: str, kmr: MatchingResult, /):
-        super().__init__(context, CombinatorialSupervisor.ENGINE_ID, template_id, kmr)
+    def __init__(self, template_id: str, kmr: MatchingResult, /):
+        super().__init__(CombinatorialSupervisor.ENGINE_ID, template_id, kmr)
 
         # setup configuration
         def _min_match_factor_preprocessor(v: str) -> float:

@@ -2,31 +2,25 @@ from typing import Dict, Union
 
 import cv2
 
-from officialeye._internal.context.context import Context
-from officialeye.api.error.errors.template import ErrTemplateInvalidFeature
+from officialeye._internal.template.utils import load_mutator_from_dict
+from officialeye.error.errors.template import ErrTemplateInvalidFeature
 from officialeye._internal.interpretation.loader import load_interpretation_method
-from officialeye._internal.logger.singleton import get_logger
-from officialeye._internal.mutation.loader import load_mutator_from_dict
+
 from officialeye._internal.template.feature_class.feature_class import FeatureClass
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
 from officialeye._internal.template.region.region import TemplateRegion
 
-_FEATURE_RECT_COLOR = (0, 0xff, 0)
-
 
 class TemplateFeature(TemplateRegion):
 
-    def __init__(self, context: Context, template_id: str, feature_dict: Dict[str, any], /):
-        super().__init__(context, template_id, feature_dict)
+    def __init__(self, template_id: str, feature_dict: Dict[str, any], /):
+        super().__init__(template_id, feature_dict)
 
         if "class" in feature_dict:
             self._class_id = feature_dict["class"]
             assert isinstance(self._class_id, str)
         else:
             self._class_id = None
-
-    def visualize(self, img: cv2.Mat, /):
-        return super()._visualize(img, rect_color=_FEATURE_RECT_COLOR)
 
     def validate_feature_class(self):
 
@@ -114,6 +108,6 @@ class TemplateFeature(TemplateRegion):
         assert isinstance(interpretation_method_id, str)
         assert isinstance(interpretation_method_config, dict)
 
-        interpretation_method = load_interpretation_method(self._context, interpretation_method_id, interpretation_method_config)
+        interpretation_method = load_interpretation_method(interpretation_method_id, interpretation_method_config)
 
         return interpretation_method.interpret(img, self._template_id, self.region_id)

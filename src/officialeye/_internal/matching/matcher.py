@@ -3,8 +3,7 @@ from abc import ABC
 
 import cv2
 
-from officialeye._internal.context.context import Context
-from officialeye._internal.logger.singleton import get_logger
+from officialeye._internal.context.singleton import get_internal_afi, get_internal_context
 from officialeye._internal.matching.matcher_config import KeypointMatcherConfig
 from officialeye._internal.matching.result import MatchingResult
 
@@ -12,10 +11,9 @@ from officialeye._internal.matching.result import MatchingResult
 class Matcher(ABC):
     # TODO: migrate matcher to a separate module
 
-    def __init__(self, context: Context, engine_id: str, template_id: str, img: cv2.Mat, /):
+    def __init__(self, engine_id: str, template_id: str, img: cv2.Mat, /):
         super().__init__()
 
-        self._context = context
         self._engine_id = engine_id
 
         self.template_id = template_id
@@ -29,7 +27,7 @@ class Matcher(ABC):
         if self._engine_id in matching_config:
             config_dict = matching_config[self._engine_id]
         else:
-            get_logger().warn(
+            get_internal_afi().warn(
                 self._context,
                 f"Could not find any configuration entries for the '{self._engine_id}' matching engine that is being used."
             )
@@ -48,7 +46,7 @@ class Matcher(ABC):
         raise NotImplementedError()
 
     def get_template(self):
-        return self._context.get_template(self.template_id)
+        return get_internal_context().get_template(self.template_id)
 
     def get_config(self) -> KeypointMatcherConfig:
         return self._config

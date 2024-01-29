@@ -3,7 +3,6 @@ from typing import Dict
 import cv2
 from pytesseract import pytesseract
 
-from officialeye._internal.context.context import Context
 from officialeye._internal.interpretation.method import InterpretationMethod
 from officialeye._internal.interpretation.serializable import Serializable
 
@@ -12,8 +11,8 @@ class TesseractMethod(InterpretationMethod):
 
     METHOD_ID = "ocr_tesseract"
 
-    def __init__(self, context: Context, config_dict: Dict[str, any]):
-        super().__init__(context, TesseractMethod.METHOD_ID, config_dict)
+    def __init__(self, config_dict: Dict[str, any]):
+        super().__init__(TesseractMethod.METHOD_ID, config_dict)
 
         self._tesseract_lang = self.get_config().get("lang", default="eng")
         self._tesseract_config = self.get_config().get("config", default="")

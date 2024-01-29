@@ -1,8 +1,7 @@
 import cv2
 import numpy as np
 
-from officialeye._internal.context.context import Context
-from officialeye.api.error.errors.matching import ErrMatchingInvalidEngineConfig
+from officialeye.error.errors.matching import ErrMatchingInvalidEngineConfig
 from officialeye._internal.matching.match import Match
 from officialeye._internal.matching.matcher import Matcher
 from officialeye._internal.matching.result import MatchingResult
@@ -14,8 +13,8 @@ class SiftFlannMatcher(Matcher):
 
     ENGINE_ID = "sift_flann"
 
-    def __init__(self, context: Context, template_id: str, img: cv2.Mat, /):
-        super().__init__(context, SiftFlannMatcher.ENGINE_ID, template_id, img)
+    def __init__(self, template_id: str, img: cv2.Mat, /):
+        super().__init__(SiftFlannMatcher.ENGINE_ID, template_id, img)
 
         def _preprocess_sensitivity(value: any) -> float:
 

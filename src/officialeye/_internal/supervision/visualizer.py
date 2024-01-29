@@ -3,15 +3,14 @@ from typing import List
 import cv2
 import numpy as np
 
-from officialeye._internal.context.context import Context
+from officialeye._internal.context.singleton import get_internal_context
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.template.region.keypoint import TemplateKeypoint
 
 
 class SupervisionResultVisualizer:
 
-    def __init__(self, context: Context, result: SupervisionResult, target: cv2.Mat):
-        self._context = context
+    def __init__(self, result: SupervisionResult, target: cv2.Mat):
         self._result = result
         self._target = target
 
@@ -23,7 +22,7 @@ class SupervisionResultVisualizer:
                                   for keypoint_id in self._relevant_keypoint_ids)
 
     def get_template(self):
-        return self._context.get_template(self._result.template_id)
+        return get_internal_context().get_template(self._result.template_id)
 
     def get_padded_keypoint_image(self, keypoint: TemplateKeypoint) -> np.ndarray:
 

@@ -1,7 +1,7 @@
 from typing import Dict
 
-from officialeye._internal.config.config import Config
-from officialeye.api.error.errors.matching import ErrMatchingInvalidEngineConfig
+from officialeye._api.config import Config
+from officialeye.error.errors.matching import ErrMatchingInvalidEngineConfig
 
 
 class KeypointMatcherConfig(Config):

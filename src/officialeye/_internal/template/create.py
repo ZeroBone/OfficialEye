@@ -1,7 +1,7 @@
 import os
 
-from officialeye.api.error.errors.io import ErrIOInvalidPath
-from officialeye._internal.logger.singleton import get_logger
+from officialeye.error.errors.io import ErrIOInvalidPath
+
 
 
 def create_example_template_config_file(template_path: str, template_image: str, template_id: str, template_name: str, force_mode: bool, /):

@@ -1,23 +1,26 @@
 import os
-import time
 from typing import Dict, Generator, List, Union
 
 import cv2
 
-from officialeye._internal.context.context import Context
-from officialeye.api.error.errors.io import ErrIOInvalidPath
-from officialeye.api.error.errors.template import (
+# noinspection PyProtectedMember
+from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
+from officialeye._internal.template.utils import load_mutator_from_dict
+from officialeye._internal.timer import Timer
+from officialeye.error.errors.io import ErrIOInvalidPath
+from officialeye.error.errors.template import (
     ErrTemplateInvalidFeature,
     ErrTemplateInvalidKeypoint,
     ErrTemplateInvalidMatchingEngine,
     ErrTemplateInvalidSupervisionEngine,
 )
-from officialeye._internal.logger.singleton import get_logger
+
 from officialeye._internal.matching.matcher import Matcher
 from officialeye._internal.matching.matchers.sift_flann import SiftFlannMatcher
 from officialeye._internal.matching.result import MatchingResult
-from officialeye._internal.mutation.loader import load_mutator_from_dict
-from officialeye._internal.mutation.mutator import Mutator
+# noinspection PyProtectedMember
+from officialeye._api.mutator import Mutator
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.supervision.supervisors.combinatorial import CombinatorialSupervisor
 from officialeye._internal.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor
@@ -27,13 +30,14 @@ from officialeye._internal.template.feature_class.loader import load_template_fe
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
 from officialeye._internal.template.region.feature import TemplateFeature
 from officialeye._internal.template.region.keypoint import TemplateKeypoint
+# noinspection PyProtectedMember
+from officialeye._api.template.region import Feature, Keypoint
+from officialeye._internal.template.template_data import TemplateData
 
 
 class Template:
 
-    def __init__(self, context: Context, yaml_dict: Dict[str, any], path_to_template: str, /):
-
-        self._context = context
+    def __init__(self, yaml_dict: Dict[str, any], path_to_template: str, /):
 
         self._path_to_template = path_to_template
 
@@ -57,7 +61,7 @@ class Template:
         for keypoint_id in yaml_dict["keypoints"]:
             keypoint_dict = yaml_dict["keypoints"][keypoint_id]
             keypoint_dict["id"] = keypoint_id
-            keypoint = TemplateKeypoint(self._context, self.template_id, keypoint_dict)
+            keypoint = TemplateKeypoint(self.template_id, keypoint_dict)
 
             if keypoint.region_id in self._keypoints:
                 raise ErrTemplateInvalidKeypoint(
@@ -77,13 +81,13 @@ class Template:
         self._supervision = yaml_dict["supervision"]
 
         # load feature classes
-        self._feature_class_manager = load_template_feature_classes(self._context, yaml_dict["feature_classes"], self.template_id)
+        self._feature_class_manager = load_template_feature_classes(yaml_dict["feature_classes"], self.template_id)
 
         # load features
         for feature_id in yaml_dict["features"]:
             feature_dict = yaml_dict["features"][feature_id]
             feature_dict["id"] = feature_id
-            feature = TemplateFeature(self._context, self.template_id, feature_dict)
+            feature = TemplateFeature(self.template_id, feature_dict)
 
             if feature.region_id in self._keypoints:
                 raise ErrTemplateInvalidFeature(
@@ -99,11 +103,39 @@ class Template:
 
             self._features[feature.region_id] = feature
 
-        self._context.add_template(self)
+        get_internal_context().add_template(self)
 
     def validate(self):
         for feature in self.features():
             feature.validate_feature_class()
+
+    def get_template_data(self) -> TemplateData:
+
+        data = TemplateData(
+            identifier=self.template_id,
+            name=self.name,
+            source=self._get_source_image_path(),
+            width=self.width,
+            height=self.height,
+            features=[
+                Feature(identifier=f.region_id, x=f.x, y=f.y, w=f.w, h=f.h) for f in self.features()
+            ],
+            keypoints=[
+                Keypoint(
+                    identifier=k.region_id,
+                    x=k.x,
+                    y=k.y,
+                    w=k.w,
+                    h=k.h,
+                    matches_min=k.get_matches_min(),
+                    matches_max=k.get_matches_max()
+                ) for k in self.keypoints()
+            ],
+            source_mutators=self._source_mutators,
+            target_mutators=self._target_mutators
+        )
+
+        return data
 
     def get_matching_engine(self) -> str:
         return self._matching["engine"]
@@ -130,7 +162,7 @@ class Template:
         matching_engine = self.get_matching_engine()
 
         if matching_engine == SiftFlannMatcher.ENGINE_ID:
-            return SiftFlannMatcher(self._context, self.template_id, target_img)
+            return SiftFlannMatcher(self.template_id, target_img)
 
         raise ErrTemplateInvalidMatchingEngine(
             "while loading keypoint matcher",
@@ -178,40 +210,17 @@ class Template:
 
         return cv2.imread(self._get_source_image_path(), cv2.IMREAD_COLOR)
 
-    def _show(self, img: cv2.Mat, /, *, hide_features: bool, hide_keypoints: bool) -> cv2.Mat:
-
-        if not hide_features:
-            for feature in self.features():
-                img = feature.visualize(img)
-
-        if not hide_keypoints:
-            for keypoint in self.keypoints():
-                img = keypoint.visualize(img)
-
-        return img
-
-    def show(self, /, **kwargs) -> cv2.Mat:
-
-        img = self.load_source_image()
-
-        # apply template mutators to the target image
-        for mutator in self._source_mutators:
-            get_logger().debug(f"Applying mutator '{mutator.mutator_id}' to the source image of template '{self.template_id}'.")
-            img = mutator.mutate(img)
-
-        return self._show(img, **kwargs)
-
     def _load_supervisor(self, kmr: MatchingResult):
         superivision_engine = self.get_supervision_engine()
 
         if superivision_engine == LeastSquaresRegressionSupervisor.ENGINE_ID:
-            return LeastSquaresRegressionSupervisor(self._context, self.template_id, kmr)
+            return LeastSquaresRegressionSupervisor(self.template_id, kmr)
 
         if superivision_engine == OrthogonalRegressionSupervisor.ENGINE_ID:
-            return OrthogonalRegressionSupervisor(self._context, self.template_id, kmr)
+            return OrthogonalRegressionSupervisor(self.template_id, kmr)
 
         if superivision_engine == CombinatorialSupervisor.ENGINE_ID:
-            return CombinatorialSupervisor(self._context, self.template_id, kmr)
+            return CombinatorialSupervisor(self.template_id, kmr)
 
         raise ErrTemplateInvalidSupervisionEngine(
             "while loading supervisor",
@@ -221,50 +230,54 @@ class Template:
     def run_analysis(self, target: cv2.Mat, /) -> Union[SupervisionResult, None]:
         # find all patterns in the target image
 
-        _analysis_start_time = time.perf_counter(), time.process_time()
+        _timer = Timer()
 
-        # apply mutators to the target image
-        for mutator in self._target_mutators:
-            get_logger().debug(f"Applying mutator '{mutator.mutator_id}' to input image.")
-            target = mutator.mutate(target)
+        with _timer:
+            # apply mutators to the target image
+            for mutator in self._target_mutators:
+                get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Applying mutator '{mutator.mutator_id}' to input image.")
+                target = mutator.mutate(target)
 
-        # start matching
-        matcher = self._load_keypoint_matcher(target)
+            # start matching
+            matcher = self._load_keypoint_matcher(target)
 
-        for keypoint in self.keypoints():
-            keypoint_pattern = keypoint.to_image()
-            get_logger().debug(f"Running matcher for keypoint '{keypoint.region_id}'.")
-            matcher.match_keypoint(keypoint_pattern, keypoint.region_id)
+            for keypoint in self.keypoints():
+                keypoint_pattern = keypoint.to_image()
+                get_internal_afi().info(Verbosity.DEBUG, f"Running matcher for keypoint '{keypoint.region_id}'.")
+                matcher.match_keypoint(keypoint_pattern, keypoint.region_id)
 
-        keypoint_matching_result = matcher.match_finish()
+            keypoint_matching_result = matcher.match_finish()
 
-        if self._context.visualization_generation_enabled():
-            keypoint_matching_result.debug_print()
+            if get_internal_context().visualization_generation_enabled():
+                keypoint_matching_result.debug_print()
 
-        keypoint_matching_result.validate()
-        assert keypoint_matching_result.get_total_match_count() > 0
+            keypoint_matching_result.validate()
+            assert keypoint_matching_result.get_total_match_count() > 0
 
-        _matching_ended_time = time.perf_counter(), time.process_time()
+        get_internal_afi().info(
+            Verbosity.INFO,
+            f"Matching succeeded in {_timer.get_real_time():.2f} seconds of real time "
+            f"and {_timer.get_cpu_time():.2f} seconds of CPU time."
+        )
 
-        get_logger().info(f"Matching succeeded in {_matching_ended_time[0] - _analysis_start_time[0]:.2f} seconds of real time "
-                          f"and {_matching_ended_time[1] - _analysis_start_time[1]:.2f} seconds of CPU time.")
+        with _timer:
+            # run supervision to obtain correspondence between template and target regions
+            supervisor = self._load_supervisor(keypoint_matching_result)
+            supervision_result = supervisor.run()
 
-        # run supervision to obtain correspondence between template and target regions
-        supervisor = self._load_supervisor(keypoint_matching_result)
-        supervision_result = supervisor.run()
+            if supervision_result is None:
+                return None
 
-        if supervision_result is None:
-            return None
+            if get_internal_context().visualization_generation_enabled():
+                supervision_result_visualizer = SupervisionResultVisualizer(supervision_result, target)
+                visualization = supervision_result_visualizer.render()
+                get_internal_context().export_image(visualization, file_name="matches.png")
 
-        if self._context.visualization_generation_enabled():
-            supervision_result_visualizer = SupervisionResultVisualizer(self._context, supervision_result, target)
-            visualization = supervision_result_visualizer.render()
-            self._context.export_image(visualization, file_name="matches.png")
-
-        _supervision_ended_time = time.perf_counter(), time.process_time()
-
-        get_logger().info(f"Supervision succeeded in {_supervision_ended_time[0] - _matching_ended_time[0]:.2f} seconds of real time "
-                          f"and {_supervision_ended_time[1] - _matching_ended_time[1]:.2f} seconds of CPU time.")
+        get_internal_afi().info(
+            Verbosity.INFO,
+            f"Supervision succeeded in {_timer.get_real_time():.2f} seconds of real time "
+            f"and {_timer.get_cpu_time():.2f} seconds of CPU time."
+        )
 
         return supervision_result
 
