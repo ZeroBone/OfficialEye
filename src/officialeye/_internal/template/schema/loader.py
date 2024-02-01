@@ -1,7 +1,7 @@
 import strictyaml as yml
 
 # noinspection PyProtectedMember
-from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_afi
 from officialeye.error.errors.template import ErrTemplateInvalidSyntax
 

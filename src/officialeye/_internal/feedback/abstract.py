@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 from concurrent.futures import Future
 from typing import Any, TYPE_CHECKING
 
-from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._internal.feedback.verbosity import Verbosity
 
 if TYPE_CHECKING:
     from officialeye._types import RichProtocol

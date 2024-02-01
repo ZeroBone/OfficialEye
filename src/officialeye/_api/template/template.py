@@ -5,7 +5,7 @@ from typing import List, TYPE_CHECKING
 import cv2
 
 # noinspection PyProtectedMember
-from officialeye._internal.context.singleton import initialize_internal_context
+from officialeye._internal.context.singleton import get_internal_context
 # noinspection PyProtectedMember
 from officialeye._internal.template.schema.loader import load_template
 # noinspection PyProtectedMember
@@ -19,11 +19,16 @@ if TYPE_CHECKING:
 
 def _load_template(template_path: str, /, **kwargs) -> TemplateData:
 
-    initialize_internal_context(**kwargs)
+    with get_internal_context().setup(**kwargs):
+        import time
+        time.sleep(5)
 
-    template = load_template(template_path)
+        template = load_template(template_path)
 
-    return template.get_template_data()
+        # TODO: remove
+        time.sleep(5)
+
+        return template.get_template_data()
 
 
 class Template:

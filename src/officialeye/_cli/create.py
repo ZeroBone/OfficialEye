@@ -1,7 +1,7 @@
 import os
 
 # noinspection PyProtectedMember
-from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._cli.context import CLIContext
 from officialeye.error.errors.io import ErrIOInvalidPath
 

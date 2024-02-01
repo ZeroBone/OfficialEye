@@ -3,7 +3,7 @@ import random
 from abc import ABC
 from typing import Generator, Union
 
-from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
 
 from officialeye._internal.matching.result import MatchingResult

@@ -4,7 +4,7 @@ from typing import Dict, Generator, List, Union
 import cv2
 
 # noinspection PyProtectedMember
-from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
 from officialeye._internal.template.utils import load_mutator_from_dict
 from officialeye._internal.timer import Timer
@@ -110,8 +110,7 @@ class Template:
             feature.validate_feature_class()
 
     def get_template_data(self) -> TemplateData:
-
-        data = TemplateData(
+        return TemplateData(
             identifier=self.template_id,
             name=self.name,
             source=self._get_source_image_path(),
@@ -134,8 +133,6 @@ class Template:
             source_mutators=self._source_mutators,
             target_mutators=self._target_mutators
         )
-
-        return data
 
     def get_matching_engine(self) -> str:
         return self._matching["engine"]

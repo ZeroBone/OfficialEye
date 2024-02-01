@@ -3,7 +3,7 @@ from typing import Dict, Union
 import cv2
 
 # noinspection PyProtectedMember
-from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_afi
 from officialeye._internal.template.utils import load_mutator_from_dict
 from officialeye.error.errors.template import ErrTemplateInvalidFeature

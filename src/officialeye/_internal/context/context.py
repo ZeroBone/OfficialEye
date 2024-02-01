@@ -1,9 +1,12 @@
 # needed to not break type annotations if we are not in type checking mode
 from __future__ import annotations
 
+from types import TracebackType
 from typing import TYPE_CHECKING, Dict, Union, Callable
 
-from officialeye._api.feedback.abstract import AbstractFeedbackInterface
+from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
+from officialeye._internal.feedback.dummy import DummyFeedbackInterface
+# noinspection PyProtectedMember
 from officialeye._api.mutator import Mutator
 from officialeye.error.error import OEError
 from officialeye.error.errors.internal import ErrInternal
@@ -16,13 +19,9 @@ if TYPE_CHECKING:
 
 class InternalContext:
 
-    def __init__(self, /, *, afi: AbstractFeedbackInterface, mutator_factories: Dict[str, Callable[[Dict[str, any]], Mutator]]):
-
-        assert afi is not None
-        assert mutator_factories is not None
-
-        self._afi = afi
-        self._mutator_factories = mutator_factories
+    def __init__(self):
+        self._afi = DummyFeedbackInterface()
+        self._mutator_factories: Dict[str, Callable[[Dict[str, any]], Mutator]] = {}
 
         # TODO: get rid of IO drivers
         self._io_driver: Union[IODriver, None] = None
@@ -30,6 +29,23 @@ class InternalContext:
         # keys: template ids
         # values: template
         self._loaded_templates: Dict[str, Template] = {}
+
+    def setup(self, /, *, afi: AbstractFeedbackInterface, mutator_factories: Dict[str, Callable[[Dict[str, any]], Mutator]]) -> InternalContext:
+        assert afi is not None
+        assert mutator_factories is not None
+
+        self._afi = afi
+        self._mutator_factories = mutator_factories
+
+        return self
+
+    def __enter__(self):
+        return None
+
+    def __exit__(self, exception_type: any, exception_value: BaseException, traceback: TracebackType):
+        # inform the parent process that the current task is done
+        self._afi.dispose()
+        self._afi = DummyFeedbackInterface()
 
     def get_afi(self) -> AbstractFeedbackInterface:
         return self._afi

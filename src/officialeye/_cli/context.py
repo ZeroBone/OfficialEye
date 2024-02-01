@@ -66,7 +66,7 @@ class CLIContext:
         if len(self._not_deleted_temporary_files) > 0:
 
             if self.verbosity == Verbosity.QUIET or Confirm.ask(
-                ":question: Should temporary files created by the command be cleaned up now?",
+                ":question: Should temporary files created above be cleaned up now?",
                 default=True, console=self._ui.get_console()
             ):
 

@@ -5,9 +5,9 @@ from multiprocessing.connection import Connection
 from typing import Any
 
 # noinspection PyProtectedMember
-from officialeye._api.feedback.abstract import AbstractFeedbackInterface
+from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 # noinspection PyProtectedMember
-from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._internal.feedback.verbosity import Verbosity
 
 
 class IPCMessageType(enum.IntEnum):
@@ -16,15 +16,20 @@ class IPCMessageType(enum.IntEnum):
     WARN = 2
     ERROR = 3
     UPDATE_PROGRESS = 4
-    CLOSE = 5
 
 
 class InternalFeedbackInterface(AbstractFeedbackInterface):
 
-    def __init__(self, verbosity: Verbosity, tx: Connection, /):
+    def __init__(self, verbosity: Verbosity, child_id: int, tx: Connection, /):
         super().__init__(verbosity)
 
+        assert tx is not None
+
+        self._child_id = child_id
         self._tx = tx
+
+    def get_child_id(self) -> int:
+        return self._child_id
 
     def _send_ipc_message(self, message_type: IPCMessageType, *args, **kwargs):
         ipc_message = (message_type, args, kwargs)
@@ -43,7 +48,6 @@ class InternalFeedbackInterface(AbstractFeedbackInterface):
         self._send_ipc_message(IPCMessageType.ERROR, *args, **kwargs)
 
     def dispose(self):
-        self._send_ipc_message(IPCMessageType.CLOSE)
         self._tx.close()
 
     def fork(self, description: str, /) -> AbstractFeedbackInterface:

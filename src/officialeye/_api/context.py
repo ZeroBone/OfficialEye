@@ -6,8 +6,8 @@ from typing import Dict, Callable, List
 
 from officialeye._api.template.template import Template
 from officialeye._api.mutator import Mutator
-from officialeye._api.feedback.abstract import AbstractFeedbackInterface
-from officialeye._api.feedback.dummy import DummyFeedbackInterface
+from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
+from officialeye._internal.feedback.dummy import DummyFeedbackInterface
 
 # noinspection PyProtectedMember
 from officialeye._api_builtins.mutator.clahe import CLAHEMutator
@@ -75,7 +75,6 @@ class Context:
 
         def _on_future_done(f: Future, /):
             self._afi.join(afi_fork, f)
-            afi_fork.dispose()
 
         future.add_done_callback(_on_future_done)
 

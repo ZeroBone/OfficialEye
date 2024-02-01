@@ -3,8 +3,8 @@ from __future__ import annotations
 from concurrent.futures import Future
 from typing import Any, TYPE_CHECKING
 
-from officialeye._api.feedback.abstract import AbstractFeedbackInterface
-from officialeye._api.feedback.verbosity import Verbosity
+from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
+from officialeye._internal.feedback.verbosity import Verbosity
 
 if TYPE_CHECKING:
     from officialeye._types import RichProtocol

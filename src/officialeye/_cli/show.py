@@ -3,7 +3,8 @@ from typing import Tuple
 import cv2
 
 from officialeye import Template, Region
-from officialeye.feedback import Verbosity
+# noinspection PyProtectedMember
+from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._cli.context import CLIContext
 
 
@@ -70,7 +71,7 @@ def do_show(context: CLIContext, /, *, template_path: str, **kwargs):
     else:
 
         context.get_terminal_ui().warn(
-            Verbosity.INFO,
+            Verbosity.INFO_VERBOSE,
             f"One of the source mutators of the '{template.identifier}' template has changed the shape of the image. "
             f"To ensure that the regions of the template are visualized correctly, "
             f"the original template image had to be used as the background."
