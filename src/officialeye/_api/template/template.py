@@ -20,14 +20,7 @@ if TYPE_CHECKING:
 def _load_template(template_path: str, /, **kwargs) -> TemplateData:
 
     with get_internal_context().setup(**kwargs):
-        import time
-        time.sleep(5)
-
         template = load_template(template_path)
-
-        # TODO: remove
-        time.sleep(5)
-
         return template.get_template_data()
 
 

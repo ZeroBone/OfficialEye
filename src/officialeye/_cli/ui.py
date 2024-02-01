@@ -169,7 +169,7 @@ class _ChildrenListener:
 
             task_id, connection = self.children[child_id]
 
-            self._progress.remove_task(task_id)
+            # self._progress.remove_task(task_id)
             connection.close()
 
             del self.children[child_id]

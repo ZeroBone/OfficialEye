@@ -21,4 +21,4 @@ def do_run(context: CLIContext, /, *, target_path: str, template_paths: List[str
 
     templates = [Template(api_context, path=template_path) for template_path in template_paths]
 
-    analyze(api_context, *templates, target=target_img, interpretation_target=interpretation_target_image)
+    analyze(*templates, target=target_img, interpretation_target=interpretation_target_image)
