@@ -25,7 +25,7 @@ from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 from officialeye._internal.feedback.verbosity import Verbosity
 
 if TYPE_CHECKING:
-    from officialeye._types import RichProtocol
+    from officialeye._internal._types import RichProtocol
 
 _THEME_TAG_INFO = "info"
 _THEME_TAG_INFO_VERBOSE = "infov"
@@ -108,6 +108,10 @@ def _child_listener(listener: _ChildrenListener, /):
 
             assert len(connections) >= 1
 
+        # TODO: consider introducing a mechanism allowing one to let the child listener thread know about the change in the children dictionary
+        # TODO: this will improve performance, because there will be no need to wait for the timeout to expire
+        # TODO: this idea can be implemented, for example, by introducing a new dummy conneciton designed only to communicate 'refresh' messages
+        # TODO: with the child listener thread
         wait(connections, timeout=1.0)
 
         messages_to_handle: List[Tuple[Any, _Child]] = []

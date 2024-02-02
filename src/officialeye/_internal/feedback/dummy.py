@@ -7,7 +7,7 @@ from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 from officialeye._internal.feedback.verbosity import Verbosity
 
 if TYPE_CHECKING:
-    from officialeye._types import RichProtocol
+    from officialeye._internal._types import RichProtocol
 
 
 class DummyFeedbackInterface(AbstractFeedbackInterface):

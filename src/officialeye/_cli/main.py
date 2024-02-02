@@ -5,19 +5,14 @@ OfficialEye CLI frontend main entry point.
 from typing import List, Union
 
 import click
-import cv2
 
 from officialeye.__version__ import __version__, __github_url__, __github_full_url__
 from officialeye._cli.context import CLIContext
 from officialeye._cli.create import do_create
 from officialeye._cli.run import do_run
 from officialeye._cli.show import do_show
+from officialeye._cli.test import do_test
 from officialeye._cli.ui import Verbosity
-
-# TODO: get rid of all imports from _internal
-from officialeye._internal.io.drivers.test import TestIODriver
-from officialeye._internal.template.analyze import do_analyze
-from officialeye._internal.template.schema.loader import load_template
 
 
 _context = CLIContext()
@@ -109,29 +104,14 @@ def test(target_path: str, template_paths: List[str], interpret: Union[str, None
     _context.set_params(visualization_generation=visualize)
 
     with _context as context:
-        # print OfficialEye logo and other introductory information (if necessary)
-        context.print_intro()
-        # TODO
-
-    with (_context_manager as oe_context):
-
-        # setup IO driver
-        io_driver = TestIODriver(oe_context)
-        io_driver.visualize_features = show_features
-        oe_context.set_io_driver(io_driver)
-
-        # load target image
-        target = cv2.imread(target_path, cv2.IMREAD_COLOR)
-
-        # load interpretation target image if necessary
-        interpretation_target: Union[cv2.Mat, None] = \
-            None if interpret is None else cv2.imread(interpret, cv2.IMREAD_COLOR)
-
-        # load templates
-        templates = [load_template(oe_context, template_path) for template_path in template_paths]
-
-        # perform analysis
-        do_analyze(oe_context, target, templates, num_workers=workers, interpretation_target=interpretation_target)
+        do_test(
+            context,
+            target_path=target_path,
+            template_paths=template_paths,
+            interpret_path=interpret,
+            visualize=visualize,
+            show_features=show_features
+        )
 
 
 @click.command()
