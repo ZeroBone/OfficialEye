@@ -7,7 +7,7 @@ from multiprocessing import Pipe
 from multiprocessing.connection import Connection, wait
 from threading import Thread, Lock
 from types import TracebackType
-from typing import Any, TYPE_CHECKING, Dict, Tuple
+from typing import Any, TYPE_CHECKING, Dict, Tuple, List, Set
 
 from rich.console import Console
 from rich.panel import Panel
@@ -36,10 +36,10 @@ _THEME_TAG_WARN = "warn"
 _THEME_TAG_ERR = "err"
 
 _THEME: Dict[str, str] = {
-    _THEME_TAG_INFO: "bold cyan",
-    _THEME_TAG_INFO_VERBOSE: "green bold",
-    _THEME_TAG_DEBUG: "cyan bold",
-    _THEME_TAG_DEBUG_VERBOSE: "magenta bold",
+    _THEME_TAG_INFO: "bold green",
+    _THEME_TAG_INFO_VERBOSE: "bold cyan",
+    _THEME_TAG_DEBUG: "bold purple",
+    _THEME_TAG_DEBUG_VERBOSE: "bold magenta",
     _THEME_TAG_WARN: "bold yellow",
     _THEME_TAG_ERR: "bold red"
 }
@@ -59,7 +59,7 @@ def _wrap_exception(exception_value: BaseException, /) -> OEError:
 
     if isinstance(exception_value, BaseException):
         oe_error = ErrInternal(
-            "while leaving an officialeye context.",
+            "while leaving the CLI context.",
             "An internal error occurred.",
         )
         oe_error.add_external_cause(exception_value)
@@ -73,6 +73,10 @@ def _wrap_exception(exception_value: BaseException, /) -> OEError:
 
 def _child_listener(listener: _ChildrenListener, /):
 
+    # a known child is a child that the listener thread is either already activaly listening to, or has already stopped listening to due to
+    # the receival of a message over IPC, indicating that the child is done with the work
+    known_children: Set[int] = set()
+
     while True:
 
         # first, we wait for one of the children to send some message
@@ -80,27 +84,59 @@ def _child_listener(listener: _ChildrenListener, /):
             if len(listener.children) == 0:
                 break
 
+            # determine whether there are children the children listener thread does not know about
+            # in this case, those children should be found and added to the known list,
+            # and the corresponding lock should be acquired, indicating that the connection with the current
+            # child has not yet been shut down gracefully
+            for child_id in listener.children:
+
+                if child_id in known_children:
+                    continue
+
+                child = listener.children[child_id]
+
+                # indicate that we are listening to that child, and that once it is done with its work,
+                # our handling of messages that might still be pending on the IPC, is to be respected
+                child.is_being_listened_to.acquire()
+
+                # now we know the child
+                known_children.add(child_id)
+
             connections = [
-                listener.children[child_id][1] for child_id in listener.children
+                listener.children[child_id].connection for child_id in listener.children
             ]
 
             assert len(connections) >= 1
 
         wait(connections, timeout=1.0)
 
+        messages_to_handle: List[Tuple[Any, _Child]] = []
+
         with listener.children_lock:
             if len(listener.children) == 0:
                 break
 
             for child_id in listener.children:
-                task_id, connection = listener.children[child_id]
+                child = listener.children[child_id]
 
-                if not connection.poll():
+                if not child.connection.poll():
                     continue
 
-                message = connection.recv()
+                message = child.connection.recv()
+
+                messages_to_handle.append((message, child))
                     
-                listener.handle_message(message, child_id, task_id)
+        for message, child in messages_to_handle:
+            listener.handle_message(message, child)
+
+
+class _Child:
+
+    def __init__(self, child_id: int, task_id: TaskID, connection: Connection, /):
+        self.child_id = child_id
+        self.task_id = task_id
+        self.connection = connection
+        self.is_being_listened_to = Lock()
 
 
 # noinspection PyProtectedMember
@@ -119,16 +155,16 @@ class _ChildrenListener:
             transient=True
         )
 
-        self.children: Dict[int, Tuple[TaskID, Connection]] = {}
+        self.children: Dict[int, _Child] = {}
         self.children_lock = Lock()
 
         self._children_listener: Thread | None = None
 
-    def handle_message(self, message: tuple, child_id: int, task_id: TaskID, /):
+    def handle_message(self, message: tuple, child: _Child, /):
 
         message_type, args, kwargs = message
 
-        with self._terminal_ui.as_author(child_id):
+        with self._terminal_ui.as_author(child.child_id):
             if message_type == IPCMessageType.ECHO:
                 self._terminal_ui.echo(*args, **kwargs)
             elif message_type == IPCMessageType.INFO:
@@ -138,7 +174,14 @@ class _ChildrenListener:
             elif message_type == IPCMessageType.ERROR:
                 self._terminal_ui.error(*args, **kwargs)
             elif message_type == IPCMessageType.UPDATE_PROGRESS:
-                self._progress.update(task_id, **kwargs)
+                self._progress.update(child.task_id, **kwargs)
+            elif message_type == IPCMessageType.TASK_DONE:
+                self._terminal_ui.info(
+                    Verbosity.DEBUG,
+                    "Child has indicated that the task is done, "
+                    "releasing the corresponding lock to enable graceful shutdown of the child listener (in case this is the last child)."
+                )
+                child.is_being_listened_to.release()
             else:
                 assert False, "Unknown IPC message type received by parent process."
 
@@ -149,7 +192,7 @@ class _ChildrenListener:
 
         with self.children_lock:
             assert child_id not in self.children, "Child ID is not unique."
-            self.children[child_id] = task_id, connection
+            self.children[child_id] = _Child(child_id, task_id, connection)
 
         if self._children_listener is None:
             # we have added the first child. therefore, the progress bar needs to be started.
@@ -161,16 +204,49 @@ class _ChildrenListener:
 
     def stop_listening_to(self, child_id: int, /):
 
+        # we first attempt to wait until the child listener thread has done processing all messages sent by the child
+        # in other words we want to try and gracefully stop listening to the child
+
+        with self.children_lock:
+
+            if child_id not in self.children:
+                self._terminal_ui.warn(
+                    Verbosity.DEBUG,
+                    f"Could not stop listening for child {child_id} because it could not be found among children the main process is listening to."
+                )
+                return
+
+            child = self.children[child_id]
+
+            self._terminal_ui.warn(
+                Verbosity.DEBUG,
+                f"Waiting for all messages from child {child_id} to be processed by the child listener thread."
+            )
+
+            if child.is_being_listened_to.acquire(blocking=True, timeout=4):
+                child.is_being_listened_to.release()
+
+                self._terminal_ui.warn(
+                    Verbosity.DEBUG,
+                    f"The child listener thread indicated that it has processed all messages from child {child_id}."
+                )
+
+        # we now proceed with removing the child completely
+
         last_child_removed = False
 
         with self.children_lock:
 
-            assert child_id in self.children, "Child could not be found"
+            if child_id not in self.children:
+                self._terminal_ui.warn(
+                    Verbosity.DEBUG,
+                    f"Could not stop listening for child {child_id} because it could not be found among children the main process is listening to."
+                )
+                return
 
-            task_id, connection = self.children[child_id]
+            child = self.children[child_id]
 
-            # self._progress.remove_task(task_id)
-            connection.close()
+            child.connection.close()
 
             del self.children[child_id]
 
@@ -195,9 +271,7 @@ class _ChildrenListener:
             self._progress.stop()
             self._terminal_ui.info(Verbosity.DEBUG_VERBOSE, "Stopped the progress bar due to removal of last child.")
 
-    def dispose(self):
-
-        self._terminal_ui.info(Verbosity.DEBUG_VERBOSE, "Dispoing child listener...")
+    def kill_all_children(self):
 
         while True:
 
@@ -209,6 +283,10 @@ class _ChildrenListener:
 
             for child_id in children_to_be_removed:
                 self.stop_listening_to(child_id)
+
+    def dispose(self):
+        self._terminal_ui.info(Verbosity.DEBUG_VERBOSE, "Dispoing child listener...")
+        self.kill_all_children()
 
 
 class TerminalUI(AbstractFeedbackInterface):
@@ -303,6 +381,10 @@ class TerminalUI(AbstractFeedbackInterface):
             self._err_console.print(rich_traceback)
 
     def handle_uncaught_error(self, exception_type: any, exception_value: BaseException, traceback: TracebackType, /):
+
+        # remove all children to make sure that the progress bar dissapears and
+        # does not interfere with the printing of the error to the terminal
+        self._children_listener.kill_all_children()
 
         self._print_oe_error(_wrap_exception(exception_value))
 

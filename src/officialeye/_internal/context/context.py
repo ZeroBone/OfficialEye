@@ -30,6 +30,10 @@ class InternalContext:
         # values: template
         self._loaded_templates: Dict[str, Template] = {}
 
+        # keys: paths to templates
+        # values: corresponding template ids
+        self._template_ids: Dict[str, str] = {}
+
     def setup(self, /, *, afi: AbstractFeedbackInterface, mutator_factories: Dict[str, Callable[[Dict[str, any]], Mutator]]) -> InternalContext:
         assert afi is not None
         assert mutator_factories is not None
@@ -70,6 +74,10 @@ class InternalContext:
 
     def add_template(self, template: Template, /):
 
+        template_path = template.get_path()
+
+        assert template_path not in self._template_ids, "A template from the same path has already been loaded"
+
         if template.template_id in self._loaded_templates:
             raise ErrTemplateIdNotUnique(
                 f"while loading template '{template.template_id}'",
@@ -77,18 +85,30 @@ class InternalContext:
             )
 
         self._loaded_templates[template.template_id] = template
+        self._template_ids[template_path] = template.template_id
 
         try:
             template.validate()
         except OEError as err:
             # rollback the loaded template
             del self._loaded_templates[template.template_id]
+            del self._template_ids[template_path]
+
             # reraise the cause
             raise err
 
     def get_template(self, template_id: str, /) -> Template:
         assert template_id in self._loaded_templates, "Unknown template id"
         return self._loaded_templates[template_id]
+
+    def get_template_by_path(self, template_path: str, /) -> Template | None:
+
+        if template_path not in self._template_ids:
+            return None
+
+        template_id = self._template_ids[template_path]
+
+        return self.get_template(template_id)
 
     # TODO: reconsider the need of all methods beyond this point
 

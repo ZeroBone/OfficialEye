@@ -1,13 +1,14 @@
 from __future__ import annotations
 
+from concurrent.futures import Future
 from typing import List, TYPE_CHECKING
 
 import cv2
 
+from officialeye._api.analysis_result import AnalysisResult
+from officialeye._api.image import Image
 # noinspection PyProtectedMember
-from officialeye._internal.context.singleton import get_internal_context
-# noinspection PyProtectedMember
-from officialeye._internal.template.schema.loader import load_template
+from officialeye._internal.api import template_load, template_analyze
 # noinspection PyProtectedMember
 from officialeye._internal.template.template_data import TemplateData
 from officialeye._api.template.region import Keypoint, Feature
@@ -15,13 +16,6 @@ from officialeye._api.template.region import Keypoint, Feature
 
 if TYPE_CHECKING:
     from officialeye._api.context import Context
-
-
-def _load_template(template_path: str, /, **kwargs) -> TemplateData:
-
-    with get_internal_context().setup(**kwargs):
-        template = load_template(template_path)
-        return template.get_template_data()
 
 
 class Template:
@@ -32,7 +26,6 @@ class Template:
 
         self._data: TemplateData | None = None
 
-    # noinspection PyProtectedMember
     def load(self):
         """
         Loads the template into memory for further processing.
@@ -46,11 +39,26 @@ class Template:
             # data has already been loaded, nothing to do
             return
 
-        future = self._context._submit_task(_load_template, "Loading template...", self._path)
+        # noinspection PyProtectedMember
+        future = self._context._submit_task(template_load, "Loading template...", self._path)
 
         self._data = future.result()
 
         assert self._data is not None
+
+    def analyze_async(self, /, *, target: Image, interpretation_target: Image | None = None) -> Future:
+        # noinspection PyProtectedMember
+        return self._context._submit_task(
+            template_analyze,
+            "Running analysis...",
+            self._path,
+            target_path=target._path,
+            interpretation_target_path=None if interpretation_target is None else interpretation_target._path
+        )
+
+    def analyze(self, /, **kwargs) -> AnalysisResult:
+        future = self.analyze_async(**kwargs)
+        return future.result()
 
     def get_image(self) -> cv2.Mat:
         self.load()

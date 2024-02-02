@@ -16,6 +16,7 @@ class IPCMessageType(enum.IntEnum):
     WARN = 2
     ERROR = 3
     UPDATE_PROGRESS = 4
+    TASK_DONE = 5  # 'done' means completed in any way, including throwing an exception
 
 
 class InternalFeedbackInterface(AbstractFeedbackInterface):
@@ -48,6 +49,7 @@ class InternalFeedbackInterface(AbstractFeedbackInterface):
         self._send_ipc_message(IPCMessageType.ERROR, *args, **kwargs)
 
     def dispose(self):
+        self._send_ipc_message(IPCMessageType.TASK_DONE)
         self._tx.close()
 
     def fork(self, description: str, /) -> AbstractFeedbackInterface:

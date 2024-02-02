@@ -14,3 +14,5 @@ from officialeye._api.config import Config, MutatorConfig
 from officialeye._api.mutator import Mutator
 # noinspection PyProtectedMember
 from officialeye._api.image import Image
+# noinspection PyProtectedMember
+from officialeye._api.future import Future, wait

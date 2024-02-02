@@ -14,6 +14,9 @@ from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.template.template import Template
 
 
+# TODO: remove this deprecated module entirely
+
+
 class AnalysisWorker(Thread):
 
     def __init__(self, worker_id: int, queue: Queue, target: cv2.Mat, /):

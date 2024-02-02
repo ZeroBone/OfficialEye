@@ -1,12 +1,15 @@
 """
 Module represeting the OfficialEye context.
 """
-from concurrent.futures import ProcessPoolExecutor, Future
-from typing import Dict, Callable, List
+import threading
+from concurrent.futures import ProcessPoolExecutor, Future as PythonFuture
+from typing import Dict, Callable
 
-from officialeye._api.template.template import Template
+from officialeye._api.future import Future
 from officialeye._api.mutator import Mutator
+# noinspection PyProtectedMember
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
+# noinspection PyProtectedMember
 from officialeye._internal.feedback.dummy import DummyFeedbackInterface
 
 # noinspection PyProtectedMember
@@ -59,13 +62,17 @@ class Context:
         self.add_mutator(CLAHEMutator.MUTATOR_ID, _gen_mutator_clahe)
         self.add_mutator(RotateMutator.MUTATOR_ID, _gen_mutator_rotate)
 
-    def _submit_task(self, task, description: str, *args) -> Future:
+    def _get_afi(self) -> AbstractFeedbackInterface:
+        return self._afi
+
+    def _submit_task(self, task, description: str, *args, **kwargs) -> Future:
 
         afi_fork = self._afi.fork(description)
 
-        future: Future = self._executor.submit(
+        python_future: PythonFuture = self._executor.submit(
             task,
             *args,
+            **kwargs,
             # Arguments that need to be always passed to the internal implementation when starting tasks.
             # It is very important that the argument dictionary is picklable, because it will be passed from the parent
             # process to a child process by the ProcessPoolExecutor.
@@ -73,15 +80,7 @@ class Context:
             mutator_factories=self._mutator_factories
         )
 
-        def _on_future_done(f: Future, /):
-            self._afi.join(afi_fork, f)
-
-        future.add_done_callback(_on_future_done)
-
-        return future
-
-    def run(self, /, *, target_path: str, templates: List[Template], interpret_path: str | None, visualize: bool):
-        pass
+        return Future(self, python_future, afi_fork=afi_fork)
 
     def add_mutator(self, mutator_id: str, factory: Callable[[Dict[str, any]], Mutator], /):
 

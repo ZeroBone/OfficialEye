@@ -1,5 +1,5 @@
 import os
-from typing import Dict, Generator, List, Union
+from typing import Dict, Generator, List
 
 import cv2
 
@@ -140,7 +140,7 @@ class Template:
     def get_supervision_engine(self) -> str:
         return self._supervision["engine"]
 
-    def get_supervision_result(self) -> str:
+    def get_supervision_result_choice_engine(self) -> str:
         return self._supervision["result"]
 
     def get_supervision_config(self) -> dict:
@@ -207,6 +207,9 @@ class Template:
 
         return cv2.imread(self._get_source_image_path(), cv2.IMREAD_COLOR)
 
+    def get_path(self) -> str:
+        return self._path_to_template
+
     def _load_supervisor(self, kmr: MatchingResult):
         superivision_engine = self.get_supervision_engine()
 
@@ -224,7 +227,7 @@ class Template:
             f"unknown supervision engine '{superivision_engine}'"
         )
 
-    def run_analysis(self, target: cv2.Mat, /) -> Union[SupervisionResult, None]:
+    def run_analysis(self, target: cv2.Mat, /) -> SupervisionResult:
         # find all patterns in the target image
 
         _timer = Timer()
@@ -262,9 +265,7 @@ class Template:
             supervisor = self._load_supervisor(keypoint_matching_result)
             supervision_result = supervisor.run()
 
-            if supervision_result is None:
-                return None
-
+            # TODO: rewrite the visualization generation communication logic
             if get_internal_context().visualization_generation_enabled():
                 supervision_result_visualizer = SupervisionResultVisualizer(supervision_result, target)
                 visualization = supervision_result_visualizer.render()

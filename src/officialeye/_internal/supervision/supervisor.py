@@ -1,7 +1,7 @@
 import abc
 import random
 from abc import ABC
-from typing import Generator, Union
+from typing import Generator
 
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
@@ -9,6 +9,7 @@ from officialeye._internal.context.singleton import get_internal_context, get_in
 from officialeye._internal.matching.result import MatchingResult
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.supervision.supervisor_config import SupervisorConfig
+from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
 
 _SUPERVISION_RESULT_FIRST = "first"
 _SUPERVISION_RESULT_RANDOM = "random"
@@ -46,20 +47,36 @@ class Supervisor(ABC):
     def _run(self) -> Generator[SupervisionResult, None, None]:
         raise NotImplementedError()
 
-    def _run_first(self) -> Union[SupervisionResult, None]:
+    def _get_corresponence_not_found_error(self) -> ErrSupervisionCorrespondenceNotFound:
+        return ErrSupervisionCorrespondenceNotFound(
+            f"while running the '{self._engine_id}' supervisor.",
+            f"could not establish correspondence of the image with template '{self.template_id}'"
+        )
+
+    def _run_first(self) -> SupervisionResult:
         results_generator = self._run()
-        return next(results_generator, None)
 
-    def _run_random(self) -> Union[SupervisionResult, None]:
+        result = next(results_generator, None)
+
+        if result is None:
+            raise self._get_corresponence_not_found_error()
+
+        return result
+
+    def _run_random(self) -> SupervisionResult:
         results = list(self._run())
-        return None if len(results) == 0 else results[random.randint(0, len(results) - 1)]
 
-    def _run_best_mse(self) -> Union[SupervisionResult, None]:
+        if len(results) == 0:
+            raise self._get_corresponence_not_found_error()
+
+        return random.choice(results)
+
+    def _run_best_mse(self) -> SupervisionResult:
 
         results = list(self._run())
 
         if len(results) == 0:
-            return None
+            raise self._get_corresponence_not_found_error()
 
         best_result = results[0]
         best_result_mse = best_result.get_weighted_mse()
@@ -77,12 +94,12 @@ class Supervisor(ABC):
 
         return best_result
 
-    def _run_best_score(self) -> Union[SupervisionResult, None]:
+    def _run_best_score(self) -> SupervisionResult:
 
         results = list(self._run())
 
         if len(results) == 0:
-            return None
+            raise self._get_corresponence_not_found_error()
 
         best_result = results[0]
         best_result_score = best_result.get_score()
@@ -110,9 +127,9 @@ class Supervisor(ABC):
     def get_config(self) -> SupervisorConfig:
         return self._config
 
-    def run(self) -> Union[SupervisionResult, None]:
+    def run(self) -> SupervisionResult:
 
-        supervision_result_choice_engine = self.get_template().get_supervision_result()
+        supervision_result_choice_engine = self.get_template().get_supervision_result_choice_engine()
 
         get_internal_afi().info(Verbosity.DEBUG, f"Applying '{supervision_result_choice_engine}' supervision result choice engine.")
 
