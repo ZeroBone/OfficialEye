@@ -41,3 +41,5 @@ def template_analyze(template_path: str, /, *, target_path: str, interpretation_
                 )
 
         supervision_result = template.run_analysis(target)
+
+        # TODO: convert the supervision result into an analysisresult instance

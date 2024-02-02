@@ -216,20 +216,27 @@ class _ChildrenListener:
                 )
                 return
 
-            child = self.children[child_id]
+            _child = self.children[child_id]
 
-            self._terminal_ui.warn(
+            self._terminal_ui.info(
                 Verbosity.DEBUG,
                 f"Waiting for all messages from child {child_id} to be processed by the child listener thread."
             )
 
-            if child.is_being_listened_to.acquire(blocking=True, timeout=4):
-                child.is_being_listened_to.release()
+            child_lock = _child.is_being_listened_to
 
-                self._terminal_ui.warn(
-                    Verbosity.DEBUG,
-                    f"The child listener thread indicated that it has processed all messages from child {child_id}."
-                )
+        if child_lock.acquire(blocking=True, timeout=4):
+            child_lock.release()
+
+            self._terminal_ui.info(
+                Verbosity.DEBUG,
+                f"The child listener thread indicated that it has processed all messages from child {child_id}."
+            )
+        else:
+            self._terminal_ui.warn(
+                Verbosity.DEBUG,
+                f"The child listener thread did not indicate that it has processed all messages from child {child_id}!"
+            )
 
         # we now proceed with removing the child completely
 
@@ -271,7 +278,7 @@ class _ChildrenListener:
             self._progress.stop()
             self._terminal_ui.info(Verbosity.DEBUG_VERBOSE, "Stopped the progress bar due to removal of last child.")
 
-    def kill_all_children(self):
+    def remove_all_children(self):
 
         while True:
 
@@ -286,7 +293,7 @@ class _ChildrenListener:
 
     def dispose(self):
         self._terminal_ui.info(Verbosity.DEBUG_VERBOSE, "Dispoing child listener...")
-        self.kill_all_children()
+        self.remove_all_children()
 
 
 class TerminalUI(AbstractFeedbackInterface):
@@ -384,7 +391,7 @@ class TerminalUI(AbstractFeedbackInterface):
 
         # remove all children to make sure that the progress bar dissapears and
         # does not interfere with the printing of the error to the terminal
-        self._children_listener.kill_all_children()
+        self._children_listener.remove_all_children()
 
         self._print_oe_error(_wrap_exception(exception_value))
 

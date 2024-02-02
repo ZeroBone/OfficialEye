@@ -1,7 +1,7 @@
 """
 Module represeting the OfficialEye context.
 """
-import threading
+
 from concurrent.futures import ProcessPoolExecutor, Future as PythonFuture
 from typing import Dict, Callable
 
