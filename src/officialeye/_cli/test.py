@@ -11,7 +11,8 @@ from officialeye._cli.context import CLIContext
 from officialeye._internal.feedback.verbosity import Verbosity
 
 
-def do_test(context: CLIContext, /, *, target_path: str, template_paths: List[str], interpret_path: str | None, visualize: bool, show_features: bool):
+def do_test(context: CLIContext, /, *,
+            target_path: str, template_paths: List[str], interpret_path: str | None, visualize: bool, show_features: bool):
     # print OfficialEye logo and other introductory information (if necessary)
     context.print_intro()
 

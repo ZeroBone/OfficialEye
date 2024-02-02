@@ -4,16 +4,21 @@ The goal of this module is to provide a nice API for validated user-specified co
 and safely retrieving information from there.
 """
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
-from typing import Callable, Dict
+from typing import Callable, Dict, TYPE_CHECKING
 
 from officialeye.error.errors.template import ErrTemplateInvalidMutator
 
 
+if TYPE_CHECKING:
+    from officialeye.types import ConfigDict
+
+
 class Config(ABC):
 
-    # TODO: migrate from the Dict[str, any] to a more precise type (define in _types.py)
-    def __init__(self, config_dict: Dict[str, any], /):
+    def __init__(self, config_dict: ConfigDict, /):
         self._config_dict = config_dict
 
         self._value_preprocessors: Dict[str, Callable[[str], any]] = {}
@@ -45,7 +50,7 @@ class Config(ABC):
 
 class MutatorConfig(Config):
 
-    def __init__(self, config_dict: Dict[str, any], mutator_id: str, /):
+    def __init__(self, config_dict: ConfigDict, mutator_id: str, /):
 
         super().__init__(config_dict)
 

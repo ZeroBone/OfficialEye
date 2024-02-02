@@ -2,8 +2,10 @@
 Module represeting the OfficialEye context.
 """
 
+from __future__ import annotations
+
 from concurrent.futures import ProcessPoolExecutor, Future as PythonFuture
-from typing import Dict, Callable
+from typing import Dict, Callable, TYPE_CHECKING
 
 from officialeye._api.future import Future
 from officialeye._api.mutator import Mutator
@@ -25,19 +27,23 @@ from officialeye.error.errors.internal import ErrInvalidState
 from officialeye.error.errors.template import ErrTemplateInvalidMutator
 
 
-def _gen_mutator_grayscale(config: Dict[str, any], /) -> Mutator:
+if TYPE_CHECKING:
+    from officialeye.types import ConfigDict
+
+
+def _gen_mutator_grayscale(config: ConfigDict, /) -> Mutator:
     return GrayscaleMutator(config)
 
 
-def _gen_mutator_non_local_means_denoising(config: Dict[str, any], /) -> Mutator:
+def _gen_mutator_non_local_means_denoising(config: ConfigDict, /) -> Mutator:
     return NonLocalMeansDenoisingMutator(config)
 
 
-def _gen_mutator_clahe(config: Dict[str, any], /) -> Mutator:
+def _gen_mutator_clahe(config: ConfigDict, /) -> Mutator:
     return CLAHEMutator(config)
 
 
-def _gen_mutator_rotate(config: Dict[str, any], /) -> Mutator:
+def _gen_mutator_rotate(config: ConfigDict, /) -> Mutator:
     return RotateMutator(config)
 
 
@@ -54,7 +60,7 @@ class Context:
 
         self._executor = ProcessPoolExecutor()
 
-        self._mutator_factories: Dict[str, Callable[[Dict[str, any]], Mutator]] = {}
+        self._mutator_factories: Dict[str, Callable[[ConfigDict], Mutator]] = {}
 
         # initialize with built-in mutators
         self.add_mutator(GrayscaleMutator.MUTATOR_ID, _gen_mutator_grayscale)
@@ -82,7 +88,7 @@ class Context:
 
         return Future(self, python_future, afi_fork=afi_fork)
 
-    def add_mutator(self, mutator_id: str, factory: Callable[[Dict[str, any]], Mutator], /):
+    def add_mutator(self, mutator_id: str, factory: Callable[[ConfigDict], Mutator], /):
 
         if mutator_id in self._mutator_factories:
             raise ErrTemplateInvalidMutator(

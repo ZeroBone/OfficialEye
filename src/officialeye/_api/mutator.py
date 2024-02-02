@@ -1,14 +1,20 @@
+from __future__ import annotations
+
 import abc
-from typing import Dict
+from typing import TYPE_CHECKING
 
 import cv2
 
 from officialeye._api.config import MutatorConfig
 
 
+if TYPE_CHECKING:
+    from officialeye.types import ConfigDict
+
+
 class Mutator(abc.ABC):
 
-    def __init__(self, mutator_id: str, config_dict: Dict[str, any], /):
+    def __init__(self, mutator_id: str, config_dict: ConfigDict, /):
         super().__init__()
 
         self.mutator_id = mutator_id
