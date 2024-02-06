@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 from concurrent.futures import Future
-from typing import List, TYPE_CHECKING
-
-import cv2
+from typing import TYPE_CHECKING, Iterable
 
 from officialeye._api.analysis_result import AnalysisResult
 from officialeye._api.image import Image
@@ -12,7 +10,6 @@ from officialeye._internal.api import template_load, template_analyze
 # noinspection PyProtectedMember
 from officialeye._internal.template.template_data import TemplateData
 from officialeye._api.template.region import Keypoint, Feature
-
 
 if TYPE_CHECKING:
     from officialeye._api.context import Context
@@ -60,13 +57,14 @@ class Template:
         future = self.analyze_async(**kwargs)
         return future.result()
 
-    def get_image(self) -> cv2.Mat:
+    def get_image(self) -> Image:
         self.load()
-        return cv2.imread(self._data.source, cv2.IMREAD_COLOR)
+        return Image(self._context, path=self._data.source)
 
-    def get_mutated_image(self) -> cv2.Mat:
+    def get_mutated_image(self) -> Image:
         img = self.get_image()
-        return self._data.apply_source_mutators(img)
+        img.apply_mutators(*self._data.source_mutators)
+        return img
 
     @property
     def identifier(self) -> str:
@@ -89,11 +87,11 @@ class Template:
         return self._data.height
 
     @property
-    def keypoints(self) -> List[Keypoint]:
+    def keypoints(self) -> Iterable[Keypoint]:
         self.load()
-        return self._data.keypoints
+        return frozenset(Keypoint(self, **keypoint.get_init_args()) for keypoint in self._data.keypoints)
 
     @property
-    def features(self) -> List[Feature]:
+    def features(self) -> Iterable[Feature]:
         self.load()
-        return self._data.features
+        return frozenset(Feature(self, **feature.get_init_args()) for feature in self._data.features)

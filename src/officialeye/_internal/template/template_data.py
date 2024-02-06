@@ -1,17 +1,54 @@
 from typing import List
 
-import cv2
-
 # noinspection PyProtectedMember
 from officialeye._api.mutator import Mutator
-# noinspection PyProtectedMember
-from officialeye._api.template.region import Feature, Keypoint
+
+
+class TemplateDataRegion:
+
+    def __init__(self, /, *, identifier: str, x: int, y: int, w: int, h: int):
+        self.identifier = identifier
+        self.x = x
+        self.y = y
+        self.w = w
+        self.h = h
+
+    def get_init_args(self) -> dict:
+        return dict(
+            identifier=self.identifier,
+            x=self.x,
+            y=self.y,
+            w=self.w,
+            h=self.h
+        )
+
+
+class TemplateDataFeature(TemplateDataRegion):
+
+    def __init__(self, /, **kwargs):
+        super().__init__(**kwargs)
+
+
+class TemplateDataKeypoint(TemplateDataRegion):
+
+    def __init__(self, /, *, matches_min: int, matches_max: int, **kwargs):
+        super().__init__(**kwargs)
+
+        self.matches_min = matches_min
+        self.matches_max = matches_max
+
+    def get_init_args(self) -> dict:
+        return {
+            **super().get_init_args(),
+            "matches_min": self.matches_min,
+            "matches_max": self.matches_max
+        }
 
 
 class TemplateData:
 
     def __init__(self, /, *, identifier: str, name: str, source: str, width: int, height: int,
-                 features: List[Feature], keypoints: List[Keypoint],
+                 features: List[TemplateDataFeature], keypoints: List[TemplateDataKeypoint],
                  source_mutators: List[Mutator], target_mutators: List[Mutator]):
 
         self.identifier = identifier
@@ -26,13 +63,3 @@ class TemplateData:
 
         self.source_mutators = source_mutators
         self.target_mutators = target_mutators
-
-    def apply_source_mutators(self, img: cv2.Mat, /) -> cv2.Mat:
-        for mutator in self.source_mutators:
-            img = mutator.mutate(img)
-        return img
-
-    def apply_target_mutators(self, img: cv2.Mat, /) -> cv2.Mat:
-        for mutator in self.target_mutators:
-            img = mutator.mutate(img)
-        return img

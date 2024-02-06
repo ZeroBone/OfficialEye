@@ -1,10 +1,16 @@
-from typing import Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import cv2
 
 from officialeye.error.errors.template import ErrTemplateInvalidMutator
 # noinspection PyProtectedMember
 from officialeye._api.mutator import Mutator
+
+
+if TYPE_CHECKING:
+    from officialeye.types import ConfigDict
 
 
 class RotateMutator(Mutator):
@@ -14,7 +20,7 @@ class RotateMutator(Mutator):
 
     MUTATOR_ID = "rotate"
 
-    def __init__(self, config: Dict[str, any], /):
+    def __init__(self, config: ConfigDict, /):
         super().__init__(RotateMutator.MUTATOR_ID, config)
 
         def _angle_preprocessor(angle_text: str) -> int:
@@ -28,9 +34,9 @@ class RotateMutator(Mutator):
 
             return angle
 
-        self.get_config().set_value_preprocessor("angle", _angle_preprocessor)
+        self.config.set_value_preprocessor("angle", _angle_preprocessor)
 
-        self._angle = self.get_config().get("angle")
+        self._angle = self.config.get("angle")
 
     def mutate(self, img: cv2.Mat, /) -> cv2.Mat:
 

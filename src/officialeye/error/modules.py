@@ -3,3 +3,5 @@ ERR_MODULE_IO = "io"
 ERR_MODULE_MATCHING = "matching"
 ERR_MODULE_SUPERVISION = "supervision"
 ERR_MODULE_TEMPLATE = "template"
+
+# TODO: consider removing the module system

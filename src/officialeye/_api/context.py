@@ -7,44 +7,21 @@ from __future__ import annotations
 from concurrent.futures import ProcessPoolExecutor, Future as PythonFuture
 from typing import Dict, Callable, TYPE_CHECKING
 
+from officialeye._api.template.match import Matcher
 from officialeye._api.future import Future
 from officialeye._api.mutator import Mutator
+# noinspection PyProtectedMember
+from officialeye._api_builtins.init import initialize_builtins
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.dummy import DummyFeedbackInterface
 
-# noinspection PyProtectedMember
-from officialeye._api_builtins.mutator.clahe import CLAHEMutator
-# noinspection PyProtectedMember
-from officialeye._api_builtins.mutator.grayscale import GrayscaleMutator
-# noinspection PyProtectedMember
-from officialeye._api_builtins.mutator.non_local_means_denoising import NonLocalMeansDenoisingMutator
-# noinspection PyProtectedMember
-from officialeye._api_builtins.mutator.rotate import RotateMutator
-
 from officialeye.error.errors.internal import ErrInvalidState
-from officialeye.error.errors.template import ErrTemplateInvalidMutator
-
+from officialeye.error.errors.template import ErrTemplateInvalidMutator, ErrTemplateInvalidMatchingEngine
 
 if TYPE_CHECKING:
     from officialeye.types import ConfigDict
-
-
-def _gen_mutator_grayscale(config: ConfigDict, /) -> Mutator:
-    return GrayscaleMutator(config)
-
-
-def _gen_mutator_non_local_means_denoising(config: ConfigDict, /) -> Mutator:
-    return NonLocalMeansDenoisingMutator(config)
-
-
-def _gen_mutator_clahe(config: ConfigDict, /) -> Mutator:
-    return CLAHEMutator(config)
-
-
-def _gen_mutator_rotate(config: ConfigDict, /) -> Mutator:
-    return RotateMutator(config)
 
 
 class Context:
@@ -62,11 +39,10 @@ class Context:
 
         self._mutator_factories: Dict[str, Callable[[ConfigDict], Mutator]] = {}
 
+        self._matcher_factories: Dict[str, Callable[[ConfigDict], Matcher]] = {}
+
         # initialize with built-in mutators
-        self.add_mutator(GrayscaleMutator.MUTATOR_ID, _gen_mutator_grayscale)
-        self.add_mutator(NonLocalMeansDenoisingMutator.MUTATOR_ID, _gen_mutator_non_local_means_denoising)
-        self.add_mutator(CLAHEMutator.MUTATOR_ID, _gen_mutator_clahe)
-        self.add_mutator(RotateMutator.MUTATOR_ID, _gen_mutator_rotate)
+        initialize_builtins(self)
 
     def _get_afi(self) -> AbstractFeedbackInterface:
         return self._afi
@@ -83,12 +59,13 @@ class Context:
             # It is very important that the argument dictionary is picklable, because it will be passed from the parent
             # process to a child process by the ProcessPoolExecutor.
             afi=afi_fork,
-            mutator_factories=self._mutator_factories
+            mutator_factories=self._mutator_factories,
+            matcher_factories=self._matcher_factories
         )
 
         return Future(self, python_future, afi_fork=afi_fork)
 
-    def add_mutator(self, mutator_id: str, factory: Callable[[ConfigDict], Mutator], /):
+    def register_mutator(self, mutator_id: str, factory: Callable[[ConfigDict], Mutator], /):
 
         if mutator_id in self._mutator_factories:
             raise ErrTemplateInvalidMutator(
@@ -97,6 +74,28 @@ class Context:
             )
 
         self._mutator_factories[mutator_id] = factory
+
+    def register_matcher(self, matcher_id: str, factory: Callable[[ConfigDict], Matcher], /):
+
+        if matcher_id in self._matcher_factories:
+            raise ErrTemplateInvalidMatchingEngine(
+                f"while adding '{matcher_id}' matcher.",
+                "A matcher with the same id has already been added."
+            )
+
+        self._matcher_factories[matcher_id] = factory
+
+    def get_mutator(self, mutator_id: str, config: ConfigDict, /) -> Mutator:
+
+        if mutator_id not in self._mutator_factories:
+            raise ErrTemplateInvalidMutator(
+                f"while looking for a factory generating mutator '{mutator_id}'.",
+                "A mutator with this id has not been registered."
+            )
+
+        factory = self._mutator_factories[mutator_id]
+
+        return factory(config)
 
     def __enter__(self):
 

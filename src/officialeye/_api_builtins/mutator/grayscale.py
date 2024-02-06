@@ -1,4 +1,6 @@
-from typing import Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import cv2
 
@@ -6,11 +8,15 @@ import cv2
 from officialeye._api.mutator import Mutator
 
 
+if TYPE_CHECKING:
+    from officialeye.types import ConfigDict
+
+
 class GrayscaleMutator(Mutator):
 
     MUTATOR_ID = "grayscale"
 
-    def __init__(self, config: Dict[str, any], /):
+    def __init__(self, config: ConfigDict, /):
         super().__init__(GrayscaleMutator.MUTATOR_ID, config)
 
     def mutate(self, img: cv2.Mat, /) -> cv2.Mat:

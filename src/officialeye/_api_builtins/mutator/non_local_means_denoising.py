@@ -1,4 +1,6 @@
-from typing import Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import cv2
 
@@ -7,29 +9,33 @@ from officialeye.error.errors.template import ErrTemplateInvalidMutator
 from officialeye._api.mutator import Mutator
 
 
+if TYPE_CHECKING:
+    from officialeye.types import ConfigDict
+
+
 class NonLocalMeansDenoisingMutator(Mutator):
 
     MUTATOR_ID = "non_local_means_denoising"
 
-    def __init__(self, config: Dict[str, any], /):
+    def __init__(self, config: ConfigDict, /):
         super().__init__(NonLocalMeansDenoisingMutator.MUTATOR_ID, config)
 
         # setup configuration loading
 
-        self.get_config().set_value_preprocessor("colored", bool)
-        self.get_config().set_value_preprocessor("h", int)
-        self.get_config().set_value_preprocessor("hForColorComponents", int)
-        self.get_config().set_value_preprocessor("templateWindowSize", int)
-        self.get_config().set_value_preprocessor("searchWindowSize", int)
+        self.config.set_value_preprocessor("colored", bool)
+        self.config.set_value_preprocessor("h", int)
+        self.config.set_value_preprocessor("hForColorComponents", int)
+        self.config.set_value_preprocessor("templateWindowSize", int)
+        self.config.set_value_preprocessor("searchWindowSize", int)
 
         # load data from configuration
 
-        self._colored_mode = self.get_config().get("colored", default=True)
+        self._colored_mode = self.config.get("colored", default=True)
 
-        self._conf_h = self.get_config().get("h", default=10)
-        self._conf_hForColorComponents = self.get_config().get("hForColorComponents", default=10)
-        self._conf_templateWindowSize = self.get_config().get("templateWindowSize", default=7)
-        self._conf_searchWindowSize = self.get_config().get("searchWindowSize", default=21)
+        self._conf_h = self.config.get("h", default=10)
+        self._conf_hForColorComponents = self.config.get("hForColorComponents", default=10)
+        self._conf_templateWindowSize = self.config.get("templateWindowSize", default=7)
+        self._conf_searchWindowSize = self.config.get("searchWindowSize", default=21)
 
         # validate templateWindowSize
         if self._conf_templateWindowSize < 1:

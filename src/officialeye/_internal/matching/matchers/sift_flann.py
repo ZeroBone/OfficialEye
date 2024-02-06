@@ -39,7 +39,7 @@ class SiftFlannMatcher(Matcher):
         self._sensitivity = self.get_config().get("sensitivity", default=0.7)
 
         self._debug_images = []
-        self._result = MatchingResult(self._context, template_id)
+        self._result = MatchingResult(template_id)
 
         # initialize the SIFT engine in CV2
         # noinspection PyUnresolvedReferences
@@ -84,7 +84,7 @@ class SiftFlannMatcher(Matcher):
             pattern_point = np.array(pattern_point, dtype=int)
             target_point = np.array(target_point, dtype=int)
 
-            match = Match(self._context, self.template_id, keypoint_id, pattern_point, target_point)
+            match = Match(self.template_id, keypoint_id, pattern_point, target_point)
             match.set_score(self._sensitivity * n.distance - m.distance)
 
             self._result.add_match(match)

@@ -6,22 +6,27 @@ from typing import TYPE_CHECKING, Dict, Union, Callable
 
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 from officialeye._internal.feedback.dummy import DummyFeedbackInterface
-# noinspection PyProtectedMember
-from officialeye._api.mutator import Mutator
 from officialeye.error.error import OEError
 from officialeye.error.errors.internal import ErrInternal
-from officialeye.error.errors.template import ErrTemplateIdNotUnique, ErrTemplateInvalidMutator
+from officialeye.error.errors.template import ErrTemplateIdNotUnique, ErrTemplateInvalidMutator, ErrTemplateInvalidMatchingEngine
 
 if TYPE_CHECKING:
+    # noinspection PyProtectedMember
+    from officialeye._api.template.match import Matcher
+    # noinspection PyProtectedMember
+    from officialeye._api.mutator import Mutator
     from officialeye._internal.io.driver import IODriver
     from officialeye._internal.template.template import Template
+    from officialeye.types import ConfigDict
 
 
 class InternalContext:
 
     def __init__(self):
         self._afi = DummyFeedbackInterface()
-        self._mutator_factories: Dict[str, Callable[[Dict[str, any]], Mutator]] = {}
+
+        self._mutator_factories: Dict[str, Callable[[ConfigDict], Mutator]] = {}
+        self._matcher_factories: Dict[str, Callable[[ConfigDict], Matcher]] = {}
 
         # TODO: get rid of IO drivers
         self._io_driver: Union[IODriver, None] = None
@@ -34,12 +39,14 @@ class InternalContext:
         # values: corresponding template ids
         self._template_ids: Dict[str, str] = {}
 
-    def setup(self, /, *, afi: AbstractFeedbackInterface, mutator_factories: Dict[str, Callable[[Dict[str, any]], Mutator]]) -> InternalContext:
+    def setup(self, /, *, afi: AbstractFeedbackInterface, mutator_factories: Dict[str, Callable[[ConfigDict], Mutator]],
+              matcher_factories: Dict[str, Callable[[ConfigDict], Matcher]]) -> InternalContext:
         assert afi is not None
         assert mutator_factories is not None
 
         self._afi = afi
         self._mutator_factories = mutator_factories
+        self._matcher_factories = matcher_factories
 
         return self
 
@@ -58,19 +65,29 @@ class InternalContext:
         # TODO: remove this method
         assert False
 
-    def get_mutator(self, mutator_id: str, mutator_config: Dict[str, any], /):
+    def get_mutator(self, mutator_id: str, mutator_config: ConfigDict, /) -> Mutator:
 
-        # TODO: consider caching mutators that have the same id and configuration
+        # TODO: (low priority) consider caching mutators that have the same id and configuration
 
         if mutator_id not in self._mutator_factories:
             raise ErrTemplateInvalidMutator(
-                f"while searching for mutator '{mutator_id}'.",
-                "Unknown mutator id. Has this mutator been properly loaded?"
+                f"while loading mutator '{mutator_id}'.",
+                "Unknown mutator. Has this mutator been properly loaded?"
             )
 
-        factory = self._mutator_factories[mutator_id]
+        return self._mutator_factories[mutator_id](mutator_config)
 
-        return factory(mutator_config)
+    def get_matcher(self, matcher_id: str, matcher_config: ConfigDict, /) -> Matcher:
+
+        # TODO: (low priority) consider caching matchers that have the same id and configuration
+
+        if matcher_id not in self._matcher_factories:
+            raise ErrTemplateInvalidMatchingEngine(
+                f"while loading matcher '{matcher_id}'.",
+                "Unknown matcher. Has this matcher been properly loaded?"
+            )
+
+        return self._matcher_factories[matcher_id](matcher_config)
 
     def add_template(self, template: Template, /):
 

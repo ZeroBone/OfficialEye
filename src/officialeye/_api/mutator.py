@@ -21,7 +21,8 @@ class Mutator(abc.ABC):
 
         self._config = MutatorConfig(config_dict, mutator_id)
 
-    def get_config(self) -> MutatorConfig:
+    @property
+    def config(self) -> MutatorConfig:
         return self._config
 
     @abc.abstractmethod

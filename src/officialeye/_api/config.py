@@ -61,3 +61,18 @@ class MutatorConfig(Config):
             f"while reading configuration of the '{self._mutator_id}' mutator.",
             f"Could not find a value for key '{key}'."
         )
+
+
+class MatcherConfig(Config):
+
+    def __init__(self, config_dict: ConfigDict, matcher_id: str, /):
+
+        super().__init__(config_dict)
+
+        self._matcher_id = matcher_id
+
+    def _get_invalid_key_error(self, key: str, /):
+        return ErrTemplateInvalidMutator(
+            f"while reading configuration of the '{self._matcher_id}' matcher.",
+            f"Could not find a value for key '{key}'."
+        )

@@ -9,7 +9,7 @@ from officialeye._internal.matching.result import MatchingResult
 
 
 class Matcher(ABC):
-    # TODO: migrate matcher to a separate module
+    # TODO: remove this module and migrate completely to officialeye._api
 
     def __init__(self, engine_id: str, template_id: str, img: cv2.Mat, /):
         super().__init__()

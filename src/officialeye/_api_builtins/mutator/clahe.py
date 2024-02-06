@@ -1,9 +1,15 @@
-from typing import Dict
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 import cv2
 
 # noinspection PyProtectedMember
 from officialeye._api.mutator import Mutator
+
+
+if TYPE_CHECKING:
+    from officialeye.types import ConfigDict
 
 
 class CLAHEMutator(Mutator):
@@ -13,7 +19,7 @@ class CLAHEMutator(Mutator):
 
     MUTATOR_ID = "clahe"
 
-    def __init__(self, config: Dict[str, any], /):
+    def __init__(self, config: ConfigDict, /):
         super().__init__(CLAHEMutator.MUTATOR_ID, config)
 
     def mutate(self, img: cv2.Mat, /) -> cv2.Mat:

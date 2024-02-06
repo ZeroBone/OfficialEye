@@ -1,5 +1,7 @@
+from __future__ import annotations
+
 import os
-from typing import Dict, Generator, List
+from typing import Dict, Generator, List, TYPE_CHECKING
 
 import cv2
 
@@ -12,15 +14,10 @@ from officialeye.error.errors.io import ErrIOInvalidPath
 from officialeye.error.errors.template import (
     ErrTemplateInvalidFeature,
     ErrTemplateInvalidKeypoint,
-    ErrTemplateInvalidMatchingEngine,
     ErrTemplateInvalidSupervisionEngine,
 )
 
-from officialeye._internal.matching.matcher import Matcher
-from officialeye._internal.matching.matchers.sift_flann import SiftFlannMatcher
 from officialeye._internal.matching.result import MatchingResult
-# noinspection PyProtectedMember
-from officialeye._api.mutator import Mutator
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.supervision.supervisors.combinatorial import CombinatorialSupervisor
 from officialeye._internal.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor
@@ -30,9 +27,14 @@ from officialeye._internal.template.feature_class.loader import load_template_fe
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
 from officialeye._internal.template.region.feature import TemplateFeature
 from officialeye._internal.template.region.keypoint import TemplateKeypoint
-# noinspection PyProtectedMember
-from officialeye._api.template.region import Feature, Keypoint
-from officialeye._internal.template.template_data import TemplateData
+from officialeye._internal.template.template_data import TemplateData, TemplateDataFeature, TemplateDataKeypoint
+
+
+if TYPE_CHECKING:
+    # noinspection PyProtectedMember
+    from officialeye._api.template.match import Matcher
+    # noinspection PyProtectedMember
+    from officialeye._api.mutator import Mutator
 
 
 class Template:
@@ -117,10 +119,16 @@ class Template:
             width=self.width,
             height=self.height,
             features=[
-                Feature(identifier=f.region_id, x=f.x, y=f.y, w=f.w, h=f.h) for f in self.features()
+                TemplateDataFeature(
+                    identifier=f.region_id,
+                    x=f.x,
+                    y=f.y,
+                    w=f.w,
+                    h=f.h
+                ) for f in self.features()
             ],
             keypoints=[
-                Keypoint(
+                TemplateDataKeypoint(
                     identifier=k.region_id,
                     x=k.x,
                     y=k.y,
@@ -134,8 +142,16 @@ class Template:
             target_mutators=self._target_mutators
         )
 
-    def get_matching_engine(self) -> str:
-        return self._matching["engine"]
+    def get_matcher(self) -> Matcher:
+        matcher_id = self._matching["engine"]
+        matcher_config = self._matching["config"]
+
+        _matcher = get_internal_context().get_matcher(matcher_id, matcher_config)
+
+        # TODO: pass api version of the template, not the internal one
+        _matcher.setup(self)
+
+        return _matcher
 
     def get_supervision_engine(self) -> str:
         return self._supervision["engine"]
@@ -146,25 +162,8 @@ class Template:
     def get_supervision_config(self) -> dict:
         return self._supervision["config"]
 
-    def get_matching_config(self) -> dict:
-        matching_config = self._matching["config"]
-        assert isinstance(matching_config, dict)
-        return matching_config
-
     def get_feature_classes(self) -> FeatureClassManager:
         return self._feature_class_manager
-
-    def _load_keypoint_matcher(self, target_img: cv2.Mat, /) -> Matcher:
-
-        matching_engine = self.get_matching_engine()
-
-        if matching_engine == SiftFlannMatcher.ENGINE_ID:
-            return SiftFlannMatcher(self.template_id, target_img)
-
-        raise ErrTemplateInvalidMatchingEngine(
-            "while loading keypoint matcher",
-            f"unknown matching engine '{matching_engine}'"
-        )
 
     def features(self) -> Generator[TemplateFeature, None, None]:
         for feature_id in self._features:
@@ -239,7 +238,7 @@ class Template:
                 target = mutator.mutate(target)
 
             # start matching
-            matcher = self._load_keypoint_matcher(target)
+            matcher = self.get_matcher()
 
             for keypoint in self.keypoints():
                 keypoint_pattern = keypoint.to_image()

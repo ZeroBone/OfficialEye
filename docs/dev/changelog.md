@@ -10,11 +10,13 @@
 * Switched from thread-based to process-based parallelism for resource-intensive backend operations.
 * Substrantially improved the CLI user interface.
 * Numerous other related architecture changes aimed at the long-term stability of the software.
+* Integrated a new error handling system and related debugging facilitibes.
 
 ### Minor changes
 
-* Removed the `--worker` argument from the `run` and `test` commands, it has become unnececcary in light of the new architecture.
+* Removed the `--worker` argument from the `run` and `test` commands, because it has become redundant and unnececcary in light of the new architecture.
 * Implemented a new approach to handling image outputting in the CLI, that is much more flexible compared to the previous one.
+* Improved type annotations.
 
 [View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.2.0){ .md-button }
 

@@ -62,9 +62,9 @@ def do_show(context: CLIContext, /, *, template_path: str, **kwargs):
 
     template = Template(context.get_api_context(), path=template_path)
 
-    template_img = template.get_image()
+    template_img = template.get_image().load()
 
-    template_img_mutated = template.get_mutated_image()
+    template_img_mutated = template.get_mutated_image().load()
 
     if template_img_mutated.shape == template_img.shape:
         background_img = template_img_mutated
