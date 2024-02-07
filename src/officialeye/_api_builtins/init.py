@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 # noinspection PyProtectedMember
-from officialeye._api.template.match import Matcher
+from officialeye._api.template.matcher import Matcher
 # noinspection PyProtectedMember
 from officialeye._api.mutator import Mutator
 from officialeye._api_builtins.matcher.sift_flann import SiftFlannMatcher

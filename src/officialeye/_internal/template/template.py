@@ -4,7 +4,6 @@ import os
 from concurrent.futures import Future
 from typing import Dict, List, TYPE_CHECKING, Iterable
 
-import cv2
 import numpy as np
 
 # noinspection PyProtectedMember
@@ -18,7 +17,6 @@ from officialeye._internal.template.image import InternalImage
 from officialeye._internal.template.utils import load_mutator_from_dict
 from officialeye._internal.timer import Timer
 from officialeye.error.errors.general import ErrOperationNotSupported
-from officialeye.error.errors.io import ErrIOInvalidPath
 from officialeye.error.errors.template import (
     ErrTemplateInvalidFeature,
     ErrTemplateInvalidKeypoint,
@@ -40,7 +38,7 @@ from officialeye._internal.template.template_data import TemplateData, TemplateD
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
-    from officialeye._api.template.match import Matcher
+    from officialeye._api.template.matcher import Matcher
     # noinspection PyProtectedMember
     from officialeye._api.mutator import Mutator
     # noinspection PyProtectedMember
@@ -58,7 +56,7 @@ class InternalTemplate(ITemplate):
         self._name = yaml_dict["name"]
         self._source = yaml_dict["source"]
 
-        self._height, self._width, _ = self.load_source_image().shape
+        self._height, self._width, _ = self.get_image().load().shape
 
         self._source_mutators: List[Mutator] = [
             load_mutator_from_dict(mutator_dict) for mutator_dict in yaml_dict["mutators"]["source"]
@@ -243,26 +241,6 @@ class InternalTemplate(ITemplate):
         assert keypoint_id in self._keypoints, "Invalid keypoint id"
         return self._keypoints[keypoint_id]
 
-    def load_source_image(self) -> np.ndarray:
-
-        # TODO: remove this method and migrate to corresponding method of IImage
-
-        _image_path = self._get_source_image_path()
-
-        if not os.path.isfile(_image_path):
-            raise ErrIOInvalidPath(
-                f"while loading template source image of template '{self.identifier}'.",
-                f"Inferred path '{_image_path}' does not refer to a file."
-            )
-
-        if not os.access(_image_path, os.R_OK):
-            raise ErrIOInvalidPath(
-                f"while loading template source image of template '{self.identifier}'.",
-                f"The file at path '{_image_path}' could not be read."
-            )
-
-        return cv2.imread(self._get_source_image_path(), cv2.IMREAD_COLOR)
-
     def get_path(self) -> str:
         return self._path_to_template
 
@@ -309,11 +287,7 @@ class InternalTemplate(ITemplate):
 
             for keypoint in self.keypoints:
                 for match in matcher.get_matches_for_keypoint(keypoint):
-                    keypoint_matching_result.add_match()
-                    # TODO
-                    pass
-
-            keypoint_matching_result = matcher.match_finish()
+                    keypoint_matching_result.add_match(match)
 
             if get_internal_context().visualization_generation_enabled():
                 keypoint_matching_result.debug_print()

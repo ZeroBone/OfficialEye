@@ -12,7 +12,7 @@ from officialeye.error.errors.template import ErrTemplateIdNotUnique, ErrTemplat
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
-    from officialeye._api.template.match import Matcher
+    from officialeye._api.template.matcher import Matcher
     # noinspection PyProtectedMember
     from officialeye._api.mutator import Mutator
     from officialeye._internal.io.driver import IODriver
@@ -63,7 +63,7 @@ class InternalContext:
 
     def visualization_generation_enabled(self) -> bool:
         # TODO: remove this method
-        assert False
+        return True
 
     def get_mutator(self, mutator_id: str, mutator_config: ConfigDict, /) -> Mutator:
 

@@ -13,7 +13,9 @@ from officialeye._api.template.feature import IFeature, Feature
 # noinspection PyProtectedMember
 from officialeye._api.template.keypoint import IKeypoint, Keypoint
 # noinspection PyProtectedMember
-from officialeye._api.template.match import Match, IMatcher, Matcher
+from officialeye._api.template.match import IMatch, Match
+# noinspection PyProtectedMember
+from officialeye._api.template.matcher import IMatcher, Matcher
 # noinspection PyProtectedMember
 from officialeye._api.config import Config, MutatorConfig, MatcherConfig
 # noinspection PyProtectedMember

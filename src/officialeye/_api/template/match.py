@@ -1,17 +1,15 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 
 from officialeye._api.template.keypoint import IKeypoint
-from officialeye._api.config import MatcherConfig
 
 
 if TYPE_CHECKING:
     from officialeye._api.template.template import ITemplate
-    from officialeye.types import ConfigDict
 
 
 class IMatch(ABC):
@@ -43,6 +41,24 @@ class IMatch(ABC):
     def get_original_template_point(self) -> np.ndarray:
         """Returns the coordinates of the point lying in the keypoint, in the coordinate system of the underlying template."""
         return self.template_point + self.keypoint.top_left
+
+    def __eq__(self, o: Any) -> bool:
+
+        if not isinstance(o, IMatch):
+            return False
+
+        if self.template != o.template:
+            return False
+
+        if self.keypoint != o.keypoint:
+            return False
+
+        return (np.array_equal(self.template_point, o.template_point)
+                and np.array_equal(self.target_point, o.target_point))
+
+    def __lt__(self, o: Any) -> bool:
+        assert isinstance(o, Match)
+        return self.get_score() < o.get_score()
 
 
 class Match(IMatch):
@@ -80,37 +96,3 @@ class Match(IMatch):
     @property
     def target_point(self) -> np.ndarray:
         return self._target_point.copy()
-
-
-class IMatcher(ABC):
-
-    @property
-    @abstractmethod
-    def config(self) -> MatcherConfig:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def setup(self, template: ITemplate, /) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def match(self, keypoint: IKeypoint, /) -> None:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def get_matches_for_keypoint(self, keypoint: IKeypoint, /) -> Iterable[IMatch]:
-        raise NotImplementedError()
-
-
-class Matcher(IMatcher, ABC):
-
-    def __init__(self, matcher_id: str, config_dict: ConfigDict, /):
-        super().__init__()
-
-        self.matcher_id = matcher_id
-
-        self._config = MatcherConfig(config_dict, matcher_id)
-
-    @property
-    def config(self) -> MatcherConfig:
-        return self._config

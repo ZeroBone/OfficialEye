@@ -6,7 +6,9 @@ import cv2
 import numpy as np
 
 # noinspection PyProtectedMember
-from officialeye._api.template.match import Match, Matcher, IMatch
+from officialeye._api.template.matcher import Matcher
+# noinspection PyProtectedMember
+from officialeye._api.template.match import Match, IMatch
 # noinspection PyProtectedMember
 from officialeye._api.template.keypoint import IKeypoint
 

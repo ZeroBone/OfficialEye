@@ -7,7 +7,7 @@ from __future__ import annotations
 from concurrent.futures import ProcessPoolExecutor, Future as PythonFuture
 from typing import Dict, Callable, TYPE_CHECKING
 
-from officialeye._api.template.match import Matcher
+from officialeye._api.template.matcher import Matcher
 from officialeye._api.future import Future
 from officialeye._api.mutator import Mutator
 # noinspection PyProtectedMember

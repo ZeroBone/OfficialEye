@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import Dict, List, TYPE_CHECKING
 
+# noinspection PyProtectedMember
+from officialeye._api.template.match import IMatch
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
 from officialeye.error.errors.matching import ErrMatchingMatchCountOutOfBounds
@@ -18,7 +20,7 @@ class MatchingResult:
 
         # keys: keypoint ids
         # values: matches with this keypoint
-        self._matches_dict: Dict[str, List[Match]] = {}
+        self._matches_dict: Dict[str, List[IMatch]] = {}
 
         for keypoint in self.get_template().keypoints:
             self._matches_dict[keypoint.identifier] = []
@@ -26,9 +28,9 @@ class MatchingResult:
     def remove_all_matches(self):
         self._matches_dict = {}
 
-    def add_match(self, match: Match, /):
-        assert match.keypoint_id in self._matches_dict
-        self._matches_dict[match.keypoint_id].append(match)
+    def add_match(self, match: IMatch, /):
+        assert match.keypoint.identifier in self._matches_dict
+        self._matches_dict[match.keypoint.identifier].append(match)
 
     def get_matches(self):
         for keypoint_id in self._matches_dict:
