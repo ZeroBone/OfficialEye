@@ -60,7 +60,7 @@ class SupervisionResult:
         assert self._delta_prime.shape == (2,)
         return self._transformation_matrix @ (template_point - self._delta) + self._delta_prime
 
-    def get_feature_warped_region(self, target: cv2.Mat, feature) -> cv2.Mat:
+    def get_feature_warped_region(self, target: np.ndarray, feature) -> np.ndarray:
 
         feature_tl = feature.get_top_left_vec()
         feature_tr = feature.get_top_right_vec()

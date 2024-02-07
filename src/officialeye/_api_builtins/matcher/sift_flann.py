@@ -6,16 +6,16 @@ import cv2
 import numpy as np
 
 # noinspection PyProtectedMember
-from officialeye._api.template.match import Match, Matcher
+from officialeye._api.template.match import Match, Matcher, IMatch
 # noinspection PyProtectedMember
-from officialeye._api.template.region import Keypoint
+from officialeye._api.template.keypoint import IKeypoint
 
 from officialeye.error.errors.matching import ErrMatchingInvalidEngineConfig
 
 if TYPE_CHECKING:
     from officialeye.types import ConfigDict
     # noinspection PyProtectedMember
-    from officialeye._api.template.template import Template
+    from officialeye._api.template.template import ITemplate
 
 
 _FLANN_INDEX_KDTREE = 1
@@ -50,15 +50,15 @@ class SiftFlannMatcher(Matcher):
 
         self._sensitivity = self.config.get("sensitivity", default=0.7)
 
-        self._img: cv2.Mat | None = None
+        self._img: np.ndarray | None = None
         self._sift = None
 
         self._keypoints_target = None
         self._destination_target = None
-        self._template: Template | None = None
-        self._matches: Dict[Keypoint, List[Match]] | None = {}
+        self._template: ITemplate | None = None
+        self._matches: Dict[IKeypoint, List[Match]] | None = {}
 
-    def setup(self, template: Template, /):
+    def setup(self, template: ITemplate, /) -> None:
 
         assert template is not None
 
@@ -75,7 +75,7 @@ class SiftFlannMatcher(Matcher):
 
         self._matches = {}
 
-    def match(self, keypoint: Keypoint, /):
+    def match(self, keypoint: IKeypoint, /) -> None:
 
         _original_pattern_image = keypoint.get_image().load()
 
@@ -123,6 +123,6 @@ class SiftFlannMatcher(Matcher):
         assert keypoint not in self._matches
         self._matches[keypoint] = result
 
-    def get_matches_for_keypoint(self, keypoint: Keypoint, /) -> Iterable[Match]:
+    def get_matches_for_keypoint(self, keypoint: IKeypoint, /) -> Iterable[IMatch]:
         assert keypoint in self._matches
         return self._matches[keypoint]

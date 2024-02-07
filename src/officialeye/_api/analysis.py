@@ -14,10 +14,10 @@ if TYPE_CHECKING:
     from officialeye._api.context import Context
     from officialeye._api.image import Image
     from officialeye._api.analysis_result import AnalysisResult
-    from officialeye._api.template.template import Template
+    from officialeye._api.template.template_interface import ITemplate
 
 
-def analyze(context: Context, *templates: Template,
+def analyze(context: Context, *templates: ITemplate,
             target: Image, interpretation_target: Image | None = None) -> AnalysisResult:
 
     futures: List[Future] = [

@@ -110,7 +110,7 @@ def _child_listener(listener: _ChildrenListener, /):
 
         # TODO: consider introducing a mechanism allowing one to let the child listener thread know about the change in the children dictionary
         # TODO: this will improve performance, because there will be no need to wait for the timeout to expire
-        # TODO: this idea can be implemented, for example, by introducing a new dummy conneciton designed only to communicate 'refresh' messages
+        # TODO: this idea can be implemented, for example, by introducing a new dummy connection designed only to communicate 'refresh' messages
         # TODO: with the child listener thread
         wait(connections, timeout=1.0)
 

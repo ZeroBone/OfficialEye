@@ -1,7 +1,9 @@
 from typing import Dict, Union
 
-import cv2
+import numpy as np
 
+# noinspection PyProtectedMember
+from officialeye._api.template.feature import IFeature
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_afi
@@ -11,10 +13,10 @@ from officialeye._internal.interpretation.loader import load_interpretation_meth
 
 from officialeye._internal.template.feature_class.feature_class import FeatureClass
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
-from officialeye._internal.template.region.region import TemplateRegion
+from officialeye._internal.template.region import InternalRegion
 
 
-class TemplateFeature(TemplateRegion):
+class InternalFeature(InternalRegion, IFeature):
 
     def __init__(self, template_id: str, feature_dict: Dict[str, any], /):
         super().__init__(template_id, feature_dict)
@@ -30,11 +32,11 @@ class TemplateFeature(TemplateRegion):
         if self._class_id is None:
             return
 
-        feature_classes: FeatureClassManager = self.get_template().get_feature_classes()
+        feature_classes: FeatureClassManager = self.template.get_feature_classes()
 
         if not feature_classes.contains_class(self._class_id):
             raise ErrTemplateInvalidFeature(
-                f"while loading class for feature '{self.region_id}' in template '{self.get_template().template_id}'.",
+                f"while loading class for feature '{self.identifier}' in template '{self.template.identifier}'.",
                 f"Specified feature class '{self._class_id}' is not defined."
             )
 
@@ -42,7 +44,7 @@ class TemplateFeature(TemplateRegion):
 
         if feature_class.is_abstract():
             raise ErrTemplateInvalidFeature(
-                f"while loading class for feature '{self.region_id}' in template '{self.get_template().template_id}'.",
+                f"while loading class for feature '{self.identifier}' in template '{self.template.identifier}'.",
                 f"Cannot instantiate an abstract feature class '{self._class_id}'."
             )
 
@@ -52,7 +54,7 @@ class TemplateFeature(TemplateRegion):
         if self._class_id is None:
             return None
 
-        feature_classes: FeatureClassManager = self.get_template().get_feature_classes()
+        feature_classes: FeatureClassManager = self.template.get_feature_classes()
 
         assert feature_classes.contains_class(self._class_id)
 
@@ -62,7 +64,7 @@ class TemplateFeature(TemplateRegion):
 
         return feature_class
 
-    def apply_mutators_to_image(self, img: cv2.Mat, /) -> cv2.Mat:
+    def apply_mutators_to_image(self, img: np.ndarray, /) -> np.ndarray:
         """
         Takes an image and applies the mutators defined in the corresponding feature class.
 
@@ -89,7 +91,7 @@ class TemplateFeature(TemplateRegion):
 
         return img
 
-    def interpret_image(self, img: cv2.Mat, /) -> any:
+    def interpret_image(self, img: np.ndarray, /) -> any:
         """
         Takes an image and runs the interpretation method defined in the corresponding feature class.
         Assumes that the feature class is present.
@@ -113,4 +115,4 @@ class TemplateFeature(TemplateRegion):
 
         interpretation_method = load_interpretation_method(interpretation_method_id, interpretation_method_config)
 
-        return interpretation_method.interpret(img, self._template_id, self.region_id)
+        return interpretation_method.interpret(img, self._template_id, self.identifier)

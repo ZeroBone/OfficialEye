@@ -1,35 +1,23 @@
 import os
-from abc import ABC, abstractmethod
 from typing import List
 
 import cv2
 import numpy as np
 
+# noinspection PyProtectedMember
+from officialeye._api.image import IImage
+# noinspection PyProtectedMember
 from officialeye._api.mutator import IMutator
-from officialeye._api.context import Context
+from officialeye._internal.context.singleton import get_internal_afi
+from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye.error.errors.io import ErrIOInvalidPath
 
 
-class IImage(ABC):
+class InternalImage(IImage):
 
-    def __init__(self):
+    def __init__(self, /, *, path: str):
         super().__init__()
 
-    @abstractmethod
-    def load(self) -> np.ndarray:
-        raise NotImplementedError()
-
-    @abstractmethod
-    def apply_mutators(self, *mutators: IMutator):
-        raise NotImplementedError()
-
-
-class Image(IImage):
-
-    def __init__(self, context: Context, /, *, path: str):
-        super().__init__()
-
-        self._context = context
         self._mutators: List[IMutator] = []
         self._path = path
 
@@ -50,6 +38,7 @@ class Image(IImage):
         img = cv2.imread(self._path, cv2.IMREAD_COLOR)
 
         for mutator in self._mutators:
+            get_internal_afi().info(Verbosity.DEBUG, f"InternalImage::load() applies mutator '{mutator}'")
             img = mutator.mutate(img)
 
         return img

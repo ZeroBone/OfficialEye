@@ -1,7 +1,7 @@
 import numpy as np
 
 from officialeye._internal.context.singleton import get_internal_context
-from officialeye._internal.template.region.keypoint import TemplateKeypoint
+from officialeye._internal.template.keypoint import InternalKeypoint
 
 
 class Match:
@@ -32,7 +32,7 @@ class Match:
     def get_template(self):
         return get_internal_context().get_template(self.template_id)
 
-    def get_keypoint(self) -> TemplateKeypoint:
+    def get_keypoint(self) -> InternalKeypoint:
         return self.get_template().get_keypoint(self.keypoint_id)
 
     def get_original_template_point(self) -> np.ndarray:

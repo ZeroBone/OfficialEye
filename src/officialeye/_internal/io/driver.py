@@ -1,10 +1,13 @@
 import abc
 from abc import ABC
 
-import cv2
+import numpy as np
 
 from officialeye.error.error import OEError
 from officialeye._internal.supervision.result import SupervisionResult
+
+
+# TODO: get rid of this module completely
 
 
 class IODriver(ABC):
@@ -13,7 +16,7 @@ class IODriver(ABC):
         pass
 
     @abc.abstractmethod
-    def handle_supervision_result(self, target: cv2.Mat, result: SupervisionResult, /):
+    def handle_supervision_result(self, target: np.ndarray, result: SupervisionResult, /):
         raise NotImplementedError()
 
     @abc.abstractmethod

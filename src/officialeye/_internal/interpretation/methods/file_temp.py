@@ -2,6 +2,7 @@ import tempfile
 from typing import Dict
 
 import cv2
+import numpy as np
 
 from officialeye._internal.interpretation.method import InterpretationMethod
 from officialeye._internal.interpretation.serializable import Serializable
@@ -16,7 +17,7 @@ class FileTempMethod(InterpretationMethod):
 
         self._format = self.get_config().get("format", default="png")
 
-    def interpret(self, feature_img: cv2.Mat, template_id: str, feature_id: str, /) -> Serializable:
+    def interpret(self, feature_img: np.ndarray, template_id: str, feature_id: str, /) -> Serializable:
 
         with tempfile.NamedTemporaryFile(prefix="officialeye_", suffix=f".{self._format}", delete=False) as fp:
             fp.close()

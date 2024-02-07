@@ -1,10 +1,14 @@
-from typing import Dict, List
+from __future__ import annotations
+
+from typing import Dict, List, TYPE_CHECKING
 
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
 from officialeye.error.errors.matching import ErrMatchingMatchCountOutOfBounds
 
-from officialeye._internal.matching.match import Match
+
+if TYPE_CHECKING:
+    from officialeye._internal.matching.match import Match
 
 
 class MatchingResult:
@@ -16,8 +20,8 @@ class MatchingResult:
         # values: matches with this keypoint
         self._matches_dict: Dict[str, List[Match]] = {}
 
-        for keypoint in self.get_template().keypoints():
-            self._matches_dict[keypoint.region_id] = []
+        for keypoint in self.get_template().keypoints:
+            self._matches_dict[keypoint.identifier] = []
 
     def remove_all_matches(self):
         self._matches_dict = {}
@@ -60,8 +64,8 @@ class MatchingResult:
         for keypoint_id in self._matches_dict:
             keypoint = self.get_template().get_keypoint(keypoint_id)
 
-            keypoint_matches_min = keypoint.get_matches_min()
-            keypoint_matches_max = keypoint.get_matches_max()
+            keypoint_matches_min = keypoint.matches_min
+            keypoint_matches_max = keypoint.matches_max
 
             keypoint_matches_count = len(self._matches_dict[keypoint_id])
 

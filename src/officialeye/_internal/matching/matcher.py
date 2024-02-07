@@ -11,7 +11,7 @@ from officialeye._internal.matching.result import MatchingResult
 class Matcher(ABC):
     # TODO: remove this module and migrate completely to officialeye._api
 
-    def __init__(self, engine_id: str, template_id: str, img: cv2.Mat, /):
+    def __init__(self, engine_id: str, template_id: str, img: np.ndarray, /):
         super().__init__()
 
         self._engine_id = engine_id
@@ -38,7 +38,7 @@ class Matcher(ABC):
         self._img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
     @abc.abstractmethod
-    def match_keypoint(self, pattern: cv2.Mat, keypoint_id: str, /):
+    def match_keypoint(self, pattern: np.ndarray, keypoint_id: str, /):
         raise NotImplementedError()
 
     @abc.abstractmethod

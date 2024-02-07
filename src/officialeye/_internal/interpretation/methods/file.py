@@ -2,6 +2,7 @@ import os
 from typing import Dict
 
 import cv2
+import numpy as np
 
 from officialeye._internal.context.singleton import get_internal_context
 from officialeye.error.errors.template import ErrTemplateInvalidInterpretation
@@ -18,7 +19,7 @@ class FileMethod(InterpretationMethod):
 
         self._path = self.get_config().get("path")
 
-    def interpret(self, feature_img: cv2.Mat, template_id: str, feature_id: str, /) -> Serializable:
+    def interpret(self, feature_img: np.ndarray, template_id: str, feature_id: str, /) -> Serializable:
 
         feature = get_internal_context().get_template(template_id).get_feature(feature_id)
 

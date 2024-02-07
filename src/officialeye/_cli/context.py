@@ -6,6 +6,7 @@ from typing import List
 
 import click
 import cv2
+import numpy as np
 from rich.prompt import Confirm
 
 from officialeye.__version__ import __ascii_logo__
@@ -176,7 +177,7 @@ class CLIContext:
 
         return os.path.join(self.export_directory, file_name)
 
-    def export_image(self, img: cv2.Mat, /, *, file_name: str = "") -> str:
+    def export_image(self, img: np.ndarray, /, *, file_name: str = "") -> str:
 
         export_file_path = self.allocate_file_for_export(file_name=file_name)
 
@@ -186,7 +187,7 @@ class CLIContext:
 
         return export_file_path
 
-    def export_and_show_image(self, img: cv2.Mat, /, *, file_name: str = ""):
+    def export_and_show_image(self, img: np.ndarray, /, *, file_name: str = ""):
         path = self.export_image(img, file_name=file_name)
 
         if self.verbosity != Verbosity.QUIET and Confirm.ask(

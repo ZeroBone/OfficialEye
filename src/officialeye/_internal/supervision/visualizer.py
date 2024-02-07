@@ -5,12 +5,12 @@ import numpy as np
 
 from officialeye._internal.context.singleton import get_internal_context
 from officialeye._internal.supervision.result import SupervisionResult
-from officialeye._internal.template.region.keypoint import TemplateKeypoint
+from officialeye._internal.template.keypoint import InternalKeypoint
 
 
 class SupervisionResultVisualizer:
 
-    def __init__(self, result: SupervisionResult, target: cv2.Mat):
+    def __init__(self, result: SupervisionResult, target: np.ndarray):
         self._result = result
         self._target = target
 
@@ -24,7 +24,7 @@ class SupervisionResultVisualizer:
     def get_template(self):
         return get_internal_context().get_template(self._result.template_id)
 
-    def get_padded_keypoint_image(self, keypoint: TemplateKeypoint) -> np.ndarray:
+    def get_padded_keypoint_image(self, keypoint: InternalKeypoint) -> np.ndarray:
 
         assert keypoint.w <= self._palette_width
 
@@ -52,7 +52,7 @@ class SupervisionResultVisualizer:
 
         return keypoint_padded
 
-    def render(self) -> cv2.Mat:
+    def render(self) -> np.ndarray:
 
         keypoints_palette = cv2.vconcat([
             self.get_padded_keypoint_image(self.get_template().get_keypoint(keypoint_id))

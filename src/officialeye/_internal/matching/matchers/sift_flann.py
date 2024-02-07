@@ -13,7 +13,7 @@ class SiftFlannMatcher(Matcher):
 
     ENGINE_ID = "sift_flann"
 
-    def __init__(self, template_id: str, img: cv2.Mat, /):
+    def __init__(self, template_id: str, img: np.ndarray, /):
         super().__init__(SiftFlannMatcher.ENGINE_ID, template_id, img)
 
         def _preprocess_sensitivity(value: any) -> float:
@@ -48,7 +48,7 @@ class SiftFlannMatcher(Matcher):
         # pre-compute the sift keypoints in the target image
         self._keypoints_target, self._destination_target = self._sift.detectAndCompute(self._img, None)
 
-    def match_keypoint(self, pattern: cv2.Mat, keypoint_id: str, /):
+    def match_keypoint(self, pattern: np.ndarray, keypoint_id: str, /):
 
         pattern = cv2.cvtColor(pattern, cv2.COLOR_BGR2GRAY)
 

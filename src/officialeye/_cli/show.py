@@ -1,8 +1,11 @@
 from typing import Tuple
 
 import cv2
+import numpy as np
 
-from officialeye import Template, Region
+from officialeye import IRegion
+# noinspection PyProtectedMember
+from officialeye._api.template.template import Template
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._cli.context import CLIContext
@@ -15,7 +18,7 @@ _FEATURE_RECT_COLOR = (0, 0xff, 0)
 _KEYPOINT_RECT_COLOR = (0, 0, 0xff)
 
 
-def _visualize_region(region: Region, img: cv2.Mat, /, *, rect_color: Tuple[int, int, int], label_color=_LABEL_COLOR_DEFAULT) -> cv2.Mat:
+def _visualize_region(region: IRegion, img: np.ndarray, /, *, rect_color: Tuple[int, int, int], label_color=_LABEL_COLOR_DEFAULT) -> np.ndarray:
 
     img = cv2.rectangle(img, (region.x, region.y), (region.x + region.w, region.y + region.h), rect_color, 4)
 
@@ -39,8 +42,8 @@ def _visualize_region(region: Region, img: cv2.Mat, /, *, rect_color: Tuple[int,
     return img
 
 
-def _visualize_regions(template: Template, background_img: cv2.Mat, /, *,
-                       hide_features: bool = False, hide_keypoints: bool = False) -> cv2.Mat:
+def _visualize_regions(template: Template, background_img: np.ndarray, /, *,
+                       hide_features: bool = False, hide_keypoints: bool = False) -> np.ndarray:
 
     img = background_img
 

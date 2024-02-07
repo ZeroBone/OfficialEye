@@ -16,7 +16,7 @@ if TYPE_CHECKING:
     # noinspection PyProtectedMember
     from officialeye._api.mutator import Mutator
     from officialeye._internal.io.driver import IODriver
-    from officialeye._internal.template.template import Template
+    from officialeye._internal.template.template import InternalTemplate
     from officialeye.types import ConfigDict
 
 
@@ -33,7 +33,7 @@ class InternalContext:
 
         # keys: template ids
         # values: template
-        self._loaded_templates: Dict[str, Template] = {}
+        self._loaded_templates: Dict[str, InternalTemplate] = {}
 
         # keys: paths to templates
         # values: corresponding template ids
@@ -89,36 +89,36 @@ class InternalContext:
 
         return self._matcher_factories[matcher_id](matcher_config)
 
-    def add_template(self, template: Template, /):
+    def add_template(self, template: InternalTemplate, /):
 
         template_path = template.get_path()
 
         assert template_path not in self._template_ids, "A template from the same path has already been loaded"
 
-        if template.template_id in self._loaded_templates:
+        if template.identifier in self._loaded_templates:
             raise ErrTemplateIdNotUnique(
-                f"while loading template '{template.template_id}'",
+                f"while loading template '{template.identifier}'",
                 "A template with the same id has already been loaded."
             )
 
-        self._loaded_templates[template.template_id] = template
-        self._template_ids[template_path] = template.template_id
+        self._loaded_templates[template.identifier] = template
+        self._template_ids[template_path] = template.identifier
 
         try:
             template.validate()
         except OEError as err:
             # rollback the loaded template
-            del self._loaded_templates[template.template_id]
+            del self._loaded_templates[template.identifier]
             del self._template_ids[template_path]
 
             # reraise the cause
             raise err
 
-    def get_template(self, template_id: str, /) -> Template:
+    def get_template(self, template_id: str, /) -> InternalTemplate:
         assert template_id in self._loaded_templates, "Unknown template id"
         return self._loaded_templates[template_id]
 
-    def get_template_by_path(self, template_path: str, /) -> Template | None:
+    def get_template_by_path(self, template_path: str, /) -> InternalTemplate | None:
 
         if template_path not in self._template_ids:
             return None

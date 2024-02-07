@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-import cv2
+import numpy as np
 
 # noinspection PyProtectedMember
 from officialeye._api.mutator import Mutator
@@ -28,7 +28,5 @@ class CropMutator(Mutator):
         self._w = self.config.get("w")
         self._h = self.config.get("h")
 
-    def mutate(self, img: cv2.Mat, /) -> cv2.Mat:
-        return cv2.Mat(
-            img[self._y:self._y + self._h, self._x:self._x + self._w]
-        )
+    def mutate(self, img: np.ndarray, /) -> np.ndarray:
+        return img[self._y:self._y + self._h, self._x:self._x + self._w]

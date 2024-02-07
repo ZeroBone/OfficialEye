@@ -1,7 +1,7 @@
 import abc
 from typing import Dict
 
-import cv2
+import numpy as np
 
 from officialeye._internal.interpretation.config import InterpretationMethodConfig
 from officialeye._internal.interpretation.serializable import Serializable
@@ -20,5 +20,5 @@ class InterpretationMethod(abc.ABC):
         return self._config
 
     @abc.abstractmethod
-    def interpret(self, feature_img: cv2.Mat, template_id: str, feature_id: str, /) -> Serializable:
+    def interpret(self, feature_img: np.ndarray, template_id: str, feature_id: str, /) -> Serializable:
         raise NotImplementedError()

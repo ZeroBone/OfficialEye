@@ -5,11 +5,15 @@ Root module.
 # noinspection PyProtectedMember
 from officialeye._api.context import Context
 # noinspection PyProtectedMember
-from officialeye._api.template.template import Template
+from officialeye._api.template.template import ITemplate, Template
 # noinspection PyProtectedMember
-from officialeye._api.template.region import Region, Feature, Keypoint
+from officialeye._api.template.region import IRegion, Region
 # noinspection PyProtectedMember
-from officialeye._api.template.match import Match, Matcher
+from officialeye._api.template.feature import IFeature, Feature
+# noinspection PyProtectedMember
+from officialeye._api.template.keypoint import IKeypoint, Keypoint
+# noinspection PyProtectedMember
+from officialeye._api.template.match import Match, IMatcher, Matcher
 # noinspection PyProtectedMember
 from officialeye._api.config import Config, MutatorConfig, MatcherConfig
 # noinspection PyProtectedMember

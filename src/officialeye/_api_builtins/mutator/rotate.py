@@ -38,7 +38,7 @@ class RotateMutator(Mutator):
 
         self._angle = self.config.get("angle")
 
-    def mutate(self, img: cv2.Mat, /) -> cv2.Mat:
+    def mutate(self, img: np.ndarray, /) -> np.ndarray:
 
         if self._angle == 0:
             # we do not need to rotate the image at all

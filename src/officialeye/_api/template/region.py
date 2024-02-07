@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
 import numpy as np
@@ -8,13 +9,68 @@ import numpy as np
 from officialeye._api_builtins.mutator.crop import CropMutator
 
 if TYPE_CHECKING:
-    from officialeye._api.image import Image
-    from officialeye._api.template.template import Template
+    from officialeye._api.image import IImage
+    from officialeye._api.template.template import ITemplate
 
 
-class Region:
+class IRegion(ABC):
 
-    def __init__(self, template: Template, /, *, identifier: str, x: int, y: int, w: int, h: int):
+    @property
+    @abstractmethod
+    def identifier(self) -> str:
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def x(self) -> int:
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def y(self) -> int:
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def w(self) -> int:
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def h(self) -> int:
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
+    def template(self) -> ITemplate:
+        raise NotImplementedError()
+
+    @property
+    def top_left(self) -> np.ndarray:
+        return np.array([self.x, self.y])
+
+    @property
+    def top_right(self) -> np.ndarray:
+        return np.array([self.x + self.w, self.y])
+
+    @property
+    def bottom_left(self) -> np.ndarray:
+        return np.array([self.x, self.y + self.h])
+
+    @property
+    def bottom_right(self) -> np.ndarray:
+        return np.array([self.x + self.w, self.y + self.h])
+
+    def get_image(self) -> IImage:
+        _mutator = CropMutator(dict(x=self.x, y=self.y, w=self.w, h=self.h))
+        _img: IImage = self.template.get_mutated_image()
+        _img.apply_mutators(_mutator)
+        return _img
+
+
+class Region(IRegion):
+
+    def __init__(self, template: ITemplate, /, *, identifier: str, x: int, y: int, w: int, h: int):
         self._template = template
         self._identifier = identifier
         self._x = x
@@ -52,59 +108,6 @@ class Region:
     def h(self) -> int:
         return self._h
 
-    def get_image(self) -> Image:
-        _mutator = CropMutator(dict(x=self.x, y=self.y, w=self.w, h=self.h))
-        _img: Image = self._template.get_mutated_image()
-        _img.apply_mutators(_mutator)
-        return _img
-
     @property
-    def top_left(self) -> np.ndarray:
-        return np.array([self.x, self.y])
-
-    @property
-    def top_right(self) -> np.ndarray:
-        return np.array([self.x + self.w, self.y])
-
-    @property
-    def bottom_left(self) -> np.ndarray:
-        return np.array([self.x, self.y + self.h])
-
-    @property
-    def bottom_right(self) -> np.ndarray:
-        return np.array([self.x + self.w, self.y + self.h])
-
-
-class Feature(Region):
-
-    def __init__(self, template: Template, /, **kwargs):
-        super().__init__(template, **kwargs)
-
-    def __eq__(self, o: Any) -> bool:
-        return super().__eq__(o)
-
-    def __hash__(self):
-        return super().__hash__()
-
-
-class Keypoint(Region):
-
-    def __init__(self, template: Template, /, *, matches_min: int, matches_max: int, **kwargs):
-        super().__init__(template, **kwargs)
-
-        self._matches_min = matches_min
-        self._matches_max = matches_max
-
-    def __eq__(self, o: Any) -> bool:
-        return super().__eq__(o)
-
-    def __hash__(self):
-        return super().__hash__()
-
-    @property
-    def matches_min(self) -> int:
-        return self._matches_min
-
-    @property
-    def matches_max(self) -> int:
-        return self._matches_max
+    def template(self) -> ITemplate:
+        return self._template

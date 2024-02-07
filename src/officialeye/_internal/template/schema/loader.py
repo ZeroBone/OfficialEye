@@ -6,7 +6,7 @@ from officialeye._internal.context.singleton import get_internal_afi, get_intern
 from officialeye.error.errors.template import ErrTemplateInvalidSyntax
 
 from officialeye._internal.template.schema.schema import generate_template_schema
-from officialeye._internal.template.template import Template
+from officialeye._internal.template.template import InternalTemplate
 
 _oe_template_schema = generate_template_schema()
 
@@ -20,7 +20,7 @@ def _strict_yaml_error_to_syntax_error(error: yml.YAMLError, /, *, path: str) ->
     )
 
 
-def _do_load_template(path: str, /) -> Template:
+def _do_load_template(path: str, /) -> InternalTemplate:
     global _oe_template_schema
 
     with open(path, "r") as fh:
@@ -33,14 +33,14 @@ def _do_load_template(path: str, /) -> Template:
 
     data = yaml_document.data
 
-    template = Template(data, path)
+    template = InternalTemplate(data, path)
 
     get_internal_afi().info(Verbosity.INFO, f"Loaded template: [b]{template}[/]")
 
     return template
 
 
-def load_template(path: str, /) -> Template:
+def load_template(path: str, /) -> InternalTemplate:
     """
     Loads a template from a file located at the specified path.
 

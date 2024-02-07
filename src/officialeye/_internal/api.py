@@ -26,7 +26,7 @@ def template_analyze(template_path: str, /, *, target_path: str, interpretation_
     with get_internal_context().setup(**kwargs):
         template = load_template(template_path)
 
-        target: cv2.Mat = cv2.imread(target_path, cv2.IMREAD_COLOR)
+        target: np.ndarray = cv2.imread(target_path, cv2.IMREAD_COLOR)
 
         if interpretation_target_path is None:
             interpretation_target = target

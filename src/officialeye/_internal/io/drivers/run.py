@@ -8,7 +8,7 @@ from officialeye.error.error import OEError
 from officialeye.error.errors.io import ErrIOOperationNotSupportedByDriver
 from officialeye._internal.io.driver import IODriver
 from officialeye._internal.supervision.result import SupervisionResult
-from officialeye._internal.template.template import Template
+from officialeye._internal.template.template import InternalTemplate
 
 
 def _output_dict(d: dict):
@@ -22,7 +22,7 @@ class RunIODriver(IODriver):
     def __init__(self, /):
         super().__init__()
 
-    def handle_show_result(self, template: Template, img: cv2.Mat, /):
+    def handle_show_result(self, template: InternalTemplate, img: np.ndarray, /):
         raise ErrIOOperationNotSupportedByDriver(
             f"while trying to output the result of showing the template '{template.template_id}'",
             "Driver 'run' does not support this operation."
@@ -34,7 +34,7 @@ class RunIODriver(IODriver):
             "err": error.serialize()
         })
 
-    def handle_supervision_result(self, target: cv2.Mat, result: SupervisionResult, /):
+    def handle_supervision_result(self, target: np.ndarray, result: SupervisionResult, /):
 
         assert result is not None
 

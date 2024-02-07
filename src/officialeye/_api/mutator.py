@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-import abc
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 import cv2
@@ -12,7 +12,18 @@ if TYPE_CHECKING:
     from officialeye.types import ConfigDict
 
 
-class Mutator(abc.ABC):
+class IMutator(ABC):
+
+    @property
+    def config(self) -> MutatorConfig:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def mutate(self, img: np.ndarray, /) -> np.ndarray:
+        raise NotImplementedError()
+
+
+class Mutator(IMutator, ABC):
 
     def __init__(self, mutator_id: str, config_dict: ConfigDict, /):
         super().__init__()
@@ -24,7 +35,3 @@ class Mutator(abc.ABC):
     @property
     def config(self) -> MutatorConfig:
         return self._config
-
-    @abc.abstractmethod
-    def mutate(self, img: cv2.Mat, /) -> cv2.Mat:
-        raise NotImplementedError()

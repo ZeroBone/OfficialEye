@@ -63,7 +63,7 @@ class NonLocalMeansDenoisingMutator(Mutator):
                 f"The 'searchWindowSize' parameter must be odd, got '{self._conf_searchWindowSize}'."
             )
 
-    def mutate(self, img: cv2.Mat, /) -> cv2.Mat:
+    def mutate(self, img: np.ndarray, /) -> np.ndarray:
 
         if self._colored_mode:
             return cv2.fastNlMeansDenoisingColored(

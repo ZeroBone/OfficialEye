@@ -9,6 +9,8 @@ from officialeye._internal.interpretation.methods.ocr_tesseract import Tesseract
 
 def load_interpretation_method(method_id: str, config_dict: Dict[str, any], /) -> InterpretationMethod:
 
+    # TODO: get rid of this method by abstracting it out similar to how it was done with mutator loading
+
     if method_id == TesseractMethod.METHOD_ID:
         return TesseractMethod(config_dict)
 
