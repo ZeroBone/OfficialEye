@@ -19,7 +19,7 @@ from officialeye._api.template.matcher import IMatcher, Matcher
 # noinspection PyProtectedMember
 from officialeye._api.config import Config, MutatorConfig, MatcherConfig
 # noinspection PyProtectedMember
-from officialeye._api.mutator import Mutator
+from officialeye._api.mutator import Mutator, IMutator
 # noinspection PyProtectedMember
 from officialeye._api.image import Image
 # noinspection PyProtectedMember

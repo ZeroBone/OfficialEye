@@ -3,9 +3,9 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 # noinspection PyProtectedMember
-from officialeye._api.template.matcher import Matcher
+from officialeye._api.template.matcher import IMatcher
 # noinspection PyProtectedMember
-from officialeye._api.mutator import Mutator
+from officialeye._api.mutator import IMutator
 from officialeye._api_builtins.matcher.sift_flann import SiftFlannMatcher
 
 from officialeye._api_builtins.mutator.clahe import CLAHEMutator
@@ -21,25 +21,25 @@ if TYPE_CHECKING:
 
 # mutator generators
 
-def _gen_mutator_grayscale(config: ConfigDict, /) -> Mutator:
+def _gen_mutator_grayscale(config: ConfigDict, /) -> IMutator:
     return GrayscaleMutator(config)
 
 
-def _gen_mutator_non_local_means_denoising(config: ConfigDict, /) -> Mutator:
+def _gen_mutator_non_local_means_denoising(config: ConfigDict, /) -> IMutator:
     return NonLocalMeansDenoisingMutator(config)
 
 
-def _gen_mutator_clahe(config: ConfigDict, /) -> Mutator:
+def _gen_mutator_clahe(config: ConfigDict, /) -> IMutator:
     return CLAHEMutator(config)
 
 
-def _gen_mutator_rotate(config: ConfigDict, /) -> Mutator:
+def _gen_mutator_rotate(config: ConfigDict, /) -> IMutator:
     return RotateMutator(config)
 
 
 # matcher generators
 
-def _gen_matcher_sift_flann(config: ConfigDict, /) -> Matcher:
+def _gen_matcher_sift_flann(config: ConfigDict, /) -> IMatcher:
     return SiftFlannMatcher(config)
 
 

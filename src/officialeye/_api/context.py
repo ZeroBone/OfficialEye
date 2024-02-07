@@ -5,11 +5,10 @@ Module represeting the OfficialEye context.
 from __future__ import annotations
 
 from concurrent.futures import ProcessPoolExecutor, Future as PythonFuture
-from typing import Dict, Callable, TYPE_CHECKING
+from typing import Dict, TYPE_CHECKING
 
-from officialeye._api.template.matcher import Matcher
 from officialeye._api.future import Future
-from officialeye._api.mutator import Mutator
+from officialeye._api.mutator import IMutator
 # noinspection PyProtectedMember
 from officialeye._api_builtins.init import initialize_builtins
 # noinspection PyProtectedMember
@@ -21,7 +20,7 @@ from officialeye.error.errors.internal import ErrInvalidState
 from officialeye.error.errors.template import ErrTemplateInvalidMutator, ErrTemplateInvalidMatchingEngine
 
 if TYPE_CHECKING:
-    from officialeye.types import ConfigDict
+    from officialeye.types import ConfigDict, MutatorFactory, MatcherFactory
 
 
 class Context:
@@ -37,9 +36,9 @@ class Context:
 
         self._executor = ProcessPoolExecutor()
 
-        self._mutator_factories: Dict[str, Callable[[ConfigDict], Mutator]] = {}
+        self._mutator_factories: Dict[str, MutatorFactory] = {}
 
-        self._matcher_factories: Dict[str, Callable[[ConfigDict], Matcher]] = {}
+        self._matcher_factories: Dict[str, MatcherFactory] = {}
 
         # initialize with built-in mutators
         initialize_builtins(self)
@@ -65,7 +64,7 @@ class Context:
 
         return Future(self, python_future, afi_fork=afi_fork)
 
-    def register_mutator(self, mutator_id: str, factory: Callable[[ConfigDict], Mutator], /):
+    def register_mutator(self, mutator_id: str, factory: MutatorFactory, /):
 
         if mutator_id in self._mutator_factories:
             raise ErrTemplateInvalidMutator(
@@ -75,7 +74,7 @@ class Context:
 
         self._mutator_factories[mutator_id] = factory
 
-    def register_matcher(self, matcher_id: str, factory: Callable[[ConfigDict], Matcher], /):
+    def register_matcher(self, matcher_id: str, factory: MatcherFactory, /):
 
         if matcher_id in self._matcher_factories:
             raise ErrTemplateInvalidMatchingEngine(
@@ -85,7 +84,7 @@ class Context:
 
         self._matcher_factories[matcher_id] = factory
 
-    def get_mutator(self, mutator_id: str, config: ConfigDict, /) -> Mutator:
+    def get_mutator(self, mutator_id: str, config: ConfigDict, /) -> IMutator:
 
         if mutator_id not in self._mutator_factories:
             raise ErrTemplateInvalidMutator(
@@ -93,9 +92,7 @@ class Context:
                 "A mutator with this id has not been registered."
             )
 
-        factory = self._mutator_factories[mutator_id]
-
-        return factory(config)
+        return self._mutator_factories[mutator_id](config)
 
     def __enter__(self):
 

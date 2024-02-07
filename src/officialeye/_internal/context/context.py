@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 from types import TracebackType
-from typing import TYPE_CHECKING, Dict, Union, Callable
+from typing import TYPE_CHECKING, Dict, Callable
 
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 from officialeye._internal.feedback.dummy import DummyFeedbackInterface
@@ -15,9 +15,8 @@ if TYPE_CHECKING:
     from officialeye._api.template.matcher import Matcher
     # noinspection PyProtectedMember
     from officialeye._api.mutator import Mutator
-    from officialeye._internal.io.driver import IODriver
     from officialeye._internal.template.template import InternalTemplate
-    from officialeye.types import ConfigDict
+    from officialeye.types import ConfigDict, MutatorFactory, MatcherFactory
 
 
 class InternalContext:
@@ -25,11 +24,8 @@ class InternalContext:
     def __init__(self):
         self._afi = DummyFeedbackInterface()
 
-        self._mutator_factories: Dict[str, Callable[[ConfigDict], Mutator]] = {}
-        self._matcher_factories: Dict[str, Callable[[ConfigDict], Matcher]] = {}
-
-        # TODO: get rid of IO drivers
-        self._io_driver: Union[IODriver, None] = None
+        self._mutator_factories: Dict[str, MutatorFactory] = {}
+        self._matcher_factories: Dict[str, MatcherFactory] = {}
 
         # keys: template ids
         # values: template
