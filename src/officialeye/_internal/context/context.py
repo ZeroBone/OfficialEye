@@ -7,14 +7,13 @@ from typing import TYPE_CHECKING, Dict, Callable
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 from officialeye._internal.feedback.dummy import DummyFeedbackInterface
 from officialeye.error.error import OEError
-from officialeye.error.errors.internal import ErrInternal
 from officialeye.error.errors.template import ErrTemplateIdNotUnique, ErrTemplateInvalidMutator, ErrTemplateInvalidMatchingEngine
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
-    from officialeye._api.template.matcher import Matcher
+    from officialeye._api.template.matcher import Matcher, IMatcher
     # noinspection PyProtectedMember
-    from officialeye._api.mutator import Mutator
+    from officialeye._api.mutator import Mutator, IMutator
     from officialeye._internal.template.template import InternalTemplate
     from officialeye.types import ConfigDict, MutatorFactory, MatcherFactory
 
@@ -61,7 +60,7 @@ class InternalContext:
         # TODO: remove this method
         return True
 
-    def get_mutator(self, mutator_id: str, mutator_config: ConfigDict, /) -> Mutator:
+    def get_mutator(self, mutator_id: str, mutator_config: ConfigDict, /) -> IMutator:
 
         # TODO: (low priority) consider caching mutators that have the same id and configuration
 
@@ -73,7 +72,7 @@ class InternalContext:
 
         return self._mutator_factories[mutator_id](mutator_config)
 
-    def get_matcher(self, matcher_id: str, matcher_config: ConfigDict, /) -> Matcher:
+    def get_matcher(self, matcher_id: str, matcher_config: ConfigDict, /) -> IMatcher:
 
         # TODO: (low priority) consider caching matchers that have the same id and configuration
 
@@ -122,19 +121,3 @@ class InternalContext:
         template_id = self._template_ids[template_path]
 
         return self.get_template(template_id)
-
-    # TODO: reconsider the need of all methods beyond this point
-
-    def get_io_driver(self) -> IODriver:
-
-        if self._io_driver is None:
-            raise ErrInternal(
-                "while trying to access officialeye's IO driver.",
-                "The present officialeye context does not have an IO Driver set."
-            )
-
-        return self._io_driver
-
-    def set_io_driver(self, io_driver: IODriver, /):
-        assert io_driver is not None
-        self._io_driver = io_driver

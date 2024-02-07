@@ -23,11 +23,14 @@ from officialeye.error.errors.template import (
     ErrTemplateInvalidSupervisionEngine,
 )
 
-from officialeye._internal.matching.result import MatchingResult
+from officialeye._internal.template.matcher_result import InternalMatcherResult
 from officialeye._internal.supervision.result import SupervisionResult
-from officialeye._internal.supervision.supervisors.combinatorial import CombinatorialSupervisor
-from officialeye._internal.supervision.supervisors.least_squares_regression import LeastSquaresRegressionSupervisor
-from officialeye._internal.supervision.supervisors.orthogonal_regression import OrthogonalRegressionSupervisor
+# noinspection PyProtectedMember
+from officialeye._api_builtins.supervisor.combinatorial import CombinatorialSupervisor
+# noinspection PyProtectedMember
+from officialeye._api_builtins.supervisor.least_squares_regression import LeastSquaresRegressionSupervisor
+# noinspection PyProtectedMember
+from officialeye._api_builtins.supervisor.orthogonal_regression import OrthogonalRegressionSupervisor
 from officialeye._internal.supervision.visualizer import SupervisionResultVisualizer
 from officialeye._internal.template.feature_class.loader import load_template_feature_classes
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
@@ -38,9 +41,9 @@ from officialeye._internal.template.template_data import TemplateData, TemplateD
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
-    from officialeye._api.template.matcher import Matcher
+    from officialeye._api.template.matcher import IMatcher
     # noinspection PyProtectedMember
-    from officialeye._api.mutator import Mutator
+    from officialeye._api.mutator import IMutator
     # noinspection PyProtectedMember
     from officialeye._api.analysis_result import AnalysisResult
 
@@ -58,11 +61,11 @@ class InternalTemplate(ITemplate):
 
         self._height, self._width, _ = self.get_image().load().shape
 
-        self._source_mutators: List[Mutator] = [
+        self._source_mutators: List[IMutator] = [
             load_mutator_from_dict(mutator_dict) for mutator_dict in yaml_dict["mutators"]["source"]
         ]
 
-        self._target_mutators: List[Mutator] = [
+        self._target_mutators: List[IMutator] = [
             load_mutator_from_dict(mutator_dict) for mutator_dict in yaml_dict["mutators"]["target"]
         ]
 
@@ -210,7 +213,7 @@ class InternalTemplate(ITemplate):
             target_mutators=self._target_mutators
         )
 
-    def get_matcher(self, /, *, setup: bool) -> Matcher:
+    def get_matcher(self, /, *, setup: bool) -> IMatcher:
         matcher_id = self._matching["engine"]
         matcher_config = self._matching["config"]
 
@@ -233,18 +236,24 @@ class InternalTemplate(ITemplate):
     def get_feature_classes(self) -> FeatureClassManager:
         return self._feature_class_manager
 
-    def get_feature(self, feature_id: str, /) -> InternalFeature:
-        assert feature_id in self._features, "Invalid feature id"
+    def get_feature(self, feature_id: str, /) -> InternalFeature | None:
+
+        if feature_id not in self._features:
+            return None
+
         return self._features[feature_id]
 
-    def get_keypoint(self, keypoint_id: str, /) -> InternalKeypoint:
-        assert keypoint_id in self._keypoints, "Invalid keypoint id"
+    def get_keypoint(self, keypoint_id: str, /) -> InternalKeypoint | None:
+
+        if keypoint_id not in self._keypoints:
+            return None
+
         return self._keypoints[keypoint_id]
 
     def get_path(self) -> str:
         return self._path_to_template
 
-    def _load_supervisor(self, kmr: MatchingResult):
+    def _load_supervisor(self, kmr: InternalMatcherResult):
 
         # TODO: abstract this out like we did with the matcher
 
@@ -276,14 +285,14 @@ class InternalTemplate(ITemplate):
                 target = mutator.mutate(target)
 
             # start matching
-            matcher = self.get_matcher(setup=True)
+            matcher: IMatcher = self.get_matcher(setup=True)
 
             for keypoint in self.keypoints:
                 get_internal_afi().info(Verbosity.DEBUG, f"Running matcher for keypoint '{keypoint.identifier}'.")
                 assert isinstance(keypoint, InternalKeypoint)
                 matcher.match(keypoint)
 
-            keypoint_matching_result = MatchingResult(self.identifier)
+            keypoint_matching_result = InternalMatcherResult(self.identifier)
 
             for keypoint in self.keypoints:
                 for match in matcher.get_matches_for_keypoint(keypoint):

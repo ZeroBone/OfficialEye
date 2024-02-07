@@ -70,3 +70,11 @@ class ITemplate(ABC):
     @abstractmethod
     def features(self) -> Iterable[IFeature]:
         raise NotImplementedError()
+
+    @abstractmethod
+    def get_feature(self, feature_id: str, /) -> IFeature | None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_keypoint(self, keypoint_id: str, /) -> IKeypoint | None:
+        raise NotImplementedError()

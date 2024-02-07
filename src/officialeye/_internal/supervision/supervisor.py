@@ -6,7 +6,7 @@ from typing import Generator
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
 
-from officialeye._internal.matching.result import MatchingResult
+from officialeye._internal.template.matcher_result import InternalMatcherResult
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.supervision.supervisor_config import SupervisorConfig
 from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
@@ -19,7 +19,7 @@ _SUPERVISION_RESULT_BEST_SCORE = "best_score"
 
 class Supervisor(ABC):
 
-    def __init__(self, engine_id: str, template_id: str, kmr: MatchingResult, /):
+    def __init__(self, engine_id: str, template_id: str, kmr: InternalMatcherResult, /):
         super().__init__()
 
         self._engine_id = engine_id

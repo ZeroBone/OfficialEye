@@ -1,19 +1,17 @@
 from __future__ import annotations
 
-from typing import Dict, List, TYPE_CHECKING
+from typing import Dict, List, Iterable
 
 # noinspection PyProtectedMember
 from officialeye._api.template.match import IMatch
+# noinspection PyProtectedMember
+from officialeye._api.template.matcher_result import IMatcherResult
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
 from officialeye.error.errors.matching import ErrMatchingMatchCountOutOfBounds
 
 
-if TYPE_CHECKING:
-    from officialeye._internal.matching.match import Match
-
-
-class MatchingResult:
+class InternalMatcherResult(IMatcherResult):
 
     def __init__(self, template_id: str, /):
         self._template_id = template_id
@@ -22,7 +20,7 @@ class MatchingResult:
         # values: matches with this keypoint
         self._matches_dict: Dict[str, List[IMatch]] = {}
 
-        for keypoint in self.get_template().keypoints:
+        for keypoint in self.template.keypoints:
             self._matches_dict[keypoint.identifier] = []
 
     def remove_all_matches(self):
@@ -32,7 +30,7 @@ class MatchingResult:
         assert match.keypoint.identifier in self._matches_dict
         self._matches_dict[match.keypoint.identifier].append(match)
 
-    def get_matches(self):
+    def get_all_matches(self) -> Iterable[IMatch]:
         for keypoint_id in self._matches_dict:
             for match in self._matches_dict[keypoint_id]:
                 yield match
@@ -51,7 +49,8 @@ class MatchingResult:
         for match in self._matches_dict[keypoint_id]:
             yield match
 
-    def get_template(self):
+    @property
+    def template(self):
         return get_internal_context().get_template(self._template_id)
 
     def validate(self):
@@ -64,7 +63,7 @@ class MatchingResult:
 
         # verify that for every keypoint, it has been matched a number of times that is in the desired bounds
         for keypoint_id in self._matches_dict:
-            keypoint = self.get_template().get_keypoint(keypoint_id)
+            keypoint = self.template.get_keypoint(keypoint_id)
 
             keypoint_matches_min = keypoint.matches_min
             keypoint_matches_max = keypoint.matches_max

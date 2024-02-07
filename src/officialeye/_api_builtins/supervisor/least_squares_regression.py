@@ -3,7 +3,7 @@ from typing import Generator
 import numpy as np
 
 
-from officialeye._internal.matching.result import MatchingResult
+from officialeye._internal.template.matcher_result import InternalMatcherResult
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.supervision.supervisor import Supervisor
 
@@ -17,7 +17,7 @@ class LeastSquaresRegressionSupervisor(Supervisor):
 
     ENGINE_ID = "least_squares_regression"
 
-    def __init__(self, template_id: str, kmr: MatchingResult, /):
+    def __init__(self, template_id: str, kmr: InternalMatcherResult, /):
         super().__init__(LeastSquaresRegressionSupervisor.ENGINE_ID, template_id, kmr)
 
     def _run(self) -> Generator[SupervisionResult, None, None]:

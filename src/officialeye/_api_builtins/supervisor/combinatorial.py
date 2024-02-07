@@ -7,7 +7,7 @@ import z3
 from officialeye.error.errors.supervision import ErrSupervisionInvalidEngineConfig
 
 from officialeye._internal.matching.match import Match
-from officialeye._internal.matching.result import MatchingResult
+from officialeye._internal.template.matcher_result import InternalMatcherResult
 from officialeye._internal.supervision.result import SupervisionResult
 from officialeye._internal.supervision.supervisor import Supervisor
 
@@ -16,7 +16,7 @@ class CombinatorialSupervisor(Supervisor):
 
     ENGINE_ID = "combinatorial"
 
-    def __init__(self, template_id: str, kmr: MatchingResult, /):
+    def __init__(self, template_id: str, kmr: InternalMatcherResult, /):
         super().__init__(CombinatorialSupervisor.ENGINE_ID, template_id, kmr)
 
         # setup configuration

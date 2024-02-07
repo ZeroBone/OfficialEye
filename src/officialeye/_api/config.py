@@ -9,7 +9,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import Callable, Dict, TYPE_CHECKING
 
-from officialeye.error.errors.template import ErrTemplateInvalidMutator
+from officialeye.error.errors.general import ErrInvalidKey
 
 
 if TYPE_CHECKING:
@@ -57,7 +57,7 @@ class MutatorConfig(Config):
         self._mutator_id = mutator_id
 
     def _get_invalid_key_error(self, key: str, /):
-        return ErrTemplateInvalidMutator(
+        return ErrInvalidKey(
             f"while reading configuration of the '{self._mutator_id}' mutator.",
             f"Could not find a value for key '{key}'."
         )
@@ -72,7 +72,22 @@ class MatcherConfig(Config):
         self._matcher_id = matcher_id
 
     def _get_invalid_key_error(self, key: str, /):
-        return ErrTemplateInvalidMutator(
+        return ErrInvalidKey(
             f"while reading configuration of the '{self._matcher_id}' matcher.",
+            f"Could not find a value for key '{key}'."
+        )
+
+
+class SupervisorConfig(Config):
+
+    def __init__(self, config_dict: ConfigDict, matcher_id: str, /):
+
+        super().__init__(config_dict)
+
+        self._matcher_id = matcher_id
+
+    def _get_invalid_key_error(self, key: str, /):
+        return ErrInvalidKey(
+            f"while reading configuration of the '{self._matcher_id}' supervisor.",
             f"Could not find a value for key '{key}'."
         )

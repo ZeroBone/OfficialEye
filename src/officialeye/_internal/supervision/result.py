@@ -5,12 +5,12 @@ import cv2
 import numpy as np
 
 from officialeye._internal.matching.match import Match
-from officialeye._internal.matching.result import MatchingResult
+from officialeye._internal.template.matcher_result import InternalMatcherResult
 
 
 class SupervisionResult:
 
-    def __init__(self, template_id: str, kmr: MatchingResult,
+    def __init__(self, template_id: str, kmr: InternalMatcherResult,
                  delta: np.ndarray, delta_prime: np.ndarray, transformation_matrix: np.ndarray, /):
 
         self.template_id = template_id
@@ -96,7 +96,7 @@ class SupervisionResult:
         assert len(rk) > 0
         return rk
 
-    def get_keypoint_matching_result(self) -> MatchingResult:
+    def get_keypoint_matching_result(self) -> InternalMatcherResult:
         return self._kmr
 
     def get_weighted_mse(self, /) -> float:

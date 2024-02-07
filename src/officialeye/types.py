@@ -6,6 +6,8 @@ from typing import TYPE_CHECKING, Dict, Union, Callable
 from officialeye._api.mutator import IMutator
 # noinspection PyProtectedMember
 from officialeye._api.template.matcher import IMatcher
+# noinspection PyProtectedMember
+from officialeye._api.template.supervisor import ISupervisor
 
 
 if TYPE_CHECKING:
@@ -14,3 +16,4 @@ if TYPE_CHECKING:
 
     MutatorFactory = Callable[[ConfigDict], IMutator]
     MatcherFactory = Callable[[ConfigDict], IMatcher]
+    SupervisorFactory = Callable[[ConfigDict], ISupervisor]

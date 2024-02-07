@@ -1,7 +1,7 @@
 from typing import List
 
 # noinspection PyProtectedMember
-from officialeye._api.mutator import Mutator
+from officialeye._api.mutator import IMutator
 
 
 class TemplateDataRegion:
@@ -49,7 +49,7 @@ class TemplateData:
 
     def __init__(self, /, *, identifier: str, name: str, source: str, width: int, height: int,
                  features: List[TemplateDataFeature], keypoints: List[TemplateDataKeypoint],
-                 source_mutators: List[Mutator], target_mutators: List[Mutator]):
+                 source_mutators: List[IMutator], target_mutators: List[IMutator]):
 
         self.identifier = identifier
         self.name = name
