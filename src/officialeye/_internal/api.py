@@ -5,9 +5,10 @@ In other words, the functions of this module form a low-level API that should be
 
 
 import cv2
+import numpy as np
 
 # noinspection PyProtectedMember
-from officialeye._api.analysis_result import AnalysisResult
+from officialeye._api.template.supervision_result import SupervisionResult
 from officialeye._internal.context.singleton import get_internal_context
 from officialeye._internal.template.schema.loader import load_template
 from officialeye._internal.template.template_data import TemplateData
@@ -21,7 +22,7 @@ def template_load(template_path: str, /, **kwargs) -> TemplateData:
         return template.get_template_data()
 
 
-def template_analyze(template_path: str, /, *, target_path: str, interpretation_target_path: str | None, **kwargs) -> AnalysisResult:
+def template_analyze(template_path: str, /, *, target_path: str, interpretation_target_path: str | None, **kwargs) -> SupervisionResult:
 
     with get_internal_context().setup(**kwargs):
         template = load_template(template_path)
@@ -40,6 +41,4 @@ def template_analyze(template_path: str, /, *, target_path: str, interpretation_
                     f"The target image has shape {target.shape}, while the interpretation target image has shape {interpretation_target.shape}."
                 )
 
-        supervision_result = template.run_analysis(target)
-
-        # TODO: convert the supervision result into an analysisresult instance
+        return template.run_analysis(target)

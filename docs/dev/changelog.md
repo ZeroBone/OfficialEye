@@ -11,6 +11,7 @@
 * Substrantially improved the CLI user interface.
 * Numerous other related architecture changes aimed at the long-term stability of the software.
 * Integrated a new error handling system and related debugging facilitibes.
+* Removed the (legacy) orthogonal regression supervision engine.
 
 ### Minor changes
 

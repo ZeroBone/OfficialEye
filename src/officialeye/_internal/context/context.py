@@ -2,20 +2,23 @@
 from __future__ import annotations
 
 from types import TracebackType
-from typing import TYPE_CHECKING, Dict, Callable
+from typing import TYPE_CHECKING, Dict
 
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 from officialeye._internal.feedback.dummy import DummyFeedbackInterface
 from officialeye.error.error import OEError
-from officialeye.error.errors.template import ErrTemplateIdNotUnique, ErrTemplateInvalidMutator, ErrTemplateInvalidMatchingEngine
+from officialeye.error.errors.template import ErrTemplateIdNotUnique, ErrTemplateInvalidMutator, ErrTemplateInvalidMatchingEngine, \
+    ErrTemplateInvalidSupervisionEngine
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
-    from officialeye._api.template.matcher import Matcher, IMatcher
+    from officialeye._api.template.supervisor import ISupervisor
     # noinspection PyProtectedMember
-    from officialeye._api.mutator import Mutator, IMutator
+    from officialeye._api.template.matcher import IMatcher
+    # noinspection PyProtectedMember
+    from officialeye._api.mutator import IMutator
     from officialeye._internal.template.template import InternalTemplate
-    from officialeye.types import ConfigDict, MutatorFactory, MatcherFactory
+    from officialeye.types import ConfigDict, MutatorFactory, MatcherFactory, SupervisorFactory
 
 
 class InternalContext:
@@ -25,6 +28,7 @@ class InternalContext:
 
         self._mutator_factories: Dict[str, MutatorFactory] = {}
         self._matcher_factories: Dict[str, MatcherFactory] = {}
+        self._supervisor_factories: Dict[str, SupervisorFactory] = {}
 
         # keys: template ids
         # values: template
@@ -34,14 +38,18 @@ class InternalContext:
         # values: corresponding template ids
         self._template_ids: Dict[str, str] = {}
 
-    def setup(self, /, *, afi: AbstractFeedbackInterface, mutator_factories: Dict[str, Callable[[ConfigDict], Mutator]],
-              matcher_factories: Dict[str, Callable[[ConfigDict], Matcher]]) -> InternalContext:
+    def setup(self, /, *, afi: AbstractFeedbackInterface, mutator_factories: Dict[str, MutatorFactory],
+              matcher_factories: Dict[str, MatcherFactory], supervisor_factories: Dict[str, SupervisorFactory]) -> InternalContext:
         assert afi is not None
+
         assert mutator_factories is not None
+        assert matcher_factories is not None
+        assert supervisor_factories is not None
 
         self._afi = afi
         self._mutator_factories = mutator_factories
         self._matcher_factories = matcher_factories
+        self._supervisor_factories = supervisor_factories
 
         return self
 
@@ -83,6 +91,18 @@ class InternalContext:
             )
 
         return self._matcher_factories[matcher_id](matcher_config)
+
+    def get_supervisor(self, supervisor_id: str, supervisor_config: ConfigDict, /) -> ISupervisor:
+
+        # TODO: (low priority) consider caching supervisors that have the same id and configuration
+
+        if supervisor_id not in self._supervisor_factories:
+            raise ErrTemplateInvalidSupervisionEngine(
+                f"while loading supervisor '{supervisor_id}'.",
+                "Unknown supervisor. Has this supervisor been properly loaded?"
+            )
+
+        return self._supervisor_factories[supervisor_id](supervisor_config)
 
     def add_template(self, template: InternalTemplate, /):
 

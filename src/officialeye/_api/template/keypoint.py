@@ -22,6 +22,9 @@ class IKeypoint(IRegion, ABC):
     def matches_max(self) -> int:
         raise NotImplementedError()
 
+    def __str__(self) -> str:
+        return f"Keypoint '{self.identifier}'"
+
 
 class Keypoint(Region, IKeypoint):
 

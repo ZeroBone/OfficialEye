@@ -78,3 +78,6 @@ class ITemplate(ABC):
     @abstractmethod
     def get_keypoint(self, keypoint_id: str, /) -> IKeypoint | None:
         raise NotImplementedError()
+
+    def __str__(self) -> str:
+        return f"Template '{self.identifier}'."

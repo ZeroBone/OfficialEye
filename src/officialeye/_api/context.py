@@ -15,12 +15,13 @@ from officialeye._api_builtins.init import initialize_builtins
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.dummy import DummyFeedbackInterface
+from officialeye.error.errors.general import ErrInvalidIdentifier
 
 from officialeye.error.errors.internal import ErrInvalidState
-from officialeye.error.errors.template import ErrTemplateInvalidMutator, ErrTemplateInvalidMatchingEngine
+from officialeye.error.errors.template import ErrTemplateInvalidMutator
 
 if TYPE_CHECKING:
-    from officialeye.types import ConfigDict, MutatorFactory, MatcherFactory
+    from officialeye.types import ConfigDict, MutatorFactory, MatcherFactory, SupervisorFactory
 
 
 class Context:
@@ -37,8 +38,8 @@ class Context:
         self._executor = ProcessPoolExecutor()
 
         self._mutator_factories: Dict[str, MutatorFactory] = {}
-
         self._matcher_factories: Dict[str, MatcherFactory] = {}
+        self._supervisor_factories: Dict[str, SupervisorFactory] = {}
 
         # initialize with built-in mutators
         initialize_builtins(self)
@@ -59,7 +60,8 @@ class Context:
             # process to a child process by the ProcessPoolExecutor.
             afi=afi_fork,
             mutator_factories=self._mutator_factories,
-            matcher_factories=self._matcher_factories
+            matcher_factories=self._matcher_factories,
+            supervisor_factories=self._supervisor_factories
         )
 
         return Future(self, python_future, afi_fork=afi_fork)
@@ -67,9 +69,9 @@ class Context:
     def register_mutator(self, mutator_id: str, factory: MutatorFactory, /):
 
         if mutator_id in self._mutator_factories:
-            raise ErrTemplateInvalidMutator(
+            raise ErrInvalidIdentifier(
                 f"while adding mutator '{mutator_id}'.",
-                "A mutator with the same id has already been added."
+                "A mutator with the same id has already been registered."
             )
 
         self._mutator_factories[mutator_id] = factory
@@ -77,12 +79,22 @@ class Context:
     def register_matcher(self, matcher_id: str, factory: MatcherFactory, /):
 
         if matcher_id in self._matcher_factories:
-            raise ErrTemplateInvalidMatchingEngine(
+            raise ErrInvalidIdentifier(
                 f"while adding '{matcher_id}' matcher.",
-                "A matcher with the same id has already been added."
+                "A matcher with the same id has already been registered."
             )
 
         self._matcher_factories[matcher_id] = factory
+
+    def register_supervisor(self, supervisor_id: str, factory: SupervisorFactory, /):
+
+        if supervisor_id in self._matcher_factories:
+            raise ErrInvalidIdentifier(
+                f"while adding '{supervisor_id}' matcher.",
+                "A supervisor with the same id has already been registered."
+            )
+
+        self._supervisor_factories[supervisor_id] = factory
 
     def get_mutator(self, mutator_id: str, config: ConfigDict, /) -> IMutator:
 

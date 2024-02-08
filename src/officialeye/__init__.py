@@ -2,25 +2,46 @@
 Root module.
 """
 
+# Context
 # noinspection PyProtectedMember
 from officialeye._api.context import Context
+
+# Config
+# noinspection PyProtectedMember
+from officialeye._api.config import Config, MutatorConfig, MatcherConfig, SupervisorConfig
+
+# Image-processing
+# noinspection PyProtectedMember
+from officialeye._api.image import Image
+
+# Mutators
+# noinspection PyProtectedMember
+from officialeye._api.mutator import Mutator, IMutator
+
+# Template-related
 # noinspection PyProtectedMember
 from officialeye._api.template.template import ITemplate, Template
+
+# Regions, features and keypoints
 # noinspection PyProtectedMember
 from officialeye._api.template.region import IRegion, Region
 # noinspection PyProtectedMember
 from officialeye._api.template.feature import IFeature, Feature
 # noinspection PyProtectedMember
 from officialeye._api.template.keypoint import IKeypoint, Keypoint
+
+# Matching-related imports
 # noinspection PyProtectedMember
 from officialeye._api.template.match import IMatch, Match
 # noinspection PyProtectedMember
 from officialeye._api.template.matcher import IMatcher, Matcher
+
+# Supervision-related imports
 # noinspection PyProtectedMember
-from officialeye._api.config import Config, MutatorConfig, MatcherConfig, SupervisorConfig
+from officialeye._api.template.supervisor import ISupervisor, Supervisor
 # noinspection PyProtectedMember
-from officialeye._api.mutator import Mutator, IMutator
-# noinspection PyProtectedMember
-from officialeye._api.image import Image
+from officialeye._api.template.supervision_result import SupervisionResult
+
+# Misc
 # noinspection PyProtectedMember
 from officialeye._api.future import Future, wait

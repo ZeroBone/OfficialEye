@@ -1,13 +1,18 @@
+from __future__ import annotations
+
 import os
 from abc import ABC, abstractmethod
-from typing import List
+from typing import List, TYPE_CHECKING
 
 import cv2
 import numpy as np
 
-from officialeye._api.mutator import IMutator
-from officialeye._api.context import Context
 from officialeye.error.errors.io import ErrIOInvalidPath
+
+
+if TYPE_CHECKING:
+    from officialeye._api.mutator import IMutator
+    from officialeye._api.context import Context
 
 
 class IImage(ABC):

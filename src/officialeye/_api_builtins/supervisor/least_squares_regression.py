@@ -1,11 +1,26 @@
-from typing import Generator
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Iterable
 
 import numpy as np
 
 
-from officialeye._internal.template.matcher_result import InternalMatcherResult
-from officialeye._internal.supervision.result import SupervisionResult
-from officialeye._internal.supervision.supervisor import Supervisor
+# noinspection PyProtectedMember
+from officialeye._api.template.template_interface import ITemplate
+# noinspection PyProtectedMember
+from officialeye._api.template.matching_result import IMatchingResult
+# noinspection PyProtectedMember
+from officialeye._api.template.supervisor import Supervisor
+# noinspection PyProtectedMember
+from officialeye._api.template.supervision_result import SupervisionResult
+# noinspection PyProtectedMember
+from officialeye._internal.context.singleton import get_internal_afi
+# noinspection PyProtectedMember
+from officialeye._internal.feedback.verbosity import Verbosity
+
+
+if TYPE_CHECKING:
+    from officialeye.types import ConfigDict
 
 _IND_A = 0
 _IND_B = 1
@@ -15,28 +30,32 @@ _IND_D = 3
 
 class LeastSquaresRegressionSupervisor(Supervisor):
 
-    ENGINE_ID = "least_squares_regression"
+    SUPERVISOR_ID = "least_squares_regression"
 
-    def __init__(self, template_id: str, kmr: InternalMatcherResult, /):
-        super().__init__(LeastSquaresRegressionSupervisor.ENGINE_ID, template_id, kmr)
+    def __init__(self, config_dict: ConfigDict, /):
+        super().__init__(LeastSquaresRegressionSupervisor.SUPERVISOR_ID, config_dict)
 
-    def _run(self) -> Generator[SupervisionResult, None, None]:
+    def setup(self, template: ITemplate, matching_result: IMatchingResult, /) -> None:
+        pass
 
-        match_count = self._kmr.get_total_match_count()
+    def supervise(self, template: ITemplate, matching_result: IMatchingResult, /) -> Iterable[SupervisionResult]:
 
-        for anchor_match in self._kmr.get_matches():
+        match_count = matching_result.get_total_match_count()
+
+        for anchor_match in matching_result.get_all_matches():
+
             delta = anchor_match.get_original_template_point()
-            delta_prime = anchor_match.get_target_point()
+            delta_prime = anchor_match.target_point
 
             matrix = np.zeros((match_count << 1, 4), dtype=np.float64)
             rhs = np.zeros(match_count << 1, dtype=np.float64)
 
-            for i, match in enumerate(self._kmr.get_matches()):
+            for i, match in enumerate(matching_result.get_all_matches()):
                 first_constraint_id = i << 1
                 second_constraint_id = first_constraint_id + 1
 
                 s = match.get_original_template_point()
-                d = match.get_target_point()
+                d = match.target_point
 
                 matrix[first_constraint_id][_IND_A] = s[0] - delta[0]
                 matrix[first_constraint_id][_IND_B] = s[1] - delta[1]
@@ -56,8 +75,13 @@ class LeastSquaresRegressionSupervisor(Supervisor):
                 [x[_IND_C], x[_IND_D]]
             ])
 
-            _result = SupervisionResult(self.template_id, self._kmr, delta, delta_prime, transformation_matrix)
+            _result = SupervisionResult(
+                matching_result,
+                delta=delta,
+                delta_prime=delta_prime,
+                transformation_matrix=transformation_matrix
+            )
 
-            get_logger().debug(f"Current MSE: {_result.get_weighted_mse()}")
+            get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Current MSE: {_result.get_weighted_mse()}")
 
             yield _result

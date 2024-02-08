@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from officialeye._api.template.template_interface import ITemplate
 
 
-class IMatcherResult(ABC):
+class IMatchingResult(ABC):
 
     @property
     @abstractmethod
@@ -23,4 +23,8 @@ class IMatcherResult(ABC):
 
     @abstractmethod
     def get_total_match_count(self) -> int:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def get_matches_for_keypoint(self, keypoint_id: str, /) -> Iterable[IMatch]:
         raise NotImplementedError()

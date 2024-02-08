@@ -67,6 +67,9 @@ class IRegion(ABC):
         _img.apply_mutators(_mutator)
         return _img
 
+    def __str__(self) -> str:
+        return f"Region '{self.identifier}'"
+
 
 class Region(IRegion):
 

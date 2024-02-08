@@ -5,13 +5,13 @@ from typing import Dict, List, Iterable
 # noinspection PyProtectedMember
 from officialeye._api.template.match import IMatch
 # noinspection PyProtectedMember
-from officialeye._api.template.matcher_result import IMatcherResult
+from officialeye._api.template.matching_result import IMatchingResult
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
 from officialeye.error.errors.matching import ErrMatchingMatchCountOutOfBounds
 
 
-class InternalMatcherResult(IMatcherResult):
+class InternalMatchingResult(IMatchingResult):
 
     def __init__(self, template_id: str, /):
         self._template_id = template_id
@@ -45,7 +45,7 @@ class InternalMatcherResult(IMatcherResult):
         for keypoint_id in self._matches_dict:
             yield keypoint_id
 
-    def matches_for_keypoint(self, keypoint_id: str, /):
+    def get_matches_for_keypoint(self, keypoint_id: str, /) -> Iterable[IMatch]:
         for match in self._matches_dict[keypoint_id]:
             yield match
 

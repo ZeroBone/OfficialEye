@@ -11,7 +11,9 @@ if TYPE_CHECKING:
 
 
 class IFeature(IRegion, ABC):
-    pass
+
+    def __str__(self) -> str:
+        return f"Feature '{self.identifier}'"
 
 
 class Feature(Region, IFeature):

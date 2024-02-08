@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 import os
+import random
 from concurrent.futures import Future
 from typing import Dict, List, TYPE_CHECKING, Iterable
 
 import numpy as np
 
+# noinspection PyProtectedMember
+from officialeye._api.template.supervision_result import SupervisionResult
+# noinspection PyProtectedMember
+from officialeye._api.template.supervisor import ISupervisor
 # noinspection PyProtectedMember
 from officialeye._api.image import IImage
 # noinspection PyProtectedMember
@@ -16,22 +21,14 @@ from officialeye._internal.context.singleton import get_internal_context, get_in
 from officialeye._internal.template.image import InternalImage
 from officialeye._internal.template.utils import load_mutator_from_dict
 from officialeye._internal.timer import Timer
-from officialeye.error.errors.general import ErrOperationNotSupported
+from officialeye.error.errors.general import ErrOperationNotSupported, ErrInvalidIdentifier
+from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
 from officialeye.error.errors.template import (
     ErrTemplateInvalidFeature,
-    ErrTemplateInvalidKeypoint,
-    ErrTemplateInvalidSupervisionEngine,
+    ErrTemplateInvalidKeypoint
 )
 
-from officialeye._internal.template.matcher_result import InternalMatcherResult
-from officialeye._internal.supervision.result import SupervisionResult
-# noinspection PyProtectedMember
-from officialeye._api_builtins.supervisor.combinatorial import CombinatorialSupervisor
-# noinspection PyProtectedMember
-from officialeye._api_builtins.supervisor.least_squares_regression import LeastSquaresRegressionSupervisor
-# noinspection PyProtectedMember
-from officialeye._api_builtins.supervisor.orthogonal_regression import OrthogonalRegressionSupervisor
-from officialeye._internal.supervision.visualizer import SupervisionResultVisualizer
+from officialeye._internal.template.matching_result import InternalMatchingResult
 from officialeye._internal.template.feature_class.loader import load_template_feature_classes
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
 from officialeye._internal.template.feature import InternalFeature
@@ -40,12 +37,19 @@ from officialeye._internal.template.template_data import TemplateData, TemplateD
 
 
 if TYPE_CHECKING:
+    from officialeye.types import ConfigDict
     # noinspection PyProtectedMember
     from officialeye._api.template.matcher import IMatcher
     # noinspection PyProtectedMember
     from officialeye._api.mutator import IMutator
     # noinspection PyProtectedMember
     from officialeye._api.analysis_result import AnalysisResult
+
+
+_SUPERVISION_RESULT_FIRST = "first"
+_SUPERVISION_RESULT_RANDOM = "random"
+_SUPERVISION_RESULT_BEST_MSE = "best_mse"
+_SUPERVISION_RESULT_BEST_SCORE = "best_score"
 
 
 class InternalTemplate(ITemplate):
@@ -213,22 +217,22 @@ class InternalTemplate(ITemplate):
             target_mutators=self._target_mutators
         )
 
-    def get_matcher(self, /, *, setup: bool) -> IMatcher:
+    def get_matcher(self, /) -> IMatcher:
         matcher_id = self._matching["engine"]
         matcher_config = self._matching["config"]
+        return get_internal_context().get_matcher(matcher_id, matcher_config)
 
-        _matcher = get_internal_context().get_matcher(matcher_id, matcher_config)
+    def get_supervisor(self, /) -> ISupervisor:
+        supervisor_id = self._supervision["engine"]
+        supervisor_config_generic = self._supervision["config"]
 
-        if setup:
-            _matcher.setup(self)
+        if supervisor_id in supervisor_config_generic:
+            supervisor_config: ConfigDict = supervisor_config_generic[supervisor_id]
+        else:
+            get_internal_afi().warn(Verbosity.INFO, f"Could not find any configuration entries for the '{supervisor_id}' supervisor.")
+            supervisor_config: ConfigDict = {}
 
-        return _matcher
-
-    def get_supervision_engine(self) -> str:
-        return self._supervision["engine"]
-
-    def get_supervision_result_choice_engine(self) -> str:
-        return self._supervision["result"]
+        return get_internal_context().get_supervisor(supervisor_id, supervisor_config)
 
     def get_supervision_config(self) -> dict:
         return self._supervision["config"]
@@ -253,24 +257,62 @@ class InternalTemplate(ITemplate):
     def get_path(self) -> str:
         return self._path_to_template
 
-    def _load_supervisor(self, kmr: InternalMatcherResult):
+    def _run_supervisor(self, keypoint_matching_result: InternalMatchingResult, /) -> SupervisionResult | None:
 
-        # TODO: abstract this out like we did with the matcher
+        supervisor = self.get_supervisor()
+        supervisor.setup(self, keypoint_matching_result)
 
-        superivision_engine = self.get_supervision_engine()
+        supervision_result_choice_engine = self._supervision["result"]
+        results: List[SupervisionResult] = list(supervisor.supervise(self, keypoint_matching_result))
 
-        if superivision_engine == LeastSquaresRegressionSupervisor.ENGINE_ID:
-            return LeastSquaresRegressionSupervisor(self.identifier, kmr)
+        if len(results) == 0:
+            return None
 
-        if superivision_engine == OrthogonalRegressionSupervisor.ENGINE_ID:
-            return OrthogonalRegressionSupervisor(self.identifier, kmr)
+        if supervision_result_choice_engine == _SUPERVISION_RESULT_FIRST:
+            return results[0]
 
-        if superivision_engine == CombinatorialSupervisor.ENGINE_ID:
-            return CombinatorialSupervisor(self.identifier, kmr)
+        if supervision_result_choice_engine == _SUPERVISION_RESULT_RANDOM:
+            return random.choice(results)
 
-        raise ErrTemplateInvalidSupervisionEngine(
-            "while loading supervisor",
-            f"unknown supervision engine '{superivision_engine}'"
+        if supervision_result_choice_engine == _SUPERVISION_RESULT_BEST_MSE:
+
+            best_result = results[0]
+            best_result_mse = best_result.get_weighted_mse()
+
+            for result_id, result in enumerate(results):
+                result_mse = result.get_weighted_mse()
+
+                get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Result #{result_id + 1} has MSE {result_mse}")
+
+                if result_mse < best_result_mse:
+                    best_result_mse = result_mse
+                    best_result = result
+
+            get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Best result has MSE {best_result_mse}")
+
+            return best_result
+
+        if supervision_result_choice_engine == _SUPERVISION_RESULT_BEST_SCORE:
+
+            best_result = results[0]
+            best_result_score = best_result.get_score()
+
+            for result_id, result in enumerate(results):
+                result_score = result.get_score()
+
+                get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Result #{result_id + 1} has score {result_score}")
+
+                if result_score < best_result_score:
+                    best_result_score = result_score
+                    best_result = result
+
+            get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Best result has score {best_result_score}")
+
+            return best_result
+
+        raise ErrInvalidIdentifier(
+            "while running supervisor.",
+            f"Invalid supervision result choice engine '{supervision_result_choice_engine}'."
         )
 
     def run_analysis(self, target: np.ndarray, /) -> SupervisionResult:
@@ -281,18 +323,18 @@ class InternalTemplate(ITemplate):
         with _timer:
             # apply mutators to the target image
             for mutator in self._target_mutators:
-                get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Applying mutator '{mutator.mutator_id}' to input image.")
                 target = mutator.mutate(target)
 
             # start matching
-            matcher: IMatcher = self.get_matcher(setup=True)
+            matcher: IMatcher = self.get_matcher()
+            matcher.setup(self)
 
             for keypoint in self.keypoints:
                 get_internal_afi().info(Verbosity.DEBUG, f"Running matcher for keypoint '{keypoint.identifier}'.")
                 assert isinstance(keypoint, InternalKeypoint)
                 matcher.match(keypoint)
 
-            keypoint_matching_result = InternalMatcherResult(self.identifier)
+            keypoint_matching_result = InternalMatchingResult(self.identifier)
 
             for keypoint in self.keypoints:
                 for match in matcher.get_matches_for_keypoint(keypoint):
@@ -312,20 +354,27 @@ class InternalTemplate(ITemplate):
 
         with _timer:
             # run supervision to obtain correspondence between template and target regions
-            supervisor = self._load_supervisor(keypoint_matching_result)
-            supervision_result = supervisor.run()
-
-            # TODO: rewrite the visualization generation communication logic
-            if get_internal_context().visualization_generation_enabled():
-                supervision_result_visualizer = SupervisionResultVisualizer(supervision_result, target)
-                visualization = supervision_result_visualizer.render()
-                get_internal_context().export_image(visualization, file_name="matches.png")
+            supervision_result = self._run_supervisor(keypoint_matching_result)
 
         get_internal_afi().info(
             Verbosity.INFO,
             f"Supervision succeeded in {_timer.get_real_time():.2f} seconds of real time "
             f"and {_timer.get_cpu_time():.2f} seconds of CPU time."
         )
+
+        if supervision_result is None:
+            raise ErrSupervisionCorrespondenceNotFound(
+                "while processing a supervision result.",
+                f"Could not establish correspondence of the image with the '{self.identifier}' template."
+            )
+
+        # TODO: visualizations
+        """
+        if get_internal_context().visualization_generation_enabled():
+            supervision_result_visualizer = SupervisionResultVisualizer(supervision_result, target)
+            visualization = supervision_result_visualizer.render()
+            get_internal_context().export_image(visualization, file_name="matches.png")
+        """
 
         return supervision_result
 

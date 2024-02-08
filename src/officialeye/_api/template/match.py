@@ -42,6 +42,10 @@ class IMatch(ABC):
         """Returns the coordinates of the point lying in the keypoint, in the coordinate system of the underlying template."""
         return self.template_point + self.keypoint.top_left
 
+    def __str__(self) -> str:
+        return (f"Match: Point ({self.target_point[0]}, {self.target_point[1]}) matches ({self.template_point[0]}, {self.template_point[1]}) "
+                f"in {self.keypoint} of {self.template}.")
+
     def __eq__(self, o: Any) -> bool:
 
         if not isinstance(o, IMatch):
@@ -59,6 +63,14 @@ class IMatch(ABC):
     def __lt__(self, o: Any) -> bool:
         assert isinstance(o, Match)
         return self.get_score() < o.get_score()
+
+    def __hash__(self):
+        return hash((
+            self.template.identifier,
+            self.keypoint.identifier,
+            np.dot(self.template_point, self.template_point),
+            np.dot(self.target_point, self.target_point)
+        ))
 
 
 class Match(IMatch):
