@@ -8,7 +8,7 @@ import numpy as np
 
 from officialeye._api.template.feature import IFeature
 from officialeye._api.template.match import IMatch
-from officialeye.error.errors.general import ErrOperationNotSupported, ErrObjectNotInitialized
+from officialeye.error.errors.general import ErrObjectNotInitialized
 
 if TYPE_CHECKING:
     from officialeye._api.template.template_interface import ITemplate
@@ -70,10 +70,7 @@ class SupervisionResult:
 
     @property
     def template(self) -> ITemplate:
-        raise ErrOperationNotSupported(
-            "while trying to access the template from a public API's instance of a supervision result.",
-            "This operation is illegal."
-        )
+        return self._matching_result.template
 
     @property
     def matching_result(self) -> IMatchingResult:

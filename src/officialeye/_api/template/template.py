@@ -87,10 +87,9 @@ class Template(ITemplate):
 
         self._loaded = True
 
-    def detect_async(self, /, *, target: IImage, interpretation_target: IImage | None = None) -> Future:
+    def detect_async(self, /, *, target: IImage) -> Future:
 
         assert isinstance(target, Image)
-        assert interpretation_target is None or isinstance(interpretation_target, Image)
 
         # noinspection PyProtectedMember
         return self._context._submit_task(
@@ -98,7 +97,6 @@ class Template(ITemplate):
             "Running analysis...",
             self._path,
             target_path=target._path,
-            interpretation_target_path=None if interpretation_target is None else interpretation_target._path
         )
 
     def detect(self, /, **kwargs) -> SupervisionResult:

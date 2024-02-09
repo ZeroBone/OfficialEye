@@ -17,11 +17,10 @@ if TYPE_CHECKING:
     from officialeye._api.template.template_interface import ITemplate
 
 
-def detect(context: Context, *templates: ITemplate,
-           target: Image, interpretation_target: Image | None = None) -> SupervisionResult:
+def detect(context: Context, *templates: ITemplate, target: Image) -> SupervisionResult:
 
     futures: List[Future] = [
-        template.detect_async(target=target, interpretation_target=interpretation_target) for template in templates
+        template.detect_async(target=target) for template in templates
     ]
 
     done, not_done = wait(futures, return_when=ALL_COMPLETED)

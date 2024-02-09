@@ -127,15 +127,15 @@ class InternalTemplate(ITemplate):
             "This method can only be called on a Template instance."
         )
 
-    def detect_async(self, /, *, target: IImage, interpretation_target: IImage | None = None) -> Future:
+    def detect_async(self, /, *, target: IImage) -> Future:
         raise ErrOperationNotSupported(
-            "when calling the analyze_async() method of an InternalTemplate instance.",
+            "when calling the detect_async() method of an InternalTemplate instance.",
             "This method can only be called on a Template instance."
         )
 
     def detect(self, /, **kwargs) -> SupervisionResult:
         raise ErrOperationNotSupported(
-            "when calling the analyze() method of an InternalTemplate instance.",
+            "when calling the detect() method of an InternalTemplate instance.",
             "This method can only be called on a Template instance."
         )
 
@@ -313,7 +313,7 @@ class InternalTemplate(ITemplate):
             f"Invalid supervision result choice engine '{supervision_result_choice_engine}'."
         )
 
-    def detect(self, target: np.ndarray, /) -> SupervisionResult:
+    def do_detect(self, target: np.ndarray, /) -> SupervisionResult:
         # find all patterns in the target image
 
         _timer = Timer()

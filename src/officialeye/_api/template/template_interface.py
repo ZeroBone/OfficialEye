@@ -26,7 +26,7 @@ class ITemplate(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def detect_async(self, /, *, target: IImage, interpretation_target: IImage | None = None) -> Future:
+    def detect_async(self, /, *, target: IImage) -> Future:
         raise NotImplementedError()
 
     @abstractmethod

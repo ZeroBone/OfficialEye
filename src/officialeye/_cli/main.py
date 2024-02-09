@@ -92,11 +92,9 @@ def show(template_path: str, hide_features: bool, hide_keypoints: bool):
 @click.command()
 @click.argument("target_path", type=click.Path(exists=True, file_okay=True, readable=True))
 @click.argument("template_paths", type=click.Path(exists=True, file_okay=True, readable=True), nargs=-1)
-@click.option("--interpret", type=click.Path(exists=True, file_okay=True, readable=True),
-              default=None, help="Use the image at the specified path to run the interpretation phase.")
 @click.option("--show-features", is_flag=True, show_default=False, default=False, help="Visualize the locations of features.")
 @click.option("--visualize", is_flag=True, show_default=False, default=False, help="Generate visualizations of intermediate steps.")
-def test(target_path: str, template_paths: List[str], interpret: Union[str, None], show_features: bool, visualize: bool):
+def test(target_path: str, template_paths: List[str], show_features: bool, visualize: bool):
     """Visualizes the analysis of an image using one or more templates."""
 
     global _context
@@ -108,7 +106,6 @@ def test(target_path: str, template_paths: List[str], interpret: Union[str, None
             context,
             target_path=target_path,
             template_paths=template_paths,
-            interpret_path=interpret,
             visualize=visualize,
             show_features=show_features
         )
