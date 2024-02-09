@@ -1,6 +1,5 @@
 from typing import Dict
 
-import cv2
 import numpy as np
 from pytesseract import pytesseract
 

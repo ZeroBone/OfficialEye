@@ -86,7 +86,7 @@ class InternalFeature(InternalRegion, IFeature):
 
         for mutator_dict in mutators:
             mutator = load_mutator_from_dict(mutator_dict)
-            get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Applying mutator '{mutator.mutator_id}'.")
+            get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Applying mutator '{mutator}'.")
             img = mutator.mutate(img)
 
         return img

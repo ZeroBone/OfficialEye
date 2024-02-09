@@ -3,14 +3,14 @@ from __future__ import annotations
 from concurrent.futures import Future
 from typing import TYPE_CHECKING, Iterable, Dict, List
 
+from officialeye._api.template.supervision_result import SupervisionResult
 from officialeye._api.mutator import IMutator
 from officialeye._api.template.feature import Feature
 from officialeye._api.template.keypoint import Keypoint
-from officialeye._api.analysis_result import AnalysisResult
 from officialeye._api.image import IImage, Image
 from officialeye._api.template.template_interface import ITemplate
 # noinspection PyProtectedMember
-from officialeye._internal.api import template_load, template_analyze
+from officialeye._internal.api import template_load, template_detect
 
 if TYPE_CHECKING:
     from officialeye._api.context import Context
@@ -87,22 +87,22 @@ class Template(ITemplate):
 
         self._loaded = True
 
-    def analyze_async(self, /, *, target: IImage, interpretation_target: IImage | None = None) -> Future:
+    def detect_async(self, /, *, target: IImage, interpretation_target: IImage | None = None) -> Future:
 
         assert isinstance(target, Image)
         assert interpretation_target is None or isinstance(interpretation_target, Image)
 
         # noinspection PyProtectedMember
         return self._context._submit_task(
-            template_analyze,
+            template_detect,
             "Running analysis...",
             self._path,
             target_path=target._path,
             interpretation_target_path=None if interpretation_target is None else interpretation_target._path
         )
 
-    def analyze(self, /, **kwargs) -> AnalysisResult:
-        future = self.analyze_async(**kwargs)
+    def detect(self, /, **kwargs) -> SupervisionResult:
+        future = self.detect_async(**kwargs)
         return future.result()
 
     def get_image(self) -> Image:

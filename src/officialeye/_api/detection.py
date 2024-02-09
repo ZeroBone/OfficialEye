@@ -3,6 +3,7 @@ from __future__ import annotations
 from concurrent.futures import ALL_COMPLETED
 from typing import TYPE_CHECKING, List
 
+from officialeye._api.template.supervision_result import SupervisionResult
 from officialeye._api.future import wait, Future
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
@@ -13,15 +14,14 @@ from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNot
 if TYPE_CHECKING:
     from officialeye._api.context import Context
     from officialeye._api.image import Image
-    from officialeye._api.analysis_result import AnalysisResult
     from officialeye._api.template.template_interface import ITemplate
 
 
-def analyze(context: Context, *templates: ITemplate,
-            target: Image, interpretation_target: Image | None = None) -> AnalysisResult:
+def detect(context: Context, *templates: ITemplate,
+           target: Image, interpretation_target: Image | None = None) -> SupervisionResult:
 
     futures: List[Future] = [
-        template.analyze_async(target=target, interpretation_target=interpretation_target) for template in templates
+        template.detect_async(target=target, interpretation_target=interpretation_target) for template in templates
     ]
 
     done, not_done = wait(futures, return_when=ALL_COMPLETED)
@@ -32,7 +32,7 @@ def analyze(context: Context, *templates: ITemplate,
 
     regular_errors: List[OEError] = []
 
-    best_result: AnalysisResult | None = None
+    best_result: SupervisionResult | None = None
     best_result_score: float = -1.0
 
     for completed_future in done:
@@ -76,7 +76,7 @@ def analyze(context: Context, *templates: ITemplate,
 
         result = completed_future.result()
         assert result is not None
-        assert isinstance(result, AnalysisResult)
+        assert isinstance(result, SupervisionResult)
 
         result_score = result.get_score()
 

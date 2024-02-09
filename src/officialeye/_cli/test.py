@@ -1,11 +1,11 @@
 from typing import List
 
 # noinspection PyProtectedMember
-from officialeye._api.analysis import analyze
+from officialeye._api.detection import detect
 # noinspection PyProtectedMember
 from officialeye._api.image import Image
 # noinspection PyProtectedMember
-from officialeye._api.template.template_interface import ITemplate
+from officialeye._api.template.template import Template
 from officialeye._cli.context import CLIContext
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
@@ -22,8 +22,8 @@ def do_test(context: CLIContext, /, *,
 
     interpretation_target_image = target_img if interpret_path is None else Image(api_context, path=interpret_path)
 
-    templates = [ITemplate(api_context, path=template_path) for template_path in template_paths]
+    templates = [Template(api_context, path=template_path) for template_path in template_paths]
 
-    result = analyze(api_context, *templates, target=target_img, interpretation_target=interpretation_target_image)
+    result = detect(api_context, *templates, target=target_img, interpretation_target=interpretation_target_image)
 
     context.get_terminal_ui().info(Verbosity.INFO, "Running complete!")

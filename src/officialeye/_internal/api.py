@@ -22,7 +22,7 @@ def template_load(template_path: str, /, **kwargs) -> TemplateData:
         return template.get_template_data()
 
 
-def template_analyze(template_path: str, /, *, target_path: str, interpretation_target_path: str | None, **kwargs) -> SupervisionResult:
+def template_detect(template_path: str, /, *, target_path: str, interpretation_target_path: str | None, **kwargs) -> SupervisionResult:
 
     with get_internal_context().setup(**kwargs):
         template = load_template(template_path)
@@ -41,4 +41,4 @@ def template_analyze(template_path: str, /, *, target_path: str, interpretation_
                     f"The target image has shape {target.shape}, while the interpretation target image has shape {interpretation_target.shape}."
                 )
 
-        return template.run_analysis(target)
+        return template.detect(target)

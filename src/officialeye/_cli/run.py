@@ -1,7 +1,7 @@
 from typing import List
 
 # noinspection PyProtectedMember
-from officialeye._api.analysis import analyze
+from officialeye._api.detection import detect
 # noinspection PyProtectedMember
 from officialeye._api.image import Image
 # noinspection PyProtectedMember
@@ -23,6 +23,6 @@ def do_run(context: CLIContext, /, *, target_path: str, template_paths: List[str
 
     templates = [Template(api_context, path=template_path) for template_path in template_paths]
 
-    result = analyze(api_context, *templates, target=target_img, interpretation_target=interpretation_target_image)
+    result = detect(api_context, *templates, target=target_img, interpretation_target=interpretation_target_image)
 
     context.get_terminal_ui().info(Verbosity.INFO, "Running complete!")

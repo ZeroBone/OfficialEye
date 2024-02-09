@@ -42,8 +42,6 @@ if TYPE_CHECKING:
     from officialeye._api.template.matcher import IMatcher
     # noinspection PyProtectedMember
     from officialeye._api.mutator import IMutator
-    # noinspection PyProtectedMember
-    from officialeye._api.analysis_result import AnalysisResult
 
 
 _SUPERVISION_RESULT_FIRST = "first"
@@ -129,13 +127,13 @@ class InternalTemplate(ITemplate):
             "This method can only be called on a Template instance."
         )
 
-    def analyze_async(self, /, *, target: IImage, interpretation_target: IImage | None = None) -> Future:
+    def detect_async(self, /, *, target: IImage, interpretation_target: IImage | None = None) -> Future:
         raise ErrOperationNotSupported(
             "when calling the analyze_async() method of an InternalTemplate instance.",
             "This method can only be called on a Template instance."
         )
 
-    def analyze(self, /, **kwargs) -> AnalysisResult:
+    def detect(self, /, **kwargs) -> SupervisionResult:
         raise ErrOperationNotSupported(
             "when calling the analyze() method of an InternalTemplate instance.",
             "This method can only be called on a Template instance."
@@ -315,7 +313,7 @@ class InternalTemplate(ITemplate):
             f"Invalid supervision result choice engine '{supervision_result_choice_engine}'."
         )
 
-    def run_analysis(self, target: np.ndarray, /) -> SupervisionResult:
+    def detect(self, target: np.ndarray, /) -> SupervisionResult:
         # find all patterns in the target image
 
         _timer = Timer()

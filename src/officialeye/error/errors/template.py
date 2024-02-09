@@ -1,7 +1,5 @@
 from abc import ABC
 
-from rich.panel import Panel
-
 from officialeye.error.codes import (
     ERR_TEMPLATE_ID_NOT_UNIQUE,
     ERR_TEMPLATE_INVALID_CONCURRENCY_CONFIG,

@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 import cv2
+import numpy as np
 
 from officialeye.error.errors.template import ErrTemplateInvalidMutator
 # noinspection PyProtectedMember

@@ -3,7 +3,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
-import cv2
+import numpy as np
 
 from officialeye._api.config import MutatorConfig
 

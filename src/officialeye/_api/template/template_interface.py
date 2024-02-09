@@ -2,9 +2,9 @@ from abc import abstractmethod, ABC
 from concurrent.futures import Future
 from typing import Iterable
 
+from officialeye._api.template.supervision_result import SupervisionResult
 from officialeye._api.template.keypoint import IKeypoint
 from officialeye._api.template.feature import IFeature
-from officialeye._api.analysis_result import AnalysisResult
 from officialeye._api.image import IImage
 
 
@@ -26,11 +26,11 @@ class ITemplate(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def analyze_async(self, /, *, target: IImage, interpretation_target: IImage | None = None) -> Future:
+    def detect_async(self, /, *, target: IImage, interpretation_target: IImage | None = None) -> Future:
         raise NotImplementedError()
 
     @abstractmethod
-    def analyze(self, /, **kwargs) -> AnalysisResult:
+    def detect(self, /, **kwargs) -> SupervisionResult:
         raise NotImplementedError()
 
     @abstractmethod

@@ -7,6 +7,9 @@ from officialeye._internal.interpretation.config import InterpretationMethodConf
 from officialeye._internal.interpretation.serializable import Serializable
 
 
+# TODO: abstract out interpretation methods into the API
+
+
 class InterpretationMethod(abc.ABC):
 
     def __init__(self, method_id: str, config_dict: Dict[str, any], /):
