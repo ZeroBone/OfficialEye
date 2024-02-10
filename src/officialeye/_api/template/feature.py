@@ -20,9 +20,3 @@ class Feature(Region, IFeature):
 
     def __init__(self, template: ITemplate, /, **kwargs):
         super().__init__(template, **kwargs)
-
-    def __eq__(self, o: Any) -> bool:
-        return super().__eq__(o)
-
-    def __hash__(self):
-        return super().__hash__()

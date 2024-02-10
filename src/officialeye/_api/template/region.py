@@ -70,6 +70,16 @@ class IRegion(ABC):
     def __str__(self) -> str:
         return f"Region '{self.identifier}'"
 
+    def __eq__(self, o: Any) -> bool:
+
+        if not isinstance(o, Region):
+            return False
+
+        return self.template.identifier == o.template.identifier and self.identifier == o.identifier
+
+    def __hash__(self):
+        return hash((self.template, self.identifier))
+
 
 class Region(IRegion):
 
@@ -80,16 +90,6 @@ class Region(IRegion):
         self._y = y
         self._w = w
         self._h = h
-
-    def __eq__(self, o: Any) -> bool:
-
-        if not isinstance(o, Region):
-            return False
-
-        return self._template.identifier == o._template.identifier and self.identifier == o.identifier
-
-    def __hash__(self):
-        return hash((self._template.identifier, self._identifier))
 
     @property
     def identifier(self) -> str:

@@ -3,8 +3,8 @@ from __future__ import annotations
 from concurrent.futures import ALL_COMPLETED
 from typing import TYPE_CHECKING, List
 
-from officialeye._api.template.supervision_result import SupervisionResult
 from officialeye._api.future import wait, Future
+from officialeye._api.template.supervision_result import ISupervisionResult
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye.error.error import OEError
@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from officialeye._api.template.template_interface import ITemplate
 
 
-def detect(context: Context, *templates: ITemplate, target: Image) -> SupervisionResult:
+def detect(context: Context, *templates: ITemplate, target: Image) -> ISupervisionResult:
 
     futures: List[Future] = [
         template.detect_async(target=target) for template in templates
@@ -31,7 +31,7 @@ def detect(context: Context, *templates: ITemplate, target: Image) -> Supervisio
 
     regular_errors: List[OEError] = []
 
-    best_result: SupervisionResult | None = None
+    best_result: ISupervisionResult | None = None
     best_result_score: float = -1.0
 
     for completed_future in done:
@@ -75,15 +75,13 @@ def detect(context: Context, *templates: ITemplate, target: Image) -> Supervisio
 
         result = completed_future.result()
         assert result is not None
-        assert isinstance(result, SupervisionResult)
-
-        result_score = result.get_score()
+        assert isinstance(result, ISupervisionResult)
 
         # noinspection PyProtectedMember
-        context._get_afi().info(Verbosity.DEBUG, f"Template analysis worker yielded a result with score {result_score}.")
+        context._get_afi().info(Verbosity.DEBUG, f"Template analysis worker yielded a result with score {result.score}.")
 
-        if result_score > best_result_score:
-            best_result_score = result_score
+        if result.score > best_result_score:
+            best_result_score = result.score
             best_result = result
 
     if best_result is None:

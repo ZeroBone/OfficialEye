@@ -1,6 +1,6 @@
 from abc import abstractmethod, ABC
 from concurrent.futures import Future
-from typing import Iterable
+from typing import Iterable, Any
 
 from officialeye._api.template.supervision_result import SupervisionResult
 from officialeye._api.template.keypoint import IKeypoint
@@ -14,7 +14,7 @@ class ITemplate(ABC):
         super().__init__()
 
     @abstractmethod
-    def load(self):
+    def load(self) -> None:
         """
         Loads the template into memory for further processing.
 
@@ -81,3 +81,13 @@ class ITemplate(ABC):
 
     def __str__(self) -> str:
         return f"Template '{self.identifier}'."
+
+    def __eq__(self, o: Any) -> bool:
+
+        if not isinstance(o, ITemplate):
+            return False
+
+        return self.identifier == o.identifier
+
+    def __hash__(self):
+        return hash(self.identifier)

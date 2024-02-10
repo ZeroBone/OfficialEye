@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import sys
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Dict
 
 import cv2
@@ -15,103 +16,37 @@ if TYPE_CHECKING:
     from officialeye._api.template.matching_result import IMatchingResult
 
 
-class SupervisionResult:
-
-    def __init__(self, matching_result: IMatchingResult, /, **kwargs):
-
-        self._matching_result: IMatchingResult = matching_result
-
-        # offset in the template's coordinates
-        self._delta: np.ndarray | None = None
-        # offset in the target image's coordinates
-        self._delta_prime: np.ndarray | None = None
-
-        self._transformation_matrix: np.ndarray | None = None
-
-        # keys: matches
-        # values: weights assigned by the supervision engine to each match (assigning is optional)
-        # the higher the weight, the more we trust the correctness of the match and the greater its individual impact should be.
-        # by default, the weight is 1.
-        self._match_weights: Dict[IMatch, float] = {}
-
-        # an optional value the supervision engine can set, representing how confident the engine is that the result is of high quality
-        self._score = 0.0
-
-        self.set(**kwargs)
-
-    def set(self, /, *, delta: np.ndarray | None = None, delta_prime: np.ndarray | None = None,
-            transformation_matrix: np.ndarray | None = None, score: float | None = None):
-
-        if delta is not None:
-            assert delta.shape == (2,)
-            self._delta = delta
-
-        if delta_prime is not None:
-            assert delta_prime.shape == (2,)
-            self._delta_prime = delta_prime
-
-        if transformation_matrix is not None:
-            assert transformation_matrix.shape == (2, 2)
-            self._transformation_matrix = transformation_matrix
-
-        if score is not None:
-            self._score = score
-
-    def set_match_weight(self, match: IMatch, weight: float, /):
-        assert weight >= 0
-        self._match_weights[match] = weight
-
-    def get_match_weight(self, match: IMatch, /) -> float:
-
-        if match in self._match_weights:
-            return self._match_weights[match]
-
-        return 1.0
+class ISupervisionResult(ABC):
 
     @property
+    @abstractmethod
     def template(self) -> ITemplate:
-        return self._matching_result.template
+        raise NotImplementedError()
 
     @property
+    @abstractmethod
     def matching_result(self) -> IMatchingResult:
-        return self._matching_result
-
-    def get_score(self) -> float:
-        assert self._score >= 0.0
-        return self._score
+        raise NotImplementedError()
 
     @property
+    @abstractmethod
+    def score(self) -> float:
+        raise NotImplementedError()
+
+    @property
+    @abstractmethod
     def delta(self) -> np.ndarray:
-
-        if self._delta is None:
-            raise ErrObjectNotInitialized(
-                "while trying to access the 'delta' parameter of the supervision result instance.",
-                "This parameter has not been set."
-            )
-
-        return self._delta.copy()
+        raise NotImplementedError()
 
     @property
+    @abstractmethod
     def delta_prime(self) -> np.ndarray:
-
-        if self._delta_prime is None:
-            raise ErrObjectNotInitialized(
-                "while trying to access the 'delta_prime' parameter of the supervision result instance.",
-                "This parameter has not been set."
-            )
-
-        return self._delta_prime.copy()
+        raise NotImplementedError()
 
     @property
+    @abstractmethod
     def transformation_matrix(self) -> np.ndarray:
-
-        if self._transformation_matrix is None:
-            raise ErrObjectNotInitialized(
-                "while trying to access the 'transformation_matrix' parameter of the supervision result instance.",
-                "This parameter has not been set."
-            )
-
-        return self._transformation_matrix.copy()
+        raise NotImplementedError()
 
     def translate(self, template_point: np.ndarray, /) -> np.ndarray:
         """
@@ -119,13 +54,18 @@ class SupervisionResult:
         outputs the corresponding position in the target image's coordinate system, according to the affine transformation model.
         """
         assert template_point.shape == (2,)
-        return self._transformation_matrix @ (template_point - self._delta) + self._delta_prime
+        return self.transformation_matrix @ (template_point - self.delta) + self.delta_prime
+
+    @abstractmethod
+    def get_match_weight(self, match: IMatch, /) -> float:
+        raise NotImplementedError()
 
     def get_weighted_mse(self, /) -> float:
+
         error = 0.0
         singificant_match_count = 0
 
-        for match in self._matching_result.get_all_matches():
+        for match in self.matching_result.get_all_matches():
 
             match_weight = self.get_match_weight(match)
 
@@ -172,3 +112,84 @@ class SupervisionResult:
             (feature.w, feature.h),
             flags=cv2.INTER_LINEAR
         )
+
+
+class SupervisionResult:
+
+    def __init__(self, /, **kwargs):
+        # offset in the template's coordinates
+        self._delta: np.ndarray | None = None
+        # offset in the target image's coordinates
+        self._delta_prime: np.ndarray | None = None
+
+        self._transformation_matrix: np.ndarray | None = None
+
+        # keys: matches
+        # values: weights assigned by the supervision engine to each match (assigning is optional)
+        # the higher the weight, the more we trust the correctness of the match and the greater its individual impact should be.
+        # by default, the weight is 1.
+        self._match_weights: Dict[IMatch, float] = {}
+
+        # an optional value the supervision engine can set, representing how confident the engine is in the result
+        self._score = 0.0
+
+        self.set(**kwargs)
+
+    def set(self, /, *, delta: np.ndarray | None = None, delta_prime: np.ndarray | None = None,
+            transformation_matrix: np.ndarray | None = None, score: float | None = None):
+
+        if delta is not None:
+            assert delta.shape == (2,)
+            self._delta = delta
+
+        if delta_prime is not None:
+            assert delta_prime.shape == (2,)
+            self._delta_prime = delta_prime
+
+        if transformation_matrix is not None:
+            assert transformation_matrix.shape == (2, 2)
+            self._transformation_matrix = transformation_matrix
+
+        if score is not None:
+            self._score = score
+
+    def set_match_weight(self, match: IMatch, weight: float, /):
+        assert weight >= 0
+        self._match_weights[match] = weight
+
+    def get_score(self) -> float:
+        assert self._score >= 0.0
+        return self._score
+
+    @property
+    def delta(self) -> np.ndarray:
+
+        if self._delta is None:
+            raise ErrObjectNotInitialized(
+                "while trying to access the 'delta' parameter of the supervision result instance.",
+                "This parameter has not been set."
+            )
+
+        return self._delta.copy()
+
+    @property
+    def delta_prime(self) -> np.ndarray:
+
+        if self._delta_prime is None:
+            raise ErrObjectNotInitialized(
+                "while trying to access the 'delta_prime' parameter of the supervision result instance.",
+                "This parameter has not been set."
+            )
+
+        return self._delta_prime.copy()
+
+    @property
+    def transformation_matrix(self) -> np.ndarray:
+
+        if self._transformation_matrix is None:
+            raise ErrObjectNotInitialized(
+                "while trying to access the 'transformation_matrix' parameter of the supervision result instance.",
+                "This parameter has not been set."
+            )
+
+        return self._transformation_matrix.copy()

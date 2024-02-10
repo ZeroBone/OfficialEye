@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from officialeye._api.template.feature import IFeature
     from officialeye._api.template.keypoint import IKeypoint
     # noinspection PyProtectedMember
-    from officialeye._internal.template.template_data import TemplateData
+    from officialeye._internal.template.external_template import ExternalTemplate
 
 
 class Template(ITemplate):
@@ -43,7 +43,7 @@ class Template(ITemplate):
         self._source_mutators: List[IMutator] | None = None
         self._target_mutators: List[IMutator] | None = None
 
-    def load(self):
+    def load(self) -> None:
         """
         Loads the template into memory for further processing.
 
@@ -59,7 +59,7 @@ class Template(ITemplate):
         # noinspection PyProtectedMember
         future = self._context._submit_task(template_load, "Loading template...", self._path)
 
-        _data: TemplateData = future.result()
+        _data: ExternalTemplate = future.result()
         assert _data is not None
 
         self._identifier = _data.identifier

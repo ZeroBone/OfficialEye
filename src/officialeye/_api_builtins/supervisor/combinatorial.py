@@ -211,7 +211,6 @@ class CombinatorialSupervisor(Supervisor):
             transformation_matrix = model_evaluator(self._transformation_matrix)
 
             _result = SupervisionResult(
-                matching_result,
                 delta=delta,
                 delta_prime=delta_prime,
                 transformation_matrix=transformation_matrix,
@@ -221,11 +220,6 @@ class CombinatorialSupervisor(Supervisor):
             for match in matching_result.get_all_matches():
                 match_weight = model_evaluator(self._match_weight[match])
                 _result.set_match_weight(match, match_weight)
-
-            get_internal_afi().info(
-                Verbosity.INFO_VERBOSE,
-                f"Error: {_result.get_weighted_mse()} Total weight and score: {model_total_weight}"
-            )
 
             yield _result
 

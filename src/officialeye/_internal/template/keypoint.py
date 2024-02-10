@@ -1,6 +1,14 @@
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
 from officialeye._api.template.keypoint import IKeypoint
 from officialeye.error.errors.template import ErrTemplateInvalidKeypoint
-from officialeye._internal.template.region import InternalRegion
+from officialeye._internal.template.region import InternalRegion, ExternalRegion
+
+
+if TYPE_CHECKING:
+    from officialeye._internal.template.external_template import ExternalTemplate
 
 
 class InternalKeypoint(InternalRegion, IKeypoint):
@@ -24,6 +32,23 @@ class InternalKeypoint(InternalRegion, IKeypoint):
             )
 
         assert 0 <= self._matches_min <= self._matches_max
+
+    @property
+    def matches_min(self) -> int:
+        return self._matches_min
+
+    @property
+    def matches_max(self) -> int:
+        return self._matches_max
+
+
+class ExternalKeypoint(ExternalRegion, IKeypoint):
+
+    def __init__(self, internal_keypoint: InternalKeypoint, external_template: ExternalTemplate, /):
+        super().__init__(internal_keypoint, external_template)
+
+        self._matches_min = internal_keypoint.matches_min
+        self._matches_max = internal_keypoint.matches_max
 
     @property
     def matches_min(self) -> int:

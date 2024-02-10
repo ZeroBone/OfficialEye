@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-from typing import Dict, List, Iterable
+from abc import ABC
+from typing import Dict, List, Iterable, TYPE_CHECKING
 
 # noinspection PyProtectedMember
 from officialeye._api.template.match import IMatch
@@ -8,19 +9,30 @@ from officialeye._api.template.match import IMatch
 from officialeye._api.template.matching_result import IMatchingResult
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
+from officialeye._internal.template.external_template import ExternalTemplate
 from officialeye.error.errors.matching import ErrMatchingMatchCountOutOfBounds
 
 
-class InternalMatchingResult(IMatchingResult):
+if TYPE_CHECKING:
+    # noinspection PyProtectedMember
+    from officialeye._api.template.template_interface import ITemplate
+    from officialeye._internal.template.internal_template import InternalTemplate
 
-    def __init__(self, template_id: str, /):
-        self._template_id = template_id
 
+class SharedMatchingResult(IMatchingResult, ABC):
+    """
+    This class contains all the logic of the matching result instance, irrespective of whether we use the internal or the external representation.
+    The parent process uses the internal representation, whereas the external representation is only for the child process.
+    This class represents the aspects that both representations have in common.
+    Therefore, it is important that this class operates only on the interface level and is picklable.
+    """
+
+    def __init__(self, template: ITemplate, /):
         # keys: keypoint ids
         # values: matches with this keypoint
         self._matches_dict: Dict[str, List[IMatch]] = {}
 
-        for keypoint in self.template.keypoints:
+        for keypoint in template.keypoints:
             self._matches_dict[keypoint.identifier] = []
 
     def remove_all_matches(self):
@@ -41,17 +53,13 @@ class InternalMatchingResult(IMatchingResult):
             match_count += len(self._matches_dict[keypoint_id])
         return match_count
 
-    def get_keypoint_ids(self):
+    def get_keypoint_ids(self) -> Iterable[str]:
         for keypoint_id in self._matches_dict:
             yield keypoint_id
 
     def get_matches_for_keypoint(self, keypoint_id: str, /) -> Iterable[IMatch]:
         for match in self._matches_dict[keypoint_id]:
             yield match
-
-    @property
-    def template(self):
-        return get_internal_context().get_template(self._template_id)
 
     def validate(self):
 
@@ -72,7 +80,7 @@ class InternalMatchingResult(IMatchingResult):
 
             if keypoint_matches_count < keypoint_matches_min:
                 raise ErrMatchingMatchCountOutOfBounds(
-                    f"while checking that keypoint '{keypoint_id}' of template '{self._template_id}' "
+                    f"while checking that keypoint '{keypoint_id}' of template '{self.template.identifier}' "
                     f"has been matched a sufficient number of times",
                     f"Expected at least {keypoint_matches_min} matches, got {keypoint_matches_count}"
                 )
@@ -81,7 +89,7 @@ class InternalMatchingResult(IMatchingResult):
 
                 get_internal_afi().info(
                     Verbosity.INFO_VERBOSE,
-                    f"Keypoint '{keypoint_id}' of template '{self._template_id}' has too many matches "
+                    f"Keypoint '{keypoint_id}' of template '{self.template.identifier}' has too many matches "
                     f"(matches: {keypoint_matches_count} max: {keypoint_matches_max}). Cherry-picking the best matches.")
                 # cherry-pick the best matches
                 self._matches_dict[keypoint_id] = sorted(self._matches_dict[keypoint_id])[:keypoint_matches_max]
@@ -89,7 +97,7 @@ class InternalMatchingResult(IMatchingResult):
 
             get_internal_afi().info(
                 Verbosity.INFO_VERBOSE,
-                f"Keypoint '{keypoint_id}' of template '{self._template_id}' has been matched {keypoint_matches_count} times "
+                f"Keypoint '{keypoint_id}' of template '{self.template.identifier}' has been matched {keypoint_matches_count} times "
                 f"(min: {keypoint_matches_min} max: {keypoint_matches_max})."
             )
 
@@ -98,9 +106,44 @@ class InternalMatchingResult(IMatchingResult):
         assert total_match_count >= 0
         if total_match_count == 0:
             raise ErrMatchingMatchCountOutOfBounds(
-                f"while checking that there has been at least one match for template '{self._template_id}'.",
+                f"while checking that there has been at least one match for template '{self.template.identifier}'.",
                 "There have been no matches."
             )
 
-    def debug_print(self):
-        get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Found {self.get_total_match_count()} matches!")
+
+class InternalMatchingResult(SharedMatchingResult):
+    """
+    Representation of the matching result, designed to be used by the child process only.
+    """
+
+    def __init__(self, template: InternalTemplate, /):
+        super().__init__(template)
+
+        self._template_id = template.identifier
+
+        # keys: keypoint ids
+        # values: matches with this keypoint
+        self._matches_dict: Dict[str, List[IMatch]] = {}
+
+        for keypoint in self.template.keypoints:
+            self._matches_dict[keypoint.identifier] = []
+
+    @property
+    def template(self) -> InternalTemplate:
+        return get_internal_context().get_template(self._template_id)
+
+
+class ExternalMatchingResult(SharedMatchingResult):
+    """
+    Representation of the matching result, designed to be used by the main process.
+    For this reason, it is essential that this class is picklable.
+    """
+
+    def __init__(self, internal_matching_result: InternalMatchingResult, external_template: ExternalTemplate, /):
+        super().__init__(internal_matching_result.template)
+
+        self._template = external_template
+
+    @property
+    def template(self) -> ExternalTemplate:
+        return self._template

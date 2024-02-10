@@ -7,28 +7,27 @@ In other words, the functions of this module form a low-level API that should be
 import cv2
 import numpy as np
 
-# noinspection PyProtectedMember
-from officialeye._api.template.supervision_result import SupervisionResult
 from officialeye._internal.context.singleton import get_internal_context
+from officialeye._internal.template.external_supervision_result import ExternalSupervisionResult
 from officialeye._internal.template.schema.loader import load_template
-from officialeye._internal.template.template_data import TemplateData
+from officialeye._internal.template.external_template import ExternalTemplate
 
 
-def template_load(template_path: str, /, **kwargs) -> TemplateData:
+def template_load(template_path: str, /, **kwargs) -> ExternalTemplate:
 
     with get_internal_context().setup(**kwargs):
         template = load_template(template_path)
-        return template.get_template_data()
+        return ExternalTemplate(template)
 
 
-def template_detect(template_path: str, /, *, target_path: str, **kwargs) -> SupervisionResult:
+def template_detect(template_path: str, /, *, target_path: str, **kwargs) -> ExternalSupervisionResult:
 
     with get_internal_context().setup(**kwargs):
         template = load_template(template_path)
 
         target: np.ndarray = cv2.imread(target_path, cv2.IMREAD_COLOR)
 
-        # TODO
+        # TODO: move the following to a separate method
         """
         if interpretation_target_path is None:
             interpretation_target = target

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from abc import ABC
 from typing import Dict, TYPE_CHECKING
 
 import numpy as np
@@ -8,24 +9,25 @@ import numpy as np
 from officialeye._api.template.region import IRegion
 from officialeye._internal.context.singleton import get_internal_context
 
-
 if TYPE_CHECKING:
-    from officialeye._internal.template.template import InternalTemplate
+    # noinspection PyProtectedMember
+    from officialeye._api.template.template_interface import ITemplate
+    from officialeye._internal.template.internal_template import InternalTemplate
+    from officialeye._internal.template.external_template import ExternalTemplate
 
 
-class InternalRegion(IRegion):
+class SharedRegion(IRegion, ABC):
 
-    def __init__(self, template_id: str, region_dict: Dict[str, any], /):
-        self._template_id = template_id
-        self._region_id = str(region_dict["id"])
-        self._x = int(region_dict["x"])
-        self._y = int(region_dict["y"])
-        self._w = int(region_dict["w"])
-        self._h = int(region_dict["h"])
+    def __init__(self, /, *, identifier: str, x: int, y: int, w: int, h: int):
+        self._identifier = identifier
+        self._x = x
+        self._y = y
+        self._w = w
+        self._h = h
 
     @property
     def identifier(self) -> str:
-        return self._region_id
+        return self._identifier
 
     @property
     def x(self) -> int:
@@ -43,10 +45,6 @@ class InternalRegion(IRegion):
     def h(self) -> int:
         return self._h
 
-    @property
-    def template(self) -> InternalTemplate:
-        return get_internal_context().get_template(self._template_id)
-
     def insert_into_image(self, target: np.ndarray, transformed_version: np.ndarray = None):
 
         assert target.shape[0] == self.template.height
@@ -56,3 +54,39 @@ class InternalRegion(IRegion):
             transformed_version = self.get_image().load()
 
         target[self.y: self.y + self.h, self.x: self.x + self.w] = transformed_version
+
+
+class InternalRegion(SharedRegion, ABC):
+
+    def __init__(self, template_id: str, region_dict: Dict[str, any], /):
+        super().__init__(
+            identifier=str(region_dict["id"]),
+            x=int(region_dict["x"]),
+            y=int(region_dict["y"]),
+            w=int(region_dict["w"]),
+            h=int(region_dict["h"])
+        )
+
+        self._template_id = template_id
+
+    @property
+    def template(self) -> InternalTemplate:
+        return get_internal_context().get_template(self._template_id)
+
+
+class ExternalRegion(SharedRegion, ABC):
+
+    def __init__(self, internal_region: InternalRegion, external_template: ExternalTemplate, /):
+        super().__init__(
+            identifier=internal_region.identifier,
+            x=internal_region.x,
+            y=internal_region.y,
+            w=internal_region.w,
+            h=internal_region.h
+        )
+
+        self._external_template = external_template
+
+    @property
+    def template(self) -> ITemplate:
+        return self._external_template

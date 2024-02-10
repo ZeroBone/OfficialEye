@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from officialeye._api.template.matcher import IMatcher
     # noinspection PyProtectedMember
     from officialeye._api.mutator import IMutator
-    from officialeye._internal.template.template import InternalTemplate
+    from officialeye._internal.template.internal_template import InternalTemplate
     from officialeye.types import ConfigDict, MutatorFactory, MatcherFactory, SupervisorFactory
 
 

@@ -76,7 +76,6 @@ class LeastSquaresRegressionSupervisor(Supervisor):
             ])
 
             _result = SupervisionResult(
-                matching_result,
                 delta=delta,
                 delta_prime=delta_prime,
                 transformation_matrix=transformation_matrix

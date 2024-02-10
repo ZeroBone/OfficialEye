@@ -8,6 +8,8 @@ from typing import Dict, List, TYPE_CHECKING, Iterable
 import numpy as np
 
 # noinspection PyProtectedMember
+from officialeye._api.template.match import IMatch
+# noinspection PyProtectedMember
 from officialeye._api.template.supervision_result import SupervisionResult
 # noinspection PyProtectedMember
 from officialeye._api.template.supervisor import ISupervisor
@@ -18,7 +20,9 @@ from officialeye._api.template.template import ITemplate
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
+from officialeye._internal.template.external_supervision_result import ExternalSupervisionResult
 from officialeye._internal.template.image import InternalImage
+from officialeye._internal.template.internal_supervision_result import InternalSupervisionResult
 from officialeye._internal.template.utils import load_mutator_from_dict
 from officialeye._internal.timer import Timer
 from officialeye.error.errors.general import ErrOperationNotSupported, ErrInvalidIdentifier
@@ -33,8 +37,6 @@ from officialeye._internal.template.feature_class.loader import load_template_fe
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
 from officialeye._internal.template.feature import InternalFeature
 from officialeye._internal.template.keypoint import InternalKeypoint
-from officialeye._internal.template.template_data import TemplateData, TemplateDataFeature, TemplateDataKeypoint
-
 
 if TYPE_CHECKING:
     from officialeye.types import ConfigDict
@@ -121,22 +123,22 @@ class InternalTemplate(ITemplate):
 
         get_internal_context().add_template(self)
 
-    def load(self):
+    def load(self) -> None:
         raise ErrOperationNotSupported(
-            "when calling the load() method of an InternalTemplate instance.",
-            "This method can only be called on a Template instance."
+            "while accessing an internal template instance.",
+            "The way in which it was accessed is not supported."
         )
 
     def detect_async(self, /, *, target: IImage) -> Future:
         raise ErrOperationNotSupported(
-            "when calling the detect_async() method of an InternalTemplate instance.",
-            "This method can only be called on a Template instance."
+            "while accessing an internal template instance.",
+            "The way in which it was accessed is not supported."
         )
 
     def detect(self, /, **kwargs) -> SupervisionResult:
         raise ErrOperationNotSupported(
-            "when calling the detect() method of an InternalTemplate instance.",
-            "This method can only be called on a Template instance."
+            "while accessing an internal template instance.",
+            "The way in which it was accessed is not supported."
         )
 
     def _get_source_image_path(self) -> str:
@@ -184,37 +186,6 @@ class InternalTemplate(ITemplate):
         for feature in self.features:
             feature.validate_feature_class()
 
-    def get_template_data(self) -> TemplateData:
-        return TemplateData(
-            identifier=self.identifier,
-            name=self.name,
-            source=self._get_source_image_path(),
-            width=self.width,
-            height=self.height,
-            features=[
-                TemplateDataFeature(
-                    identifier=f.identifier,
-                    x=f.x,
-                    y=f.y,
-                    w=f.w,
-                    h=f.h
-                ) for f in self.features
-            ],
-            keypoints=[
-                TemplateDataKeypoint(
-                    identifier=k.identifier,
-                    x=k.x,
-                    y=k.y,
-                    w=k.w,
-                    h=k.h,
-                    matches_min=k.matches_min,
-                    matches_max=k.matches_max
-                ) for k in self.keypoints
-            ],
-            source_mutators=self._source_mutators,
-            target_mutators=self._target_mutators
-        )
-
     def get_matcher(self, /) -> IMatcher:
         matcher_id = self._matching["engine"]
         matcher_config = self._matching["config"]
@@ -255,16 +226,25 @@ class InternalTemplate(ITemplate):
     def get_path(self) -> str:
         return self._path_to_template
 
-    def _run_supervisor(self, keypoint_matching_result: InternalMatchingResult, /) -> SupervisionResult | None:
+    def _run_supervisor(self, keypoint_matching_result: InternalMatchingResult, /) -> InternalSupervisionResult | None:
 
         supervisor = self.get_supervisor()
         supervisor.setup(self, keypoint_matching_result)
 
         supervision_result_choice_engine = self._supervision["result"]
-        results: List[SupervisionResult] = list(supervisor.supervise(self, keypoint_matching_result))
+        results: List[InternalSupervisionResult] = [
+            InternalSupervisionResult(supervision_result, self, keypoint_matching_result)
+            for supervision_result in supervisor.supervise(self, keypoint_matching_result)
+        ]
 
         if len(results) == 0:
             return None
+
+        for result in results:
+            get_internal_afi().info(
+                Verbosity.INFO_VERBOSE,
+                f"Got result with score {result.score} and error {result.get_weighted_mse()} from supervisor '{supervisor}'."
+            )
 
         if supervision_result_choice_engine == _SUPERVISION_RESULT_FIRST:
             return results[0]
@@ -280,25 +260,25 @@ class InternalTemplate(ITemplate):
             for result_id, result in enumerate(results):
                 result_mse = result.get_weighted_mse()
 
-                get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Result #{result_id + 1} has MSE {result_mse}")
+                get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Result #{result_id + 1} has MSE {result_mse}.")
 
                 if result_mse < best_result_mse:
                     best_result_mse = result_mse
                     best_result = result
 
-            get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Best result has MSE {best_result_mse}")
+            get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Best result has MSE {best_result_mse}.")
 
             return best_result
 
         if supervision_result_choice_engine == _SUPERVISION_RESULT_BEST_SCORE:
 
             best_result = results[0]
-            best_result_score = best_result.get_score()
+            best_result_score = best_result.score
 
             for result_id, result in enumerate(results):
-                result_score = result.get_score()
+                result_score = result.score
 
-                get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Result #{result_id + 1} has score {result_score}")
+                get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Result #{result_id + 1} has score {result_score}.")
 
                 if result_score < best_result_score:
                     best_result_score = result_score
@@ -313,7 +293,7 @@ class InternalTemplate(ITemplate):
             f"Invalid supervision result choice engine '{supervision_result_choice_engine}'."
         )
 
-    def do_detect(self, target: np.ndarray, /) -> SupervisionResult:
+    def do_detect(self, target: np.ndarray, /) -> ExternalSupervisionResult:
         # find all patterns in the target image
 
         _timer = Timer()
@@ -328,18 +308,16 @@ class InternalTemplate(ITemplate):
             matcher.setup(self)
 
             for keypoint in self.keypoints:
-                get_internal_afi().info(Verbosity.DEBUG, f"Running matcher for keypoint '{keypoint.identifier}'.")
+                get_internal_afi().info(Verbosity.DEBUG, f"Running matcher '{matcher}' for keypoint '{keypoint.identifier}'.")
                 assert isinstance(keypoint, InternalKeypoint)
                 matcher.match(keypoint)
 
-            keypoint_matching_result = InternalMatchingResult(self.identifier)
+            keypoint_matching_result = InternalMatchingResult(self)
 
             for keypoint in self.keypoints:
                 for match in matcher.get_matches_for_keypoint(keypoint):
+                    assert isinstance(match, IMatch)
                     keypoint_matching_result.add_match(match)
-
-            if get_internal_context().visualization_generation_enabled():
-                keypoint_matching_result.debug_print()
 
             keypoint_matching_result.validate()
             assert keypoint_matching_result.get_total_match_count() > 0
@@ -374,7 +352,7 @@ class InternalTemplate(ITemplate):
             get_internal_context().export_image(visualization, file_name="matches.png")
         """
 
-        return supervision_result
+        return ExternalSupervisionResult(supervision_result)
 
     def __str__(self):
         return f"{self.name} ({self._source}, {len(self._keypoints)} keypoints, {len(self._features)} features)"

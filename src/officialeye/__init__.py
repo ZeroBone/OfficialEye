@@ -35,12 +35,14 @@ from officialeye._api.template.keypoint import IKeypoint, Keypoint
 from officialeye._api.template.match import IMatch, Match
 # noinspection PyProtectedMember
 from officialeye._api.template.matcher import IMatcher, Matcher
+# noinspection PyProtectedMember
+from officialeye._api.template.matching_result import IMatchingResult
 
 # Supervision-related imports
 # noinspection PyProtectedMember
 from officialeye._api.template.supervisor import ISupervisor, Supervisor
 # noinspection PyProtectedMember
-from officialeye._api.template.supervision_result import SupervisionResult
+from officialeye._api.template.supervision_result import ISupervisionResult, SupervisionResult
 
 # Misc
 # noinspection PyProtectedMember

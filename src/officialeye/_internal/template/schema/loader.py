@@ -6,7 +6,7 @@ from officialeye._internal.context.singleton import get_internal_afi, get_intern
 from officialeye.error.errors.template import ErrTemplateInvalidSyntax
 
 from officialeye._internal.template.schema.schema import generate_template_schema
-from officialeye._internal.template.template import InternalTemplate
+from officialeye._internal.template.internal_template import InternalTemplate
 
 _oe_template_schema = generate_template_schema()
 
