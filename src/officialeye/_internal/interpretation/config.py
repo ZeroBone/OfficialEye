@@ -5,6 +5,7 @@ from officialeye.error.errors.template import ErrTemplateInvalidInterpretation
 
 
 class InterpretationMethodConfig(Config):
+    # TODO: abstract this out
 
     def __init__(self, config_dict: Dict[str, any], interpretation_method: str, /):
 

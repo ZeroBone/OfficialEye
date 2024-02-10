@@ -123,6 +123,12 @@ class InternalTemplate(ITemplate):
 
         get_internal_context().add_template(self)
 
+    def get_source_mutators(self) -> Iterable[IMutator]:
+        return self._source_mutators
+
+    def get_target_mutators(self) -> Iterable[IMutator]:
+        return self._target_mutators
+
     def load(self) -> None:
         raise ErrOperationNotSupported(
             "while accessing an internal template instance.",
@@ -141,7 +147,7 @@ class InternalTemplate(ITemplate):
             "The way in which it was accessed is not supported."
         )
 
-    def _get_source_image_path(self) -> str:
+    def get_source_image_path(self) -> str:
         if os.path.isabs(self._source):
             return self._source
         path_to_template_dir = os.path.dirname(self._path_to_template)
@@ -149,7 +155,7 @@ class InternalTemplate(ITemplate):
         return os.path.normpath(path)
 
     def get_image(self) -> IImage:
-        return InternalImage(path=self._get_source_image_path())
+        return InternalImage(path=self.get_source_image_path())
 
     def get_mutated_image(self) -> IImage:
         img = self.get_image()

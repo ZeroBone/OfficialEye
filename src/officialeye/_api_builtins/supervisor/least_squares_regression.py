@@ -13,10 +13,6 @@ from officialeye._api.template.matching_result import IMatchingResult
 from officialeye._api.template.supervisor import Supervisor
 # noinspection PyProtectedMember
 from officialeye._api.template.supervision_result import SupervisionResult
-# noinspection PyProtectedMember
-from officialeye._internal.context.singleton import get_internal_afi
-# noinspection PyProtectedMember
-from officialeye._internal.feedback.verbosity import Verbosity
 
 
 if TYPE_CHECKING:
@@ -80,7 +76,5 @@ class LeastSquaresRegressionSupervisor(Supervisor):
                 delta_prime=delta_prime,
                 transformation_matrix=transformation_matrix
             )
-
-            get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Current MSE: {_result.get_weighted_mse()}")
 
             yield _result

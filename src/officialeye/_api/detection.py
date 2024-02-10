@@ -7,6 +7,8 @@ from officialeye._api.future import wait, Future
 from officialeye._api.template.supervision_result import ISupervisionResult
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
+# noinspection PyProtectedMember
+from officialeye._internal.template.external_supervision_result import ExternalSupervisionResult
 from officialeye.error.error import OEError
 from officialeye.error.errors.internal import ErrInternal
 from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
@@ -75,7 +77,7 @@ def detect(context: Context, *templates: ITemplate, target: Image) -> ISupervisi
 
         result = completed_future.result()
         assert result is not None
-        assert isinstance(result, ISupervisionResult)
+        assert isinstance(result, ExternalSupervisionResult)
 
         # noinspection PyProtectedMember
         context._get_afi().info(Verbosity.DEBUG, f"Template analysis worker yielded a result with score {result.score}.")

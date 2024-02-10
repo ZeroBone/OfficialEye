@@ -1,8 +1,10 @@
 from __future__ import annotations
 
 from concurrent.futures import Future
-from typing import Iterable, Dict, TYPE_CHECKING
+from typing import Iterable, Dict, TYPE_CHECKING, List
 
+# noinspection PyProtectedMember
+from officialeye._api.mutator import IMutator
 # noinspection PyProtectedMember
 from officialeye._api.image import IImage
 # noinspection PyProtectedMember
@@ -30,6 +32,7 @@ class ExternalTemplate(ITemplate):
 
         self._identifier: str = template.identifier
         self._name: str = template.name
+        self._source_image_path: str = template.get_source_image_path()
         self._width = template.width
         self._height = template.height
 
@@ -41,6 +44,24 @@ class ExternalTemplate(ITemplate):
 
         for feature in template.features:
             self._features[feature.identifier] = ExternalFeature(feature, self)
+
+        self._source_mutators: List[IMutator] = [
+            mutator for mutator in template.get_source_mutators()
+        ]
+
+        self._target_mutators: List[IMutator] = [
+            mutator for mutator in template.get_target_mutators()
+        ]
+
+    @property
+    def source_image_path(self) -> str:
+        return self._source_image_path
+
+    def get_source_mutators(self) -> Iterable[IMutator]:
+        return self._source_mutators
+
+    def get_target_mutators(self) -> Iterable[IMutator]:
+        return self._target_mutators
 
     def load(self) -> None:
         raise ErrOperationNotSupported(

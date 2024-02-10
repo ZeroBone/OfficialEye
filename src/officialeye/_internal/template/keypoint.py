@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+# noinspection PyProtectedMember
 from officialeye._api.template.keypoint import IKeypoint
 from officialeye.error.errors.template import ErrTemplateInvalidKeypoint
 from officialeye._internal.template.region import InternalRegion, ExternalRegion

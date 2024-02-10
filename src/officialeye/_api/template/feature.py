@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Any, TYPE_CHECKING
+from typing import TYPE_CHECKING
 
 from officialeye._api.template.region import IRegion, Region
 
