@@ -1,5 +1,6 @@
 ---
 icon: octicons/star-16
+render_macros: true
 ---
 
 # Examples
@@ -15,7 +16,7 @@ Start by obtaining a properly positioned and high-quality image of a driver's li
 For demonstration purposes, let's use the following scan of a driver's license.
 
 ???+ tip "Template image"
-    ![Driver license photo](../assets/img/demo/driver_license_ru/template.jpg){ loading=lazy }
+    ![Driver license photo](../assets/templates/driver_license_ru_01/driver_license_ru.jpg){ loading=lazy }
 
 Next, we initialize a new template configuration file using the following command.
 
@@ -119,7 +120,7 @@ officialeye show driver_license_ru.yml --hide-features
 ```
 
 ???+ tip "Visualization of the template's keypoints"
-    ![Visualization of the template's keypoints](../assets/img/demo/driver_license_ru/template_show_keypoints.jpg){ loading=lazy }
+    ![Visualization of the template's keypoints](../assets/templates/driver_license_ru_01/show_keypoints.jpg){ loading=lazy }
 
 #### Features
 
@@ -282,14 +283,14 @@ officialeye show driver_license_ru.yml --hide-keypoints
 ```
 
 ???+ tip "Visualization of the template's features"
-    ![Visualization of the template's features](../assets/img/demo/driver_license_ru/template_show_features.jpg){ loading=lazy }
+    ![Visualization of the template's features](../assets/templates/driver_license_ru_01/show_features.jpg){ loading=lazy }
 
 ### Testing document analysis
 
 To test OfficialEye's document analysis and processing, we need an example image containing the document type the template is configured for, in this case, a photo of a driver's license. For the sake of the present demonstration, we shall use the following image.
 
 ???+ example "example_01.jpg"
-    ![Driver license photo](../assets/img/demo/driver_license_ru/examples/01.jpg){ loading=lazy }
+    ![Driver license photo](../assets/templates/driver_license_ru_01/examples/01.jpg){ loading=lazy }
 
 We can now tell OfficialEye to run the analysis algorithm and visualize the result by running the
 
@@ -300,7 +301,7 @@ officialeye test example_01.jpg driver_license_ru.yml
 command, where `example_01.jpg` is the path to the input image (see above). The tool visualizes the result by replacing feature regions in the template image by the transformed version of the corresponding regions in the input image.
 
 ???+ example "Result"
-    ![Driver license photo](../assets/img/demo/driver_license_ru/test/01/supervision_result.png){ loading=lazy }
+    ![Driver license photo](../assets/templates/driver_license_ru_01/test/01/supervision_result.png){ loading=lazy }
 
 As we can see, OficialEye was able to successfully use the template we created to detect the driver's license in the input image, zoom and rotate all features accordingly.
 
@@ -343,181 +344,7 @@ As above, `example_01.jpg` is the path to the input image. As a result, we get t
 For the sake of completeness and convenience, we provide the full version of the template configuration file of the present example. 
 
 ```yaml title="driver_license_ru.yml"
-id: "driver_license_ru"
-name: "Driver License RU"
-source: "driver_license_ru.jpg" 
-mutators:
-  source:
-  target:
-keypoints:
-  title:
-    x: 453
-    y: 55
-    w: 792
-    h: 70
-    matches:
-      min: 15
-      max: 50
-  rus_symbol:
-    x: 138
-    y: 33
-    w: 187
-    h: 109
-    matches:
-      min: 2
-      max: 30
-  heading_bar:
-    x: 441
-    y: 154
-    w: 96
-    h: 610
-    matches:
-      min: 5
-      max: 30
-  heading_4b:
-    x: 802
-    y: 432
-    w: 67
-    h: 49
-    matches:
-      min: 1
-      max: 10
-  heading_67:
-    x: 58
-    y: 663
-    w: 51
-    h: 106
-    matches:
-      min: 3
-      max: 10
-  b_b1:
-    x: 531
-    y: 681
-    w: 141
-    h: 78
-    matches:
-      min: 0
-      max: 20
-matching:
-  engine: sift_flann
-  config:
-    sift_flann:
-      sensitivity: 0.7
-supervision:
-  engine: combinatorial
-  config:
-    combinatorial:
-      min_match_factor: 0.1
-      max_transformation_error: 5
-  result: best_score
-features:
-  last_name_ru:
-    x: 525
-    y: 160
-    w: 600
-    h: 45
-    class: line_with_russian_text
-  last_name_en:
-    x: 525
-    y: 200
-    w: 600
-    h: 35
-    class: line_with_english_text
-  name_ru:
-    x: 525
-    y: 235
-    w: 600
-    h: 45
-    class: line_with_russian_text
-  name_en:
-    x: 525
-    y: 275
-    w: 600
-    h: 35
-    class: line_with_english_text
-  birthday:
-    x: 525
-    y: 310
-    w: 600
-    h: 45
-    class: line_with_english_text
-  place_of_birth_ru:
-    x: 525
-    y: 350
-    w: 600
-    h: 40
-    class: line_with_russian_text
-  place_of_birth_en:
-    x: 525
-    y: 390
-    w: 600
-    h: 35
-    class: line_with_english_text
-  issue_date:
-    x: 525
-    y: 430
-    w: 250
-    h: 45
-    class: line_with_english_text
-  expiry_date:
-    x: 875
-    y: 430
-    w: 250
-    h: 45
-    class: line_with_english_text
-  issue_authority_ru:
-    x: 525
-    y: 475
-    w: 600
-    h: 40
-    class: line_with_russian_text
-  issue_authority_en:
-    x: 525
-    y: 510
-    w: 600
-    h: 40
-    class: line_with_english_text
-  identifier:
-    x: 525
-    y: 550
-    w: 600
-    h: 50
-    class: line_with_english_text
-  issue_place_ru:
-    x: 525
-    y: 595
-    w: 600
-    h: 40
-    class: line_with_russian_text
-  issue_place_en:
-    x: 525
-    y: 630
-    w: 600
-    h: 40
-    class: line_with_english_text
-  face:
-    x: 87
-    y: 192
-    w: 313
-    h: 460
-feature_classes:
-  line_with_text:
-    abstract: yes
-    mutators:
-    interpretation:
-      method: ocr_tesseract
-      config:
-        config: --dpi 1000
-  line_with_russian_text:
-    inherits: line_with_text
-    interpretation:
-      config:
-        lang: rus
-  line_with_english_text:
-    inherits: line_with_text
-    interpretation:
-      config:
-        lang: eng
+{% include 'assets/templates/driver_license_ru_01/driver_license_ru.yml' %}
 ```
 
 [Getting started](getting-started/index.md){ .md-button .md-button--primary}

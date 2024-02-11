@@ -1,13 +1,12 @@
-from officialeye._internal.context.context import Context
-from officialeye._internal.error.errors.template import ErrTemplateInvalidFeatureClass
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
+from officialeye.error.errors.template import ErrTemplateInvalidFeatureClass
 
 
-def load_template_feature_classes(context: Context, feature_classes_dict: dict, template_id: str, /) -> FeatureClassManager:
+def load_template_feature_classes(feature_classes_dict: dict, template_id: str, /) -> FeatureClassManager:
 
     assert isinstance(feature_classes_dict, dict)
 
-    _manager = FeatureClassManager(context, template_id)
+    _manager = FeatureClassManager(template_id)
 
     for class_id in feature_classes_dict:
 

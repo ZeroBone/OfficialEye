@@ -14,7 +14,7 @@ nav = mkdocs_gen_files.Nav()
 src = Path(__file__).parent.parent / "src"
 
 internal_module = src / "officialeye" / "_internal"
-api_module = src / "officialeye" / "api"
+api_module = src / "officialeye" / "_api"
 
 mod_symbol = '<code class="doc-symbol doc-symbol-nav doc-symbol-module"></code>'
 

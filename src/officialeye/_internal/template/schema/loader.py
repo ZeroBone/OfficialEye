@@ -1,46 +1,50 @@
 import strictyaml as yml
 
-from officialeye._internal.context.context import Context
-from officialeye._internal.error.errors.template import ErrTemplateInvalidSyntax
-from officialeye._internal.logger.singleton import get_logger
+from officialeye._internal.context.singleton import get_internal_afi, get_internal_context
+
+# noinspection PyProtectedMember
+from officialeye._internal.feedback.verbosity import Verbosity
+from officialeye._internal.template.internal_template import InternalTemplate
 from officialeye._internal.template.schema.schema import generate_template_schema
-from officialeye._internal.template.template import Template
+from officialeye.error.errors.template import ErrTemplateInvalidSyntax
 
 _oe_template_schema = generate_template_schema()
 
 
-def _print_error_message(err: yml.StrictYAMLError, template_path: str):
+def _strict_yaml_error_to_syntax_error(error: yml.YAMLError, /, *, path: str) -> ErrTemplateInvalidSyntax:
 
-    get_logger().error("Error ", bold=True, nl=False)
-
-    if err.context is not None:
-        get_logger().error(err.context, prefix=False)
-    else:
-        get_logger().error("while parsing", prefix=False)
-
-    if err.context_mark is not None and (
-            err.problem is None
-            or err.problem_mark is None
-            or err.context_mark.name != err.problem_mark.name
-            or err.context_mark.line != err.problem_mark.line
-            or err.context_mark.column != err.problem_mark.column
-    ):
-        get_logger().error(str(err.context_mark).replace("<unicode string>", template_path))
-
-    if err.problem is not None:
-        get_logger().error("Problem", bold=True, nl=False)
-        get_logger().error(f": {err.problem}", prefix=False)
-
-    if err.problem_mark is not None:
-        get_logger().error(str(err.problem_mark).replace("<unicode string>", template_path))
+    return ErrTemplateInvalidSyntax(
+        f"while loading template configuration file at '{path}'.",
+        "Could not parse the configuration file due to invalid syntax or encoding.",
+        str(error).replace("<unicode string>", path)
+    )
 
 
-def load_template(context: Context, path: str) -> Template:
+def _do_load_template(path: str, /) -> InternalTemplate:
+    global _oe_template_schema
+
+    with open(path, "r") as fh:
+        raw_data = fh.read()
+
+    try:
+        yaml_document = yml.load(raw_data, schema=_oe_template_schema)
+    except yml.YAMLError as err:
+        raise _strict_yaml_error_to_syntax_error(err, path=path) from err
+
+    data = yaml_document.data
+
+    template = InternalTemplate(data, path)
+
+    get_internal_afi().info(Verbosity.DEBUG, f"Loaded template: [b]{template}[/]")
+
+    return template
+
+
+def load_template(path: str, /) -> InternalTemplate:
     """
     Loads a template from a file located at the specified path.
 
     Arguments:
-        context: The global officialeye context.
         path: The path to the YAML template configuration file.
 
     Returns:
@@ -50,27 +54,12 @@ def load_template(context: Context, path: str) -> Template:
         OEError: In case there has been an error validating the correctness of the template.
     """
 
-    global _oe_template_schema
+    template = get_internal_context().get_template_by_path(path)
 
-    with open(path, "r") as fh:
-        raw_data = fh.read()
+    if template is not None:
+        get_internal_afi().info(Verbosity.DEBUG, f"Template at path '{path}' has already been loaded and cached, reusing it!")
+        return template
 
-    try:
-        yaml_document = yml.load(raw_data, schema=_oe_template_schema)
-    except yml.StrictYAMLError as err:
-        _print_error_message(err, path)
-        exit(4)
-    except yml.YAMLError as err:
-        raise ErrTemplateInvalidSyntax(
-            f"while loading template configuration file at '{path}'.",
-            "General parsing error. Check the syntax and the encoding of the file."
-        ) from err
+    get_internal_afi().info(Verbosity.DEBUG, f"Template at path '{path}' has not yet been loaded, loading it.")
 
-    data = yaml_document.data
-
-    template = Template(context, data, path)
-
-    get_logger().info("Loaded template: ", nl=False)
-    get_logger().info(str(template), prefix=False, bold=True)
-
-    return template
+    return _do_load_template(path)

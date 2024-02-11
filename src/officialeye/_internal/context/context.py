@@ -1,124 +1,158 @@
 # needed to not break type annotations if we are not in type checking mode
 from __future__ import annotations
 
-import os
-import tempfile
-from typing import TYPE_CHECKING, Dict, List, Union
+from types import TracebackType
+from typing import TYPE_CHECKING, Dict
 
-import click
-import cv2
-import z3
-
-from officialeye._internal.error.error import OEError
-from officialeye._internal.error.errors.internal import ErrInternal
-from officialeye._internal.error.errors.template import ErrTemplateIdNotUnique
-from officialeye._internal.logger.singleton import get_logger
+from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
+from officialeye._internal.feedback.dummy import DummyFeedbackInterface
+from officialeye.error.error import OEError
+from officialeye.error.errors.general import ErrInvalidKey
+from officialeye.error.errors.template import ErrTemplateIdNotUnique
 
 if TYPE_CHECKING:
-    from officialeye._internal.io.driver import IODriver
-    from officialeye._internal.template.template import Template
+    # noinspection PyProtectedMember
+    # noinspection PyProtectedMember
+    from officialeye._api.mutator import IMutator
+    from officialeye._api.template.interpretation import IInterpretation
+
+    # noinspection PyProtectedMember
+    from officialeye._api.template.matcher import IMatcher
+
+    # noinspection PyProtectedMember
+    from officialeye._api.template.supervisor import ISupervisor
+    from officialeye._internal.template.internal_template import InternalTemplate
+    from officialeye.types import ConfigDict, InterpretationFactory, MatcherFactory, MutatorFactory, SupervisorFactory
 
 
-# TODO: move part of the Context class methods to IO driver
+class InternalContext:
 
-class Context:
+    def __init__(self):
+        self._afi = DummyFeedbackInterface()
 
-    def __init__(self, manager, /, *, visualization_generation: bool = False):
-        self._manager = manager
-
-        self._io_driver: Union[IODriver, None] = None
-
-        self._visualization_generation = visualization_generation
-
-        self._export_counter = 1
-        self._not_deleted_temporary_files: List[str] = []
+        self._mutator_factories: Dict[str, MutatorFactory] = {}
+        self._matcher_factories: Dict[str, MatcherFactory] = {}
+        self._supervisor_factories: Dict[str, SupervisorFactory] = {}
+        self._interpretation_factories: Dict[str, InterpretationFactory] = {}
 
         # keys: template ids
         # values: template
-        self._loaded_templates: Dict[str, Template] = {}
+        self._loaded_templates: Dict[str, InternalTemplate] = {}
 
-        z3.set_param("parallel.enable", True)
+        # keys: paths to templates
+        # values: corresponding template ids
+        self._template_ids: Dict[str, str] = {}
 
-    def visualization_generation_enabled(self) -> bool:
-        return self._visualization_generation
+    def setup(self, /, *, afi: AbstractFeedbackInterface, mutator_factories: Dict[str, MutatorFactory],
+              matcher_factories: Dict[str, MatcherFactory], supervisor_factories: Dict[str, SupervisorFactory],
+              interpretation_factories: Dict[str, InterpretationFactory]) -> InternalContext:
+        assert afi is not None
 
-    def get_io_driver(self) -> IODriver:
+        assert mutator_factories is not None
+        assert matcher_factories is not None
+        assert supervisor_factories is not None
 
-        if self._io_driver is None:
-            raise ErrInternal(
-                "while trying to access officialeye's IO driver.",
-                "The present officialeye context does not have an IO Driver set."
+        self._afi = afi
+        self._mutator_factories = mutator_factories
+        self._matcher_factories = matcher_factories
+        self._supervisor_factories = supervisor_factories
+        self._interpretation_factories = interpretation_factories
+
+        return self
+
+    def __enter__(self):
+        return None
+
+    def __exit__(self, exception_type: any, exception_value: BaseException | None, traceback: TracebackType | None):
+        # inform the parent process that the current task is done
+        self._afi.dispose(exception_type, exception_value, traceback)
+        self._afi = DummyFeedbackInterface()
+
+    def get_afi(self) -> AbstractFeedbackInterface:
+        return self._afi
+
+    def get_mutator(self, mutator_id: str, mutator_config: ConfigDict, /) -> IMutator:
+
+        # TODO: (low priority) consider caching mutators that have the same id and configuration
+
+        if mutator_id not in self._mutator_factories:
+            raise ErrInvalidKey(
+                f"while loading mutator '{mutator_id}'.",
+                "Unknown mutator. Has this mutator been properly loaded?"
             )
 
-        return self._io_driver
+        return self._mutator_factories[mutator_id](mutator_config)
 
-    def set_io_driver(self, io_driver: IODriver, /):
-        assert io_driver is not None
-        self._io_driver = io_driver
+    def get_matcher(self, matcher_id: str, matcher_config: ConfigDict, /) -> IMatcher:
 
-    def add_template(self, template: Template, /):
+        # TODO: (low priority) consider caching matchers that have the same id and configuration
 
-        if template.template_id in self._loaded_templates:
+        if matcher_id not in self._matcher_factories:
+            raise ErrInvalidKey(
+                f"while loading matcher '{matcher_id}'.",
+                "Unknown matcher. Has this matcher been properly loaded?"
+            )
+
+        return self._matcher_factories[matcher_id](matcher_config)
+
+    def get_supervisor(self, supervisor_id: str, supervisor_config: ConfigDict, /) -> ISupervisor:
+
+        # TODO: (low priority) consider caching supervisors that have the same id and configuration
+
+        if supervisor_id not in self._supervisor_factories:
+            raise ErrInvalidKey(
+                f"while loading supervisor '{supervisor_id}'.",
+                "Unknown supervisor. Has this supervisor been properly loaded?"
+            )
+
+        return self._supervisor_factories[supervisor_id](supervisor_config)
+
+    def get_interpretation(self, interpretation_id: str, interpretation_config: ConfigDict, /) -> IInterpretation:
+
+        # TODO: (low priority) consider caching interpretations that have the same id and configuration
+
+        if interpretation_id not in self._interpretation_factories:
+            raise ErrInvalidKey(
+                f"while loading interpretation '{interpretation_id}'.",
+                "Unknown interpretation. Has this interpretation method been properly loaded?"
+            )
+
+        return self._interpretation_factories[interpretation_id](interpretation_config)
+
+    def add_template(self, template: InternalTemplate, /):
+
+        template_path = template.get_path()
+
+        assert template_path not in self._template_ids, "A template from the same path has already been loaded"
+
+        if template.identifier in self._loaded_templates:
             raise ErrTemplateIdNotUnique(
-                f"while loading template '{template.template_id}'",
+                f"while loading template '{template.identifier}'",
                 "A template with the same id has already been loaded."
             )
 
-        self._loaded_templates[template.template_id] = template
+        self._loaded_templates[template.identifier] = template
+        self._template_ids[template_path] = template.identifier
 
         try:
             template.validate()
         except OEError as err:
             # rollback the loaded template
-            del self._loaded_templates[template.template_id]
+            del self._loaded_templates[template.identifier]
+            del self._template_ids[template_path]
+
             # reraise the cause
             raise err
 
-    def get_template(self, template_id: str, /) -> Template:
+    def get_template(self, template_id: str, /) -> InternalTemplate:
         assert template_id in self._loaded_templates, "Unknown template id"
         return self._loaded_templates[template_id]
 
-    def _allocate_file_name(self) -> str:
-        file_name = "%03d.png" % self._export_counter
-        self._export_counter += 1
-        return file_name
+    def get_template_by_path(self, template_path: str, /) -> InternalTemplate | None:
 
-    def allocate_file_for_export(self, /, *, file_name: str = "") -> str:
+        if template_path not in self._template_ids:
+            return None
 
-        if self._manager.export_directory is None:
-            with tempfile.NamedTemporaryFile(prefix="officialeye_", suffix=".png", delete=False) as fp:
-                fp.close()
-            self._not_deleted_temporary_files.append(fp.name)
-            return fp.name
+        template_id = self._template_ids[template_path]
 
-        if file_name == "":
-            file_name = self._allocate_file_name()
-
-        return os.path.join(self._manager.export_directory, file_name)
-
-    def export_image(self, img: cv2.Mat, /, *, file_name: str = "") -> str:
-        export_file_path = self.allocate_file_for_export(file_name=file_name)
-        cv2.imwrite(export_file_path, img)
-        get_logger().info(f"Exported '{export_file_path}'.")
-        return export_file_path
-
-    def _export_and_show_image(self, img: cv2.Mat, /, *, file_name: str = ""):
-        path = self.export_image(img, file_name=file_name)
-        click.launch(path, locate=False)
-        click.pause()
-
-    def export_primary_image(self, img: cv2.Mat, /, *, file_name: str = ""):
-        if get_logger().quiet_mode:
-            # just save the image, do not export
-            self.export_image(img, file_name=file_name)
-        else:
-            self._export_and_show_image(img, file_name=file_name)
-
-    def _cleanup_temporary_files(self):
-        while len(self._not_deleted_temporary_files) > 0:
-            temp_file = self._not_deleted_temporary_files.pop()
-            if os.path.exists(temp_file):
-                os.unlink(temp_file)
-
-    def dispose(self):
-        self._cleanup_temporary_files()
+        return self.get_template(template_id)

@@ -1,10 +1,11 @@
 from typing import Dict
 
+from officialeye._internal.context.singleton import get_internal_afi
 from officialeye._internal.diffobject.difference_modes import DIFF_MODE_ADD, DIFF_MODE_OVERRIDE, DIFF_MODE_REMOVE
 from officialeye._internal.diffobject.exception import DiffObjectException
 from officialeye._internal.diffobject.specification import DiffObjectSpecification
 from officialeye._internal.diffobject.specification_entry import DiffObjectSpecificationEntry
-from officialeye._internal.logger.singleton import get_logger
+from officialeye._internal.feedback.verbosity import Verbosity
 
 
 class DiffObjectExpansion:
@@ -57,8 +58,11 @@ class DiffObjectExpansion:
 
                 full_key = f"{previous_keys}{key}"
 
-                get_logger().debug_verbose(f"Key: '{full_key}' Specification value: {specification_entry} "
-                                           f"Object value: {object_value} Current value: {current_value}")
+                get_internal_afi().info(
+                    Verbosity.DEBUG_VERBOSE,
+                    f"Key: '{full_key}' Specification value: {specification_entry} "
+                    f"Object value: {object_value} Current value: {current_value}"
+                )
 
                 if isinstance(specification_entry, dict):
                     # the specification says that there is a nested dictionary at the present key.
