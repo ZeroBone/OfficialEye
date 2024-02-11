@@ -32,7 +32,7 @@ from officialeye.error.errors.template import (
 from officialeye._internal.template.internal_matching_result import InternalMatchingResult
 from officialeye._internal.template.feature_class.loader import load_template_feature_classes
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
-from officialeye._internal.template.feature import InternalFeature
+from officialeye._internal.template.internal_feature import InternalFeature
 from officialeye._internal.template.keypoint import InternalKeypoint
 
 if TYPE_CHECKING:

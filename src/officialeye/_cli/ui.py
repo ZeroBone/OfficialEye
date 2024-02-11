@@ -205,7 +205,9 @@ class _ChildrenListener:
             )
 
             if task_done_successfully:
-                self._progress.update(child.task_id, completed=100, status="[white][green]:heavy_check_mark:[/] Success![/]")
+                self._progress.update(child.task_id, completed=100, status="[green]:heavy_check_mark: Success![/]")
+            else:
+                self._progress.update(child.task_id, completed=100, status="[red]:heavy_multiplication_x: Error![/]")
 
             child.is_being_listened_to.release()
 

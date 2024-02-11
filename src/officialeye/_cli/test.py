@@ -52,5 +52,7 @@ def do_test(context: CLIContext, /, *,
     for feature in result.template.features:
         feature_image_mat = result.warp_feature(feature, target_image_mat)
 
+        feature_image_mutated_mat = feature.apply_mutators_to_image(feature_image_mat)
+
     # TODO: remove this unnecessary message
     context.get_terminal_ui().info(Verbosity.INFO, "Running complete!")

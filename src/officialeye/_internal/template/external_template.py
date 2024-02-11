@@ -12,7 +12,7 @@ from officialeye._api.template.template_interface import ITemplate
 from officialeye._internal.api.detect import template_detect
 from officialeye._internal.api_implementation import IApiInterfaceImplementation
 # noinspection PyProtectedMember
-from officialeye._internal.template.feature import ExternalFeature
+from officialeye._internal.template.external_feature import ExternalFeature
 from officialeye._internal.template.keypoint import ExternalKeypoint
 from officialeye.error.errors.general import ErrOperationNotSupported
 

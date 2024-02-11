@@ -6,7 +6,6 @@ import numpy as np
 
 # noinspection PyProtectedMember
 from officialeye._api.template.feature import IFeature
-from officialeye._internal.api_implementation import IApiInterfaceImplementation
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_afi
@@ -15,14 +14,11 @@ from officialeye.error.errors.template import ErrTemplateInvalidFeature
 from officialeye._internal.interpretation.loader import load_interpretation_method
 
 from officialeye._internal.template.feature_class.feature_class import FeatureClass
-from officialeye._internal.template.feature_class.manager import FeatureClassManager
-from officialeye._internal.template.region import InternalRegion, ExternalRegion
+from officialeye._internal.template.region import InternalRegion
 
 
 if TYPE_CHECKING:
-    # noinspection PyProtectedMember
-    from officialeye._api.context import Context
-    from officialeye._internal.template.external_template import ExternalTemplate
+    from officialeye._internal.template.feature_class.manager import FeatureClassManager
 
 
 class InternalFeature(InternalRegion, IFeature):
@@ -125,13 +121,3 @@ class InternalFeature(InternalRegion, IFeature):
         interpretation_method = load_interpretation_method(interpretation_method_id, interpretation_method_config)
 
         return interpretation_method.interpret(img, self._template_id, self.identifier)
-
-
-class ExternalFeature(ExternalRegion, IFeature, IApiInterfaceImplementation):
-
-    def __init__(self, internal_feature: InternalFeature, external_template: ExternalTemplate, /):
-        super().__init__(internal_feature, external_template)
-
-    def set_api_context(self, context: Context, /):
-        # no methods of this class require any contextual information to work, nothing to do
-        pass
