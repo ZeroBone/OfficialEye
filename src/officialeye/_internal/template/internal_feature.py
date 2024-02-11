@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-from typing import Dict, Union, TYPE_CHECKING
+from typing import Dict, Union, TYPE_CHECKING, Iterable
 
 import numpy as np
 
+from officialeye import IMutator
 # noinspection PyProtectedMember
 from officialeye._api.template.feature import IFeature
-# noinspection PyProtectedMember
-from officialeye._internal.feedback.verbosity import Verbosity
-from officialeye._internal.context.singleton import get_internal_afi
 from officialeye._internal.template.utils import load_mutator_from_dict
 from officialeye.error.errors.template import ErrTemplateInvalidFeature
 from officialeye._internal.interpretation.loader import load_interpretation_method
@@ -69,32 +67,20 @@ class InternalFeature(InternalRegion, IFeature):
 
         return feature_class
 
-    def apply_mutators_to_image(self, img: np.ndarray, /) -> np.ndarray:
-        """
-        Takes an image and applies the mutators defined in the corresponding feature class.
-
-        Arguments:
-            img: The image that should be transformed.
-
-        Returns:
-            The resulting image.
-        """
+    def get_mutators(self) -> Iterable[IMutator]:
 
         feature_class = self.get_feature_class()
 
         if feature_class is None:
-            return img
+            return []
 
         mutators = feature_class.get_data()["mutators"]
 
         assert isinstance(mutators, list)
 
-        for mutator_dict in mutators:
-            mutator = load_mutator_from_dict(mutator_dict)
-            get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Applying mutator '{mutator}'.")
-            img = mutator.mutate(img)
-
-        return img
+        return [
+            load_mutator_from_dict(mutator_dict) for mutator_dict in mutators
+        ]
 
     def interpret_image(self, img: np.ndarray, /) -> any:
         """

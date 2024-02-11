@@ -35,7 +35,7 @@ def _do_load_template(path: str, /) -> InternalTemplate:
 
     template = InternalTemplate(data, path)
 
-    get_internal_afi().info(Verbosity.INFO, f"Loaded template: [b]{template}[/]")
+    get_internal_afi().info(Verbosity.DEBUG, f"Loaded template: [b]{template}[/]")
 
     return template
 
