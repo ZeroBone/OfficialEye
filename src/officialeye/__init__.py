@@ -26,9 +26,9 @@ from officialeye._api.template.template import ITemplate, Template
 # noinspection PyProtectedMember
 from officialeye._api.template.region import IRegion, Region
 # noinspection PyProtectedMember
-from officialeye._api.template.feature import IFeature, Feature
+from officialeye._api.template.feature import IFeature
 # noinspection PyProtectedMember
-from officialeye._api.template.keypoint import IKeypoint, Keypoint
+from officialeye._api.template.keypoint import IKeypoint
 
 # Matching-related imports
 # noinspection PyProtectedMember
