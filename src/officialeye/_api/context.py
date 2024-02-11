@@ -5,6 +5,7 @@ Module represeting the OfficialEye context.
 from __future__ import annotations
 
 from concurrent.futures import ProcessPoolExecutor, Future as PythonFuture
+from types import TracebackType
 from typing import Dict, TYPE_CHECKING
 
 from officialeye._api.future import Future
@@ -117,7 +118,7 @@ class Context:
         self._entered = True
         return self
 
-    def __exit__(self, exc_type, exc_val, exc_tb):
+    def __exit__(self, exception_type: any, exception_value: BaseException | None, traceback: TracebackType | None):
         assert self._entered
         self._entered = False
 
@@ -127,9 +128,9 @@ class Context:
                 "The resources have already been disposed."
             )
 
-        self.dispose()
+        self.dispose(exception_type, exception_value, traceback)
 
-    def dispose(self):
-        self._afi.dispose()
+    def dispose(self, exception_type: any = None, exception_value: BaseException | None = None, traceback: TracebackType | None = None):
+        self._afi.dispose(exception_type, exception_value, traceback)
         self._executor.shutdown(wait=True)
         self._disposed = True

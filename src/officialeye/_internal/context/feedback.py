@@ -2,6 +2,7 @@ import enum
 from concurrent.futures import Future
 # noinspection PyProtectedMember
 from multiprocessing.connection import Connection
+from types import TracebackType
 from typing import Any
 
 # noinspection PyProtectedMember
@@ -15,8 +16,10 @@ class IPCMessageType(enum.IntEnum):
     INFO = 1
     WARN = 2
     ERROR = 3
-    UPDATE_PROGRESS = 4
-    TASK_DONE = 5  # 'done' means completed in any way, including throwing an exception
+
+    UPDATE_STATUS = 4
+    # means that the task is completed in any way, including throwing an exception
+    TASK_DONE = 5
 
 
 class InternalFeedbackInterface(AbstractFeedbackInterface):
@@ -36,26 +39,33 @@ class InternalFeedbackInterface(AbstractFeedbackInterface):
         ipc_message = (message_type, args, kwargs)
         self._tx.send(ipc_message)
 
-    def echo(self, *args: Any, **kwargs: Any):
+    def echo(self, *args: Any, **kwargs: Any) -> None:
         self._send_ipc_message(IPCMessageType.ECHO, *args, **kwargs)
 
-    def info(self, *args: Any, **kwargs: Any):
+    def info(self, *args: Any, **kwargs: Any) -> None:
         self._send_ipc_message(IPCMessageType.INFO, *args, **kwargs)
 
-    def warn(self, *args: Any, **kwargs: Any):
+    def warn(self, *args: Any, **kwargs: Any) -> None:
         self._send_ipc_message(IPCMessageType.WARN, *args, **kwargs)
 
-    def error(self, *args: Any, **kwargs: Any):
+    def error(self, *args: Any, **kwargs: Any) -> None:
         self._send_ipc_message(IPCMessageType.ERROR, *args, **kwargs)
 
-    def dispose(self):
-        self._send_ipc_message(IPCMessageType.TASK_DONE)
+    def update_status(self, new_status_text: str, /) -> None:
+        self._send_ipc_message(IPCMessageType.UPDATE_STATUS, new_status_text)
+
+    def dispose(self, exception_type: any = None, exception_value: BaseException | None = None, traceback: TracebackType | None = None) -> None:
+
+        task_done_successfully: bool = exception_value is None
+
+        self._send_ipc_message(IPCMessageType.TASK_DONE, task_done_successfully)
+
         self._tx.close()
 
     def fork(self, description: str, /) -> AbstractFeedbackInterface:
         # the internal feedback interface isn't meant to be forked
         raise NotImplementedError()
 
-    def join(self, child: AbstractFeedbackInterface, future: Future, /):
+    def join(self, child: AbstractFeedbackInterface, future: Future, /) -> None:
         # the internal feedback interface isn't meant to be forked, so it cannot be joined either
         raise NotImplementedError()

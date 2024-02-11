@@ -56,9 +56,9 @@ class InternalContext:
     def __enter__(self):
         return None
 
-    def __exit__(self, exception_type: any, exception_value: BaseException, traceback: TracebackType):
+    def __exit__(self, exception_type: any, exception_value: BaseException | None, traceback: TracebackType | None):
         # inform the parent process that the current task is done
-        self._afi.dispose()
+        self._afi.dispose(exception_type, exception_value, traceback)
         self._afi = DummyFeedbackInterface()
 
     def get_afi(self) -> AbstractFeedbackInterface:

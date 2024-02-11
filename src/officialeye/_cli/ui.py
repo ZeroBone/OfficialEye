@@ -18,14 +18,18 @@ from rich.traceback import Traceback
 # noinspection PyProtectedMember
 from officialeye._internal.context.feedback import InternalFeedbackInterface, IPCMessageType
 from officialeye.error.error import OEError
+from officialeye.error.errors.general import ErrOperationNotSupported
 from officialeye.error.errors.internal import ErrInternal
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 
+
 if TYPE_CHECKING:
+    # noinspection PyProtectedMember
     from officialeye._internal._types import RichProtocol
+
 
 _THEME_TAG_INFO = "info"
 _THEME_TAG_INFO_VERBOSE = "infov"
@@ -152,7 +156,8 @@ class _ChildrenListener:
 
         self._progress = Progress(
             SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
+            TextColumn("{task.description}"),
+            TextColumn("[cyan]{task.fields[status]}"),
             console=self._terminal_ui._console,
             auto_refresh=True,
             disable=self._terminal_ui._verbosity == Verbosity.QUIET,
@@ -179,25 +184,35 @@ class _ChildrenListener:
                 self._terminal_ui.warn(*args, **kwargs)
             elif message_type == IPCMessageType.ERROR:
                 self._terminal_ui.error(*args, **kwargs)
-            elif message_type == IPCMessageType.UPDATE_PROGRESS:
-                self._progress.update(child.task_id, **kwargs)
+            elif message_type == IPCMessageType.UPDATE_STATUS:
+                new_status_text: str = args[0]
+                assert isinstance(new_status_text, str)
+                self._progress.update(child.task_id, status=new_status_text)
             elif message_type == IPCMessageType.TASK_DONE:
                 is_task_done = True
             else:
                 assert False, "Unknown IPC message type received by parent process."
 
         if is_task_done:
+
+            task_done_successfully: bool = args[0]
+            assert isinstance(task_done_successfully, bool)
+
             self._terminal_ui.info(
                 Verbosity.DEBUG,
-                "Child has indicated that the task is done, "
+                f"Child has indicated that the task is done (success={task_done_successfully}), "
                 "releasing the corresponding lock to enable graceful shutdown of the child listener."
             )
+
+            if task_done_successfully:
+                self._progress.update(child.task_id, completed=100, status="[white][green]:heavy_check_mark:[/] Success![/]")
+
             child.is_being_listened_to.release()
 
     def listen_to(self, child_id: int, connection: Connection, description: str, /):
 
         # create a new task associated with the child
-        task_id = self._progress.add_task(description)
+        task_id = self._progress.add_task(description, status="")
 
         with self.children_lock:
             assert child_id not in self.children, "Child ID is not unique."
@@ -208,7 +223,7 @@ class _ChildrenListener:
             self._progress.start()
 
             # we need to also start a thread listening for messages from children
-            self._children_listener = Thread(target=_child_listener, name="Child Listener", args=(self,))
+            self._children_listener = Thread(target=_child_listener, name="Child Process Listener", args=(self,))
             self._children_listener.start()
 
     def stop_listening_to(self, child_id: int, /):
@@ -340,7 +355,7 @@ class TerminalUI(AbstractFeedbackInterface):
         if print_authors:
             self._last_printed_message_author = author
 
-    def echo(self, verbosity: Verbosity, message: str | RichProtocol = "", /, *, err: bool = False, **kwargs: Any):
+    def echo(self, verbosity: Verbosity, message: str | RichProtocol = "", /, *, err: bool = False, **kwargs: Any) -> None:
 
         assert verbosity != Verbosity.QUIET
 
@@ -359,18 +374,24 @@ class TerminalUI(AbstractFeedbackInterface):
 
         console.print(message, **kwargs)
 
-    def info(self, verbosity: Verbosity, message: str, /):
+    def info(self, verbosity: Verbosity, message: str, /) -> None:
         assert verbosity != Verbosity.QUIET
         _tag = _THEME_MAP[verbosity]
         self.echo(verbosity, f"[{_tag}]INFO [/] {message}", highlight=True)
 
-    def warn(self, verbosity: Verbosity, message: str, /):
+    def warn(self, verbosity: Verbosity, message: str, /) -> None:
         assert verbosity != Verbosity.QUIET
         self.echo(verbosity, f"[{_THEME_TAG_WARN}]WARN [/] {message}")
 
-    def error(self, verbosity: Verbosity, message: str, /):
+    def error(self, verbosity: Verbosity, message: str, /) -> None:
         assert verbosity != Verbosity.QUIET
         self.echo(verbosity, f"[{_THEME_TAG_ERR}]ERROR[/] {message}", err=True)
+
+    def update_status(self, new_status_text: str, /) -> None:
+        raise ErrOperationNotSupported(
+            "while updating status of a task.",
+            "The terminal UI does not support this operation."
+        )
 
     def _print_oe_error(self, error: OEError, /, *, verbosity: Verbosity = Verbosity.INFO):
 
@@ -409,7 +430,7 @@ class TerminalUI(AbstractFeedbackInterface):
             rich_traceback = Traceback.from_exception(exception_type, exception_value, traceback)
             self._err_console.print(rich_traceback)
 
-    def dispose(self):
+    def dispose(self, exception_type: any = None, exception_value: BaseException | None = None, traceback: TracebackType | None = None) -> None:
         self._children_listener.dispose()
 
     def fork(self, description: str, /) -> AbstractFeedbackInterface:
@@ -430,7 +451,7 @@ class TerminalUI(AbstractFeedbackInterface):
 
         return child
 
-    def join(self, child: AbstractFeedbackInterface, future: Future, /):
+    def join(self, child: AbstractFeedbackInterface, future: Future, /) -> None:
 
         assert isinstance(child, InternalFeedbackInterface), "Invalid child type"
 

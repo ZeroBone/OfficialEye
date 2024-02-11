@@ -304,13 +304,15 @@ class InternalTemplate(ITemplate):
     def do_detect(self, target: np.ndarray, /) -> InternalSupervisionResult:
         # find all patterns in the target image
 
+        # apply mutators to the target image
+        for mutator in self._target_mutators:
+            target = mutator.mutate(target)
+
+        get_internal_afi().update_status("Running matching phase...")
+
         _timer = Timer()
 
         with _timer:
-            # apply mutators to the target image
-            for mutator in self._target_mutators:
-                target = mutator.mutate(target)
-
             # start matching
             matcher: IMatcher = self.get_matcher()
             matcher.setup(self)
@@ -335,6 +337,8 @@ class InternalTemplate(ITemplate):
             f"Matching succeeded in {_timer.get_real_time():.2f} seconds of real time "
             f"and {_timer.get_cpu_time():.2f} seconds of CPU time."
         )
+
+        get_internal_afi().update_status("Running supervision phase...")
 
         with _timer:
             # run supervision to obtain correspondence between template and target regions

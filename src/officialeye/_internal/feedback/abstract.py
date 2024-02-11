@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from abc import ABC, abstractmethod
 from concurrent.futures import Future
+from types import TracebackType
 from typing import Any, TYPE_CHECKING
 
 from officialeye._internal.feedback.verbosity import Verbosity
@@ -22,23 +23,27 @@ class AbstractFeedbackInterface(ABC):
         message: str | RichProtocol = "", /, *,
         err: bool = False,
         **kwargs: Any
-    ):
+    ) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def info(self, verbosity: Verbosity, message: str, /):
+    def info(self, verbosity: Verbosity, message: str, /) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def warn(self, verbosity: Verbosity, message: str, /):
+    def warn(self, verbosity: Verbosity, message: str, /) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def error(self, verbosity: Verbosity, message: str, /):
+    def error(self, verbosity: Verbosity, message: str, /) -> None:
         raise NotImplementedError()
 
     @abstractmethod
-    def dispose(self):
+    def update_status(self, new_status_text: str, /) -> None:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def dispose(self, exception_type: any = None, exception_value: BaseException | None = None, traceback: TracebackType | None = None) -> None:
         raise NotImplementedError()
 
     @abstractmethod
@@ -46,5 +51,5 @@ class AbstractFeedbackInterface(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def join(self, child: AbstractFeedbackInterface, future: Future, /):
+    def join(self, child: AbstractFeedbackInterface, future: Future, /) -> None:
         raise NotImplementedError()

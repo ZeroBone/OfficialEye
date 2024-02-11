@@ -84,7 +84,7 @@ class ExternalTemplate(ITemplate, IApiInterfaceImplementation):
         # noinspection PyProtectedMember
         return self._context._submit_task(
             template_detect,
-            f"Running detection for template '{self._name}'...",
+            f"Detecting [b]{self._name}[/]...",
             self._path,
             target_path=target._path,
         )

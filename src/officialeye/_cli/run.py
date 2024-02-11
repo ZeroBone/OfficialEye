@@ -25,4 +25,5 @@ def do_run(context: CLIContext, /, *, target_path: str, template_paths: List[str
 
     result = detect(api_context, *templates, target=target_img)
 
+    # TODO: remove this unnecessary message
     context.get_terminal_ui().info(Verbosity.INFO, "Running complete!")
