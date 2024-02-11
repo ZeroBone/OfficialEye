@@ -7,7 +7,7 @@ and safely retrieving information from there.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, TYPE_CHECKING
+from typing import Callable, TYPE_CHECKING
 
 from officialeye.error.errors.general import ErrInvalidKey
 
@@ -21,16 +21,11 @@ class Config(ABC):
     def __init__(self, config_dict: ConfigDict, /):
         self._config_dict = config_dict
 
-        self._value_preprocessors: Dict[str, Callable[[str], any]] = {}
-
-    def set_value_preprocessor(self, key: str, preprocessor: Callable[[str], any], /):
-        self._value_preprocessors[key] = preprocessor
-
     @abstractmethod
     def _get_invalid_key_error(self, key: str, /):
         raise NotImplementedError()
 
-    def get(self, key: str, /, *, default=None):
+    def get(self, key: str, /, *, value_preprocessor: Callable[[str], any] | None = None, default=None):
 
         if key not in self._config_dict:
 
@@ -42,8 +37,8 @@ class Config(ABC):
         _value = self._config_dict[key]
 
         # apply value preprocessor
-        if key in self._value_preprocessors:
-            _value = self._value_preprocessors[key](_value)
+        if value_preprocessor is not None:
+            _value = value_preprocessor(_value)
 
         return _value
 

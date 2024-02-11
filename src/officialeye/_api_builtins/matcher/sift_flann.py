@@ -48,9 +48,7 @@ class SiftFlannMatcher(Matcher):
     def __init__(self, config_dict: ConfigDict, /):
         super().__init__(SiftFlannMatcher.MATCHER_ID, config_dict)
 
-        self.config.set_value_preprocessor("sensitivity", _preprocess_sensitivity)
-
-        self._sensitivity = self.config.get("sensitivity", default=0.7)
+        self._sensitivity = self.config.get("sensitivity", default=0.7, value_preprocessor=_preprocess_sensitivity)
 
         self._img: np.ndarray | None = None
         self._sift = None

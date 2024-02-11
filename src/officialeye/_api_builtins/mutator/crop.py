@@ -18,15 +18,10 @@ class CropMutator(Mutator):
     def __init__(self, config_dict: ConfigDict, /):
         super().__init__(CropMutator.MUTATOR_ID, config_dict)
 
-        self.config.set_value_preprocessor("x", int)
-        self.config.set_value_preprocessor("y", int)
-        self.config.set_value_preprocessor("w", int)
-        self.config.set_value_preprocessor("h", int)
-
-        self._x = self.config.get("x", default=0)
-        self._y = self.config.get("y", default=0)
-        self._w = self.config.get("w")
-        self._h = self.config.get("h")
+        self._x = self.config.get("x", default=0, value_preprocessor=int)
+        self._y = self.config.get("y", default=0, value_preprocessor=int)
+        self._w = self.config.get("w", value_preprocessor=int)
+        self._h = self.config.get("h", value_preprocessor=int)
 
     def mutate(self, img: np.ndarray, /) -> np.ndarray:
         return img[self._y:self._y + self._h, self._x:self._x + self._w]

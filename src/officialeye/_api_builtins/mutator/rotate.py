@@ -35,9 +35,7 @@ class RotateMutator(Mutator):
 
             return angle
 
-        self.config.set_value_preprocessor("angle", _angle_preprocessor)
-
-        self._angle = self.config.get("angle")
+        self._angle = self.config.get("angle", value_preprocessor=_angle_preprocessor)
 
     def mutate(self, img: np.ndarray, /) -> np.ndarray:
 

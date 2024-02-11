@@ -21,22 +21,13 @@ class NonLocalMeansDenoisingMutator(Mutator):
     def __init__(self, config: ConfigDict, /):
         super().__init__(NonLocalMeansDenoisingMutator.MUTATOR_ID, config)
 
-        # setup configuration loading
-
-        self.config.set_value_preprocessor("colored", bool)
-        self.config.set_value_preprocessor("h", int)
-        self.config.set_value_preprocessor("hForColorComponents", int)
-        self.config.set_value_preprocessor("templateWindowSize", int)
-        self.config.set_value_preprocessor("searchWindowSize", int)
-
         # load data from configuration
+        self._colored_mode = self.config.get("colored", default=True, value_preprocessor=bool)
 
-        self._colored_mode = self.config.get("colored", default=True)
-
-        self._conf_h = self.config.get("h", default=10)
-        self._conf_hForColorComponents = self.config.get("hForColorComponents", default=10)
-        self._conf_templateWindowSize = self.config.get("templateWindowSize", default=7)
-        self._conf_searchWindowSize = self.config.get("searchWindowSize", default=21)
+        self._conf_h = self.config.get("h", default=10, value_preprocessor=int)
+        self._conf_hForColorComponents = self.config.get("hForColorComponents", default=10, value_preprocessor=int)
+        self._conf_templateWindowSize = self.config.get("templateWindowSize", default=7, value_preprocessor=int)
+        self._conf_searchWindowSize = self.config.get("searchWindowSize", default=21, value_preprocessor=int)
 
         # validate templateWindowSize
         if self._conf_templateWindowSize < 1:

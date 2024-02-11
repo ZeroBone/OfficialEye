@@ -53,7 +53,7 @@ class CombinatorialSupervisor(Supervisor):
 
             return v
 
-        self.config.set_value_preprocessor("min_match_factor", _min_match_factor_preprocessor)
+        self._min_match_factor = self.config.get("min_match_factor", default=0.1, value_preprocessor=_min_match_factor_preprocessor)
 
         def _max_transformation_error_preprocessor(v: str) -> int:
 
@@ -73,7 +73,7 @@ class CombinatorialSupervisor(Supervisor):
 
             return v
 
-        self.config.set_value_preprocessor("max_transformation_error", _max_transformation_error_preprocessor)
+        self._max_transformation_error = self.config.get("max_transformation_error", value_preprocessor=_max_transformation_error_preprocessor)
 
         def _z3_timeout_preprocessor(v: str) -> int:
 
@@ -87,7 +87,7 @@ class CombinatorialSupervisor(Supervisor):
 
             return v
 
-        self.config.set_value_preprocessor("z3_timeout", _z3_timeout_preprocessor)
+        self._z3_timeout = self.config.get("z3_timeout", default=2500, value_preprocessor=_z3_timeout_preprocessor)
 
         # initialize all engine-specific values
         self._z3_context: z3.Context | None = None
@@ -102,9 +102,8 @@ class CombinatorialSupervisor(Supervisor):
 
         self._minimum_weight_to_enforce: float | None = None
 
-        self._max_transformation_error = self.config.get("max_transformation_error")
-
     def setup(self, template: ITemplate, matching_result: IMatchingResult, /) -> None:
+
         self._z3_context = z3.Context()
 
         self._transformation_matrix = np.array([
@@ -119,9 +118,7 @@ class CombinatorialSupervisor(Supervisor):
             )
 
         # calculate the minimum weight that we need to enforce
-        _config_min_match_factor = self.config.get("min_match_factor", default=0.1)
-
-        self._minimum_weight_to_enforce = matching_result.get_total_match_count() * _config_min_match_factor
+        self._minimum_weight_to_enforce = matching_result.get_total_match_count() * self._min_match_factor
 
     def _get_consistency_check(self, match: IMatch, delta: np.ndarray, delta_prime: np.ndarray, /) -> z3.AstRef:
         """
@@ -157,7 +154,7 @@ class CombinatorialSupervisor(Supervisor):
         total_weight = z3.Sum(*(self._match_weight[match] for match in matching_result.get_all_matches()))
 
         solver = z3.Optimize(ctx=self._z3_context)
-        solver.set("timeout", self.config.get("z3_timeout", default=2500))
+        solver.set("timeout", self._z3_timeout)
 
         solver.add(weights_lower_bounds)
         solver.add(weights_upper_bounds)
