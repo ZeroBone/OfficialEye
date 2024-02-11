@@ -168,6 +168,8 @@ class _ChildrenListener:
 
         message_type, args, kwargs = message
 
+        is_task_done: bool = False
+
         with self._terminal_ui.as_author(child.child_id):
             if message_type == IPCMessageType.ECHO:
                 self._terminal_ui.echo(*args, **kwargs)
@@ -180,14 +182,17 @@ class _ChildrenListener:
             elif message_type == IPCMessageType.UPDATE_PROGRESS:
                 self._progress.update(child.task_id, **kwargs)
             elif message_type == IPCMessageType.TASK_DONE:
-                self._terminal_ui.info(
-                    Verbosity.DEBUG,
-                    "Child has indicated that the task is done, "
-                    "releasing the corresponding lock to enable graceful shutdown of the child listener (in case this is the last child)."
-                )
-                child.is_being_listened_to.release()
+                is_task_done = True
             else:
                 assert False, "Unknown IPC message type received by parent process."
+
+        if is_task_done:
+            self._terminal_ui.info(
+                Verbosity.DEBUG,
+                "Child has indicated that the task is done, "
+                "releasing the corresponding lock to enable graceful shutdown of the child listener."
+            )
+            child.is_being_listened_to.release()
 
     def listen_to(self, child_id: int, connection: Connection, description: str, /):
 

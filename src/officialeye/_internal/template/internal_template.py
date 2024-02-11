@@ -278,18 +278,21 @@ class InternalTemplate(ITemplate):
         if supervision_result_choice_engine == _SUPERVISION_RESULT_BEST_SCORE:
 
             best_result = results[0]
+            best_result_mse = best_result.get_weighted_mse()
             best_result_score = best_result.score
 
             for result_id, result in enumerate(results):
                 result_score = result.score
+                result_mse = result.get_weighted_mse()
 
                 get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Result #{result_id + 1} has score {result_score}.")
 
-                if result_score < best_result_score:
+                if result_score > best_result_score or result_score == best_result_score and result_mse < best_result_mse:
+                    best_result_mse = result_mse
                     best_result_score = result_score
                     best_result = result
 
-            get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Best result has score {best_result_score}")
+            get_internal_afi().info(Verbosity.INFO_VERBOSE, f"Best result has score {best_result_score} and MSE {best_result_mse}.")
 
             return best_result
 
