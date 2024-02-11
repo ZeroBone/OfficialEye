@@ -15,11 +15,11 @@ from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNot
 
 if TYPE_CHECKING:
     from officialeye._api.context import Context
-    from officialeye._api.image import Image
+    from officialeye._api.image import IImage
     from officialeye._api.template.template_interface import ITemplate
 
 
-def detect(context: Context, *templates: ITemplate, target: Image) -> ISupervisionResult:
+def detect(context: Context, *templates: ITemplate, target: IImage) -> ISupervisionResult:
 
     futures: List[Future] = [
         template.detect_async(target=target) for template in templates

@@ -12,7 +12,7 @@ from officialeye._api.config import Config, MutatorConfig, MatcherConfig, Superv
 
 # Image-processing
 # noinspection PyProtectedMember
-from officialeye._api.image import Image
+from officialeye._api.image import IImage, Image
 
 # Mutators
 # noinspection PyProtectedMember
