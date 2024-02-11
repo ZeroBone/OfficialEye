@@ -52,9 +52,9 @@ class DiffObjectExpansion:
                     continue
 
                 specification_entry = specification_dict[key]
-                current_value = current_dict[key] if key in current_dict else None  # corresponding value in `self._cur_object`
+                current_value = current_dict.get(key)  # corresponding value in `self._cur_object`
                 object_value = object_dict[key]  # corresponding value in `partial_object`
-                object_value_diff_mode = object_dict[f"${key}"] if f"${key}" in object_dict else None
+                object_value_diff_mode = object_dict.get(f"${key}", None)
 
                 full_key = f"{previous_keys}{key}"
 
