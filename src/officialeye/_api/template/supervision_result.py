@@ -8,10 +8,14 @@ import cv2
 import numpy as np
 
 from officialeye._api.template.feature import IFeature
+from officialeye._api.template.interpretation_result import IInterpretationResult
 from officialeye._api.template.match import IMatch
 from officialeye.error.errors.general import ErrObjectNotInitialized
 
+
 if TYPE_CHECKING:
+    from officialeye._api.image import IImage
+    from officialeye._api.future import Future
     from officialeye._api.template.template_interface import ITemplate
     from officialeye._api.template.matching_result import IMatchingResult
 
@@ -58,6 +62,14 @@ class ISupervisionResult(ABC):
 
     @abstractmethod
     def get_match_weight(self, match: IMatch, /) -> float:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def interpret_async(self, /, *, target: IImage) -> Future:
+        raise NotImplementedError()
+
+    @abstractmethod
+    def interpret(self, /, **kwargs) -> IInterpretationResult:
         raise NotImplementedError()
 
     def get_weighted_mse(self, /) -> float:

@@ -8,7 +8,7 @@ from officialeye._api.context import Context
 
 # Config
 # noinspection PyProtectedMember
-from officialeye._api.config import Config, MutatorConfig, MatcherConfig, SupervisorConfig
+from officialeye._api.config import Config, MutatorConfig, MatcherConfig, SupervisorConfig, InterpretationConfig
 
 # Image-processing
 # noinspection PyProtectedMember
@@ -43,6 +43,12 @@ from officialeye._api.template.matching_result import IMatchingResult
 from officialeye._api.template.supervisor import ISupervisor, Supervisor
 # noinspection PyProtectedMember
 from officialeye._api.template.supervision_result import ISupervisionResult, SupervisionResult
+
+# Interpretation-related imports
+# noinspection PyProtectedMember
+from officialeye._api.template.interpretation import IInterpretation, Interpretation
+# noinspection PyProtectedMember
+from officialeye._api.template.interpretation_result import IInterpretationResult
 
 # Misc
 # noinspection PyProtectedMember

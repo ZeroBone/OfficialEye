@@ -7,9 +7,9 @@ from multiprocessing import Pipe
 from multiprocessing.connection import Connection, wait
 from threading import Thread, Lock
 from types import TracebackType
-from typing import Any, TYPE_CHECKING, Dict, Tuple, List, Set
+from typing import Any, Dict, Tuple, List, Set
 
-from rich.console import Console
+from rich.console import Console, ConsoleRenderable
 from rich.panel import Panel
 from rich.theme import Theme
 from rich.progress import Progress, SpinnerColumn, TextColumn, TaskID
@@ -24,11 +24,6 @@ from officialeye.error.errors.internal import ErrInternal
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
-
-
-if TYPE_CHECKING:
-    # noinspection PyProtectedMember
-    from officialeye._internal._types import RichProtocol
 
 
 _THEME_TAG_INFO = "info"
@@ -357,7 +352,7 @@ class TerminalUI(AbstractFeedbackInterface):
         if print_authors:
             self._last_printed_message_author = author
 
-    def echo(self, verbosity: Verbosity, message: str | RichProtocol = "", /, *, err: bool = False, **kwargs: Any) -> None:
+    def echo(self, verbosity: Verbosity, message: str | ConsoleRenderable = "", /, *, err: bool = False, **kwargs: Any) -> None:
 
         assert verbosity != Verbosity.QUIET
 

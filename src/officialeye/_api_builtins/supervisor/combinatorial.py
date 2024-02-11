@@ -192,7 +192,7 @@ class CombinatorialSupervisor(Supervisor):
                 continue
 
             if result == z3.unknown:
-                get_internal_afi().warn(Verbosity.INFO, "Could not decide the satifiability of the imposed constraints.")
+                get_internal_afi().warn(Verbosity.INFO_VERBOSE, "Could not decide the satifiability of the imposed constraints.")
                 solver.pop()
                 continue
 

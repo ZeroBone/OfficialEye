@@ -7,16 +7,16 @@ import numpy as np
 from officialeye import IMutator
 # noinspection PyProtectedMember
 from officialeye._api.template.feature import IFeature
+from officialeye._internal.context.singleton import get_internal_context
 from officialeye._internal.template.utils import load_mutator_from_dict
 from officialeye.error.errors.template import ErrTemplateInvalidFeature
-from officialeye._internal.interpretation.loader import load_interpretation_method
 
 from officialeye._internal.template.feature_class.feature_class import FeatureClass
 from officialeye._internal.template.region import InternalRegion
 
-
 if TYPE_CHECKING:
     from officialeye._internal.template.feature_class.manager import FeatureClassManager
+    from officialeye.types import FeatureInterpretation
 
 
 class InternalFeature(InternalRegion, IFeature):
@@ -82,7 +82,7 @@ class InternalFeature(InternalRegion, IFeature):
             load_mutator_from_dict(mutator_dict) for mutator_dict in mutators
         ]
 
-    def interpret_image(self, img: np.ndarray, /) -> any:
+    def interpret_image(self, img: np.ndarray, /) -> FeatureInterpretation:
         """
         Takes an image and runs the interpretation method defined in the corresponding feature class.
         Assumes that the feature class is present.
@@ -104,6 +104,6 @@ class InternalFeature(InternalRegion, IFeature):
         assert isinstance(interpretation_method_id, str)
         assert isinstance(interpretation_method_config, dict)
 
-        interpretation_method = load_interpretation_method(interpretation_method_id, interpretation_method_config)
+        interpretation_method = get_internal_context().get_interpretation(interpretation_method_id, interpretation_method_config)
 
-        return interpretation_method.interpret(img, self._template_id, self.identifier)
+        return interpretation_method.interpret(img, self)

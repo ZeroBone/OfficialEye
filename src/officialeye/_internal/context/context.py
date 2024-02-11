@@ -7,10 +7,12 @@ from typing import TYPE_CHECKING, Dict
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 from officialeye._internal.feedback.dummy import DummyFeedbackInterface
 from officialeye.error.error import OEError
-from officialeye.error.errors.template import ErrTemplateIdNotUnique, ErrTemplateInvalidMutator, ErrTemplateInvalidMatchingEngine, \
-    ErrTemplateInvalidSupervisionEngine
+from officialeye.error.errors.general import ErrInvalidKey
+from officialeye.error.errors.template import ErrTemplateIdNotUnique
 
 if TYPE_CHECKING:
+    # noinspection PyProtectedMember
+    from officialeye._api.template.interpretation import IInterpretation
     # noinspection PyProtectedMember
     from officialeye._api.template.supervisor import ISupervisor
     # noinspection PyProtectedMember
@@ -18,7 +20,7 @@ if TYPE_CHECKING:
     # noinspection PyProtectedMember
     from officialeye._api.mutator import IMutator
     from officialeye._internal.template.internal_template import InternalTemplate
-    from officialeye.types import ConfigDict, MutatorFactory, MatcherFactory, SupervisorFactory
+    from officialeye.types import ConfigDict, MutatorFactory, MatcherFactory, SupervisorFactory, InterpretationFactory
 
 
 class InternalContext:
@@ -29,6 +31,7 @@ class InternalContext:
         self._mutator_factories: Dict[str, MutatorFactory] = {}
         self._matcher_factories: Dict[str, MatcherFactory] = {}
         self._supervisor_factories: Dict[str, SupervisorFactory] = {}
+        self._interpretation_factories: Dict[str, InterpretationFactory] = {}
 
         # keys: template ids
         # values: template
@@ -39,7 +42,8 @@ class InternalContext:
         self._template_ids: Dict[str, str] = {}
 
     def setup(self, /, *, afi: AbstractFeedbackInterface, mutator_factories: Dict[str, MutatorFactory],
-              matcher_factories: Dict[str, MatcherFactory], supervisor_factories: Dict[str, SupervisorFactory]) -> InternalContext:
+              matcher_factories: Dict[str, MatcherFactory], supervisor_factories: Dict[str, SupervisorFactory],
+              interpretation_factories: Dict[str, InterpretationFactory]) -> InternalContext:
         assert afi is not None
 
         assert mutator_factories is not None
@@ -50,6 +54,7 @@ class InternalContext:
         self._mutator_factories = mutator_factories
         self._matcher_factories = matcher_factories
         self._supervisor_factories = supervisor_factories
+        self._interpretation_factories = interpretation_factories
 
         return self
 
@@ -64,16 +69,12 @@ class InternalContext:
     def get_afi(self) -> AbstractFeedbackInterface:
         return self._afi
 
-    def visualization_generation_enabled(self) -> bool:
-        # TODO: remove this method
-        return True
-
     def get_mutator(self, mutator_id: str, mutator_config: ConfigDict, /) -> IMutator:
 
         # TODO: (low priority) consider caching mutators that have the same id and configuration
 
         if mutator_id not in self._mutator_factories:
-            raise ErrTemplateInvalidMutator(
+            raise ErrInvalidKey(
                 f"while loading mutator '{mutator_id}'.",
                 "Unknown mutator. Has this mutator been properly loaded?"
             )
@@ -85,7 +86,7 @@ class InternalContext:
         # TODO: (low priority) consider caching matchers that have the same id and configuration
 
         if matcher_id not in self._matcher_factories:
-            raise ErrTemplateInvalidMatchingEngine(
+            raise ErrInvalidKey(
                 f"while loading matcher '{matcher_id}'.",
                 "Unknown matcher. Has this matcher been properly loaded?"
             )
@@ -97,12 +98,24 @@ class InternalContext:
         # TODO: (low priority) consider caching supervisors that have the same id and configuration
 
         if supervisor_id not in self._supervisor_factories:
-            raise ErrTemplateInvalidSupervisionEngine(
+            raise ErrInvalidKey(
                 f"while loading supervisor '{supervisor_id}'.",
                 "Unknown supervisor. Has this supervisor been properly loaded?"
             )
 
         return self._supervisor_factories[supervisor_id](supervisor_config)
+
+    def get_interpretation(self, interpretation_id: str, interpretation_config: ConfigDict, /) -> IInterpretation:
+
+        # TODO: (low priority) consider caching interpretations that have the same id and configuration
+
+        if interpretation_id not in self._interpretation_factories:
+            raise ErrInvalidKey(
+                f"while loading interpretation '{interpretation_id}'.",
+                "Unknown interpretation. Has this interpretation method been properly loaded?"
+            )
+
+        return self._interpretation_factories[interpretation_id](interpretation_config)
 
     def add_template(self, template: InternalTemplate, /):
 

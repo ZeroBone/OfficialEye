@@ -1,8 +1,9 @@
 from __future__ import annotations
 
-from concurrent.futures import Future
 from typing import Iterable, Dict, TYPE_CHECKING, List
 
+# noinspection PyProtectedMember
+from officialeye._api.future import Future
 # noinspection PyProtectedMember
 from officialeye._api.mutator import IMutator
 # noinspection PyProtectedMember
@@ -61,7 +62,7 @@ class ExternalTemplate(ITemplate, IApiInterfaceImplementation):
             mutator for mutator in template.get_target_mutators()
         ]
 
-    def set_api_context(self, context: Context, /):
+    def set_api_context(self, context: Context, /) -> None:
         self._context = context
 
         for external_keypoint in self.keypoints:
@@ -69,6 +70,15 @@ class ExternalTemplate(ITemplate, IApiInterfaceImplementation):
 
         for external_feature in self.features:
             external_feature.set_api_context(context)
+
+    def clear_api_context(self) -> None:
+        self._context = None
+
+        for external_keypoint in self.keypoints:
+            external_keypoint.clear_api_context()
+
+        for external_feature in self.features:
+            external_feature.clear_api_context()
 
     def load(self) -> None:
         raise ErrOperationNotSupported(

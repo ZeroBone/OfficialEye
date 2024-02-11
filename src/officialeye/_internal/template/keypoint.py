@@ -62,6 +62,9 @@ class ExternalKeypoint(ExternalRegion, IKeypoint, IApiInterfaceImplementation):
     def matches_max(self) -> int:
         return self._matches_max
 
-    def set_api_context(self, context: Context, /):
+    def set_api_context(self, context: Context, /) -> None:
         # no methods of this class require any contextual information to work, nothing to do
+        pass
+
+    def clear_api_context(self) -> None:
         pass

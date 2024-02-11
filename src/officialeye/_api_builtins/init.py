@@ -6,6 +6,9 @@ from typing import TYPE_CHECKING
 from officialeye._api.template.matcher import IMatcher
 # noinspection PyProtectedMember
 from officialeye._api.mutator import IMutator
+from officialeye._api_builtins.interpretation.file import FileInterpretation
+from officialeye._api_builtins.interpretation.file_temp import FileTempInterpretation
+from officialeye._api_builtins.interpretation.ocr_tesseract import TesseractInterpretation
 from officialeye._api_builtins.matcher.sift_flann import SiftFlannMatcher
 
 from officialeye._api_builtins.mutator.clahe import CLAHEMutator
@@ -20,10 +23,15 @@ if TYPE_CHECKING:
     # noinspection PyProtectedMember
     from officialeye._api.context import Context
     # noinspection PyProtectedMember
+    from officialeye._api.template.interpretation import IInterpretation
+    # noinspection PyProtectedMember
     from officialeye._api.template.supervisor import ISupervisor
 
 
-# mutator generators
+"""
+Mutator generators
+"""
+
 
 def _gen_mutator_grayscale(config: ConfigDict, /) -> IMutator:
     return GrayscaleMutator(config)
@@ -41,19 +49,43 @@ def _gen_mutator_rotate(config: ConfigDict, /) -> IMutator:
     return RotateMutator(config)
 
 
-# matcher generators
+"""
+Matcher generators
+"""
+
 
 def _gen_matcher_sift_flann(config: ConfigDict, /) -> IMatcher:
     return SiftFlannMatcher(config)
 
 
-# supervisor generators
+"""
+Supervisor generators
+"""
+
+
 def _gen_supervisor_combinatorial(config: ConfigDict, /) -> ISupervisor:
     return CombinatorialSupervisor(config)
 
 
 def _gen_supervisor_least_squares_regression(config: ConfigDict, /) -> ISupervisor:
     return LeastSquaresRegressionSupervisor(config)
+
+
+"""
+Interpretation generators
+"""
+
+
+def _gen_interpretation_file(config: ConfigDict, /) -> IInterpretation:
+    return FileInterpretation(config)
+
+
+def _gen_interpretation_file_temp(config: ConfigDict, /) -> IInterpretation:
+    return FileTempInterpretation(config)
+
+
+def _gen_interpretation_ocr_tesseract(config: ConfigDict, /) -> IInterpretation:
+    return TesseractInterpretation(config)
 
 
 def initialize_builtins(context: Context, /):
@@ -70,3 +102,8 @@ def initialize_builtins(context: Context, /):
     # register supervisors
     context.register_supervisor(CombinatorialSupervisor.SUPERVISOR_ID, _gen_supervisor_combinatorial)
     context.register_supervisor(LeastSquaresRegressionSupervisor.SUPERVISOR_ID, _gen_supervisor_combinatorial)
+
+    # register interpretations
+    context.register_interpretation(FileInterpretation.INTERPRETATION_ID, _gen_interpretation_file)
+    context.register_interpretation(FileTempInterpretation.INTERPRETATION_ID, _gen_interpretation_file_temp)
+    context.register_interpretation(TesseractInterpretation.INTERPRETATION_ID, _gen_interpretation_ocr_tesseract)

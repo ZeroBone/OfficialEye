@@ -2,7 +2,7 @@
 OfficialEye CLI frontend main entry point.
 """
 
-from typing import List, Union
+from typing import List
 
 import click
 
@@ -113,7 +113,7 @@ def test(target_path: str, template_paths: List[str], show_features: bool):
 @click.option("--interpret", type=click.Path(exists=True, file_okay=True, readable=True),
               default=None, help="Use the image at the specified path to run the interpretation phase.")
 @click.option("--visualize", is_flag=True, show_default=False, default=False, help="Generate visualizations of intermediate steps.")
-def run(target_path: str, template_paths: List[str], interpret: Union[str, None], visualize: bool):
+def run(target_path: str, template_paths: List[str], interpret: str | None, visualize: bool):
     """Applies one or more templates to an image."""
 
     global _context

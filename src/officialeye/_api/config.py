@@ -86,3 +86,18 @@ class SupervisorConfig(Config):
             f"while reading configuration of the '{self._matcher_id}' supervisor.",
             f"Could not find a value for key '{key}'."
         )
+
+
+class InterpretationConfig(Config):
+
+    def __init__(self, config_dict: ConfigDict, interpretation_id: str, /):
+
+        super().__init__(config_dict)
+
+        self._interpretation_id = interpretation_id
+
+    def _get_invalid_key_error(self, key: str, /):
+        return ErrInvalidKey(
+            f"while reading configuration of the '{self._interpretation_id}' interpretation.",
+            f"Could not find a value for key '{key}'."
+        )

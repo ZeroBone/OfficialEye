@@ -25,17 +25,7 @@ def template_detect(template_path: str, /, *, target_path: str, **kwargs) -> Ext
 
         # TODO: move the following to a separate internal api method
         """
-        if interpretation_target_path is None:
-            interpretation_target = target
-        else:
-            interpretation_target = cv2.imread(interpretation_target_path, cv2.IMREAD_COLOR)
-
-            if target.shape != interpretation_target.shape:
-                raise ErrIOInvalidImage(
-                    "while making sure that the target image and the interpretation target images have the same shape.",
-                    f"The shapes mismatch. "
-                    f"The target image has shape {target.shape}, while the interpretation target image has shape {interpretation_target.shape}."
-                )
+        
         """
 
         internal_supervision_result: InternalSupervisionResult = template.do_detect(target)

@@ -28,5 +28,8 @@ class ExternalMatchingResult(SharedMatchingResult, IApiInterfaceImplementation):
     def template(self) -> ExternalTemplate:
         return self._template
 
-    def set_api_context(self, context: Context, /):
+    def set_api_context(self, context: Context, /) -> None:
         self._template.set_api_context(context)
+
+    def clear_api_context(self) -> None:
+        self._template.clear_api_context()

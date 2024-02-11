@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import os
 import random
-from concurrent.futures import Future
 from typing import Dict, List, TYPE_CHECKING, Iterable
 
 import numpy as np
 
+# noinspection PyProtectedMember
+from officialeye._api.future import Future
 # noinspection PyProtectedMember
 from officialeye._api.template.match import IMatch
 # noinspection PyProtectedMember
@@ -45,6 +46,7 @@ if TYPE_CHECKING:
     from officialeye._api.template.supervision_result import ISupervisionResult
 
 
+# TODO: refactor this into an enum
 _SUPERVISION_RESULT_FIRST = "first"
 _SUPERVISION_RESULT_RANDOM = "random"
 _SUPERVISION_RESULT_BEST_MSE = "best_mse"

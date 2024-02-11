@@ -27,6 +27,10 @@ class ExternalFeature(ExternalRegion, IFeature, IApiInterfaceImplementation):
     def get_mutators(self) -> Iterable[IMutator]:
         return self._mutators
 
-    def set_api_context(self, context: Context, /):
+    def set_api_context(self, context: Context, /) -> None:
+        # no methods of this class require any contextual information to work, nothing to do
+        pass
+
+    def clear_api_context(self) -> None:
         # no methods of this class require any contextual information to work, nothing to do
         pass
