@@ -11,6 +11,6 @@ def load_mutator_from_dict(mutator_dict: Dict[str, any], /) -> IMutator:
 
     mutator_id = mutator_dict["id"]
 
-    mutator_config = mutator_dict["config"] if "config" in mutator_dict else {}
+    mutator_config = mutator_dict.get("config", {})
 
     return get_internal_context().get_mutator(mutator_id, mutator_config)
