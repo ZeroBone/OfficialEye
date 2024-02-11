@@ -5,11 +5,13 @@ from typing import TYPE_CHECKING, Dict
 import numpy as np
 
 # noinspection PyProtectedMember
-from officialeye._api.template.supervision_result import ISupervisionResult, SupervisionResult
-from officialeye._internal.template.matching_result import InternalMatchingResult
+from officialeye._api.template.supervision_result import ISupervisionResult
 
 
 if TYPE_CHECKING:
+    # noinspection PyProtectedMember
+    from officialeye._api.template.supervision_result import SupervisionResult
+    from officialeye._internal.template.internal_matching_result import InternalMatchingResult
     # noinspection PyProtectedMember
     from officialeye._api.template.match import IMatch
     from officialeye._internal.template.internal_template import InternalTemplate

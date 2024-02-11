@@ -4,11 +4,14 @@ from typing import TYPE_CHECKING
 
 # noinspection PyProtectedMember
 from officialeye._api.template.keypoint import IKeypoint
+from officialeye._internal.api_implementation import IApiInterfaceImplementation
 from officialeye.error.errors.template import ErrTemplateInvalidKeypoint
 from officialeye._internal.template.region import InternalRegion, ExternalRegion
 
 
 if TYPE_CHECKING:
+    # noinspection PyProtectedMember
+    from officialeye._api.context import Context
     from officialeye._internal.template.external_template import ExternalTemplate
 
 
@@ -43,7 +46,7 @@ class InternalKeypoint(InternalRegion, IKeypoint):
         return self._matches_max
 
 
-class ExternalKeypoint(ExternalRegion, IKeypoint):
+class ExternalKeypoint(ExternalRegion, IKeypoint, IApiInterfaceImplementation):
 
     def __init__(self, internal_keypoint: InternalKeypoint, external_template: ExternalTemplate, /):
         super().__init__(internal_keypoint, external_template)
@@ -58,3 +61,7 @@ class ExternalKeypoint(ExternalRegion, IKeypoint):
     @property
     def matches_max(self) -> int:
         return self._matches_max
+
+    def set_api_context(self, context: Context, /):
+        # no methods of this class require any contextual information to work, nothing to do
+        pass

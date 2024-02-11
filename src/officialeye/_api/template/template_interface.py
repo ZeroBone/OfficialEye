@@ -2,7 +2,7 @@ from abc import abstractmethod, ABC
 from concurrent.futures import Future
 from typing import Iterable, Any
 
-from officialeye._api.template.supervision_result import SupervisionResult
+from officialeye._api.template.supervision_result import SupervisionResult, ISupervisionResult
 from officialeye._api.template.keypoint import IKeypoint
 from officialeye._api.template.feature import IFeature
 from officialeye._api.image import IImage
@@ -30,7 +30,7 @@ class ITemplate(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def detect(self, /, **kwargs) -> SupervisionResult:
+    def detect(self, /, **kwargs) -> ISupervisionResult:
         raise NotImplementedError()
 
     @abstractmethod

@@ -10,8 +10,6 @@ import numpy as np
 # noinspection PyProtectedMember
 from officialeye._api.template.match import IMatch
 # noinspection PyProtectedMember
-from officialeye._api.template.supervision_result import SupervisionResult
-# noinspection PyProtectedMember
 from officialeye._api.template.supervisor import ISupervisor
 # noinspection PyProtectedMember
 from officialeye._api.image import IImage
@@ -20,7 +18,6 @@ from officialeye._api.template.template import ITemplate
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
-from officialeye._internal.template.external_supervision_result import ExternalSupervisionResult
 from officialeye._internal.template.image import InternalImage
 from officialeye._internal.template.internal_supervision_result import InternalSupervisionResult
 from officialeye._internal.template.utils import load_mutator_from_dict
@@ -32,7 +29,7 @@ from officialeye.error.errors.template import (
     ErrTemplateInvalidKeypoint
 )
 
-from officialeye._internal.template.matching_result import InternalMatchingResult
+from officialeye._internal.template.internal_matching_result import InternalMatchingResult
 from officialeye._internal.template.feature_class.loader import load_template_feature_classes
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
 from officialeye._internal.template.feature import InternalFeature
@@ -44,6 +41,8 @@ if TYPE_CHECKING:
     from officialeye._api.template.matcher import IMatcher
     # noinspection PyProtectedMember
     from officialeye._api.mutator import IMutator
+    # noinspection PyProtectedMember
+    from officialeye._api.template.supervision_result import ISupervisionResult
 
 
 _SUPERVISION_RESULT_FIRST = "first"
@@ -141,7 +140,7 @@ class InternalTemplate(ITemplate):
             "The way in which it was accessed is not supported."
         )
 
-    def detect(self, /, **kwargs) -> SupervisionResult:
+    def detect(self, /, **kwargs) -> ISupervisionResult:
         raise ErrOperationNotSupported(
             "while accessing an internal template instance.",
             "The way in which it was accessed is not supported."
@@ -299,7 +298,7 @@ class InternalTemplate(ITemplate):
             f"Invalid supervision result choice engine '{supervision_result_choice_engine}'."
         )
 
-    def do_detect(self, target: np.ndarray, /) -> ExternalSupervisionResult:
+    def do_detect(self, target: np.ndarray, /) -> InternalSupervisionResult:
         # find all patterns in the target image
 
         _timer = Timer()
@@ -358,7 +357,7 @@ class InternalTemplate(ITemplate):
             get_internal_context().export_image(visualization, file_name="matches.png")
         """
 
-        return ExternalSupervisionResult(supervision_result)
+        return supervision_result
 
     def __str__(self):
         return f"{self.name} ({self._source}, {len(self._keypoints)} keypoints, {len(self._features)} features)"

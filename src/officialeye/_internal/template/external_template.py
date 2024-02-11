@@ -6,9 +6,11 @@ from typing import Iterable, Dict, TYPE_CHECKING, List
 # noinspection PyProtectedMember
 from officialeye._api.mutator import IMutator
 # noinspection PyProtectedMember
-from officialeye._api.image import IImage
+from officialeye._api.image import IImage, Image
 # noinspection PyProtectedMember
 from officialeye._api.template.template_interface import ITemplate
+from officialeye._internal.api.detect import template_detect
+from officialeye._internal.api_implementation import IApiInterfaceImplementation
 # noinspection PyProtectedMember
 from officialeye._internal.template.feature import ExternalFeature
 from officialeye._internal.template.keypoint import ExternalKeypoint
@@ -16,12 +18,14 @@ from officialeye.error.errors.general import ErrOperationNotSupported
 
 
 if TYPE_CHECKING:
+    # noinspection PyProtectedMember
+    from officialeye._api.context import Context
     from officialeye._internal.template.internal_template import InternalTemplate
     # noinspection PyProtectedMember
-    from officialeye._api.template.supervision_result import SupervisionResult
+    from officialeye._api.template.supervision_result import ISupervisionResult
 
 
-class ExternalTemplate(ITemplate):
+class ExternalTemplate(ITemplate, IApiInterfaceImplementation):
     """
     Representation of a template instance designed to be shared between processes.
     It is very important that this class is picklable!
@@ -30,9 +34,13 @@ class ExternalTemplate(ITemplate):
     def __init__(self, template: InternalTemplate, /):
         super().__init__()
 
+        self._context: Context | None = None
+
         self._identifier: str = template.identifier
         self._name: str = template.name
+        self._path: str = template.get_path()
         self._source_image_path: str = template.get_source_image_path()
+
         self._width = template.width
         self._height = template.height
 
@@ -53,15 +61,14 @@ class ExternalTemplate(ITemplate):
             mutator for mutator in template.get_target_mutators()
         ]
 
-    @property
-    def source_image_path(self) -> str:
-        return self._source_image_path
+    def set_api_context(self, context: Context, /):
+        self._context = context
 
-    def get_source_mutators(self) -> Iterable[IMutator]:
-        return self._source_mutators
+        for external_keypoint in self.keypoints:
+            external_keypoint.set_api_context(context)
 
-    def get_target_mutators(self) -> Iterable[IMutator]:
-        return self._target_mutators
+        for external_feature in self.features:
+            external_feature.set_api_context(context)
 
     def load(self) -> None:
         raise ErrOperationNotSupported(
@@ -70,28 +77,29 @@ class ExternalTemplate(ITemplate):
         )
 
     def detect_async(self, /, *, target: IImage) -> Future:
-        raise ErrOperationNotSupported(
-            "while accessing an external template instance.",
-            "The way in which it was accessed is not supported."
+
+        # TODO: this is hacky, maybe use a more clean approach here?
+        assert isinstance(target, Image)
+
+        # noinspection PyProtectedMember
+        return self._context._submit_task(
+            template_detect,
+            f"Running detection for template '{self._name}'...",
+            self._path,
+            target_path=target._path,
         )
 
-    def detect(self, /, **kwargs) -> SupervisionResult:
-        raise ErrOperationNotSupported(
-            "while accessing an external template instance.",
-            "The way in which it was accessed is not supported."
-        )
+    def detect(self, /, **kwargs) -> ISupervisionResult:
+        future = self.detect_async(**kwargs)
+        return future.result()
 
     def get_image(self) -> IImage:
-        raise ErrOperationNotSupported(
-            "while accessing an external template instance.",
-            "The way in which it was accessed is not supported."
-        )
+        return Image(self._context, path=self._source_image_path)
 
     def get_mutated_image(self) -> IImage:
-        raise ErrOperationNotSupported(
-            "while accessing an external template instance.",
-            "The way in which it was accessed is not supported."
-        )
+        img = self.get_image()
+        img.apply_mutators(*self._source_mutators)
+        return img
 
     @property
     def identifier(self) -> str:

@@ -3,15 +3,15 @@ from __future__ import annotations
 from concurrent.futures import Future
 from typing import TYPE_CHECKING, Iterable
 
-from officialeye._api.template.supervision_result import SupervisionResult
-from officialeye._api.image import IImage, Image
+from officialeye._api.image import IImage
 from officialeye._api.template.template_interface import ITemplate
 # noinspection PyProtectedMember
-from officialeye._internal.api import template_load, template_detect
+from officialeye._internal.api.load import template_load
 # noinspection PyProtectedMember
 from officialeye._internal.template.external_template import ExternalTemplate
 
 if TYPE_CHECKING:
+    from officialeye._api.template.supervision_result import ISupervisionResult
     from officialeye._api.context import Context
     from officialeye._api.template.feature import IFeature
     from officialeye._api.template.keypoint import IKeypoint
@@ -45,34 +45,25 @@ class Template(ITemplate):
         future = self._context._submit_task(template_load, "Loading template...", self._path)
 
         self._external_template = future.result()
+
         assert self._external_template is not None
         assert isinstance(self._external_template, ExternalTemplate)
 
     def detect_async(self, /, *, target: IImage) -> Future:
-
-        # TODO: this is hacky, maybe use a more clean approach here?
-        assert isinstance(target, Image)
-
-        # noinspection PyProtectedMember
-        return self._context._submit_task(
-            template_detect,
-            "Running analysis...",
-            self._path,
-            target_path=target._path,
-        )
-
-    def detect(self, /, **kwargs) -> SupervisionResult:
-        future = self.detect_async(**kwargs)
-        return future.result()
-
-    def get_image(self) -> Image:
         self.load()
-        return Image(self._context, path=self._external_template.source_image_path)
+        return self._external_template.detect_async(target=target)
 
-    def get_mutated_image(self) -> Image:
-        img = self.get_image()
-        img.apply_mutators(*self._external_template.get_source_mutators())
-        return img
+    def detect(self, /, **kwargs) -> ISupervisionResult:
+        self.load()
+        return self._external_template.detect(**kwargs)
+
+    def get_image(self) -> IImage:
+        self.load()
+        return self._external_template.get_image()
+
+    def get_mutated_image(self) -> IImage:
+        self.load()
+        return self._external_template.get_mutated_image()
 
     @property
     def identifier(self) -> str:

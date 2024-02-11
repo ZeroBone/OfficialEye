@@ -4,6 +4,8 @@ from concurrent.futures import Future as PythonFuture, wait as python_wait, ALL_
 from typing import Any, TYPE_CHECKING, Iterable, Set, Tuple, Dict
 
 # noinspection PyProtectedMember
+from officialeye._internal.api_implementation import IApiInterfaceImplementation
+# noinspection PyProtectedMember
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 
 
@@ -58,6 +60,11 @@ class Future:
         """
 
         result = self._future.result(timeout=timeout)
+
+        assert isinstance(result, IApiInterfaceImplementation), \
+            "Every call to an internal API function should return a proper public API interface implementation"
+
+        result.set_api_context(self._context)
 
         self._afi_join()
 

@@ -8,15 +8,13 @@ from officialeye._api.template.match import IMatch
 # noinspection PyProtectedMember
 from officialeye._api.template.matching_result import IMatchingResult
 from officialeye._internal.feedback.verbosity import Verbosity
-from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
-from officialeye._internal.template.external_template import ExternalTemplate
+from officialeye._internal.context.singleton import get_internal_afi
 from officialeye.error.errors.matching import ErrMatchingMatchCountOutOfBounds
 
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
     from officialeye._api.template.template_interface import ITemplate
-    from officialeye._internal.template.internal_template import InternalTemplate
 
 
 class SharedMatchingResult(IMatchingResult, ABC):
@@ -109,41 +107,3 @@ class SharedMatchingResult(IMatchingResult, ABC):
                 f"while checking that there has been at least one match for template '{self.template.identifier}'.",
                 "There have been no matches."
             )
-
-
-class InternalMatchingResult(SharedMatchingResult):
-    """
-    Representation of the matching result, designed to be used by the child process only.
-    """
-
-    def __init__(self, template: InternalTemplate, /):
-        super().__init__(template)
-
-        self._template_id = template.identifier
-
-        # keys: keypoint ids
-        # values: matches with this keypoint
-        self._matches_dict: Dict[str, List[IMatch]] = {}
-
-        for keypoint in self.template.keypoints:
-            self._matches_dict[keypoint.identifier] = []
-
-    @property
-    def template(self) -> InternalTemplate:
-        return get_internal_context().get_template(self._template_id)
-
-
-class ExternalMatchingResult(SharedMatchingResult):
-    """
-    Representation of the matching result, designed to be used by the main process.
-    For this reason, it is essential that this class is picklable.
-    """
-
-    def __init__(self, internal_matching_result: InternalMatchingResult, external_template: ExternalTemplate, /):
-        super().__init__(internal_matching_result.template)
-
-        self._template = external_template
-
-    @property
-    def template(self) -> ExternalTemplate:
-        return self._template
