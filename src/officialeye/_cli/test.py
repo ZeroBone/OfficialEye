@@ -11,6 +11,7 @@ from officialeye._api.image import Image
 # noinspection PyProtectedMember
 from officialeye._api.template.template import Template
 from officialeye._cli.context import CLIContext
+from officialeye._cli.utils import visualize_feature
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 
@@ -34,7 +35,7 @@ def _get_background(context: CLIContext, template: ITemplate, /) -> np.ndarray:
 
 
 def do_test(context: CLIContext, /, *,
-            target_path: str, template_paths: List[str], visualize: bool, show_features: bool):
+            target_path: str, template_paths: List[str], show_features: bool):
     # print OfficialEye logo and other introductory information (if necessary)
     context.print_intro()
 
@@ -46,7 +47,7 @@ def do_test(context: CLIContext, /, *,
 
     result = detect(api_context, *templates, target=target_image)
 
-    template_image_mat = _get_background(context, result.template)
+    visualization = _get_background(context, result.template)
     target_image_mat = target_image.load()
 
     for feature in result.template.features:
@@ -54,5 +55,25 @@ def do_test(context: CLIContext, /, *,
 
         feature_image_mutated_mat = feature.apply_mutators_to_image(feature_image_mat)
 
-    # TODO: remove this unnecessary message
-    context.get_terminal_ui().info(Verbosity.INFO, "Running complete!")
+        if feature_image_mat.shape == feature_image_mutated_mat.shape:
+            # mutators didn't change the shape of the image
+            feature.insert_into_image(visualization, feature_image_mutated_mat)
+        else:
+            # some mutator has altered the shape of the feature image.
+            # this means that we can no longer safely insert the mutated feature into the visualization.
+            # therefore, we have to fall back to inserting the feature image unmutated
+            context.get_terminal_ui().warn(
+                Verbosity.INFO,
+                f"Could not visualize the '{feature.identifier}' feature of the '{feature.template.identifier}' template, "
+                f"because one of the mutators (corresponding to this feature) did not preserve the shape of the image. "
+                f"Falling back to the non-mutated version of the feature image."
+            )
+
+            feature.insert_into_image(visualization, feature_image_mat)
+
+    if show_features:
+        # visualize features on the image
+        for feature in result.template.features:
+            visualization = visualize_feature(feature, visualization)
+
+    context.export_and_show_image(visualization, file_name=f"{result.template.identifier}.png")

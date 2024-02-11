@@ -67,6 +67,16 @@ class IRegion(ABC):
         _img.apply_mutators(_mutator)
         return _img
 
+    def insert_into_image(self, target: np.ndarray, transformed_version: np.ndarray = None):
+
+        assert target.shape[0] == self.template.height
+        assert target.shape[1] == self.template.width
+
+        if transformed_version is None:
+            transformed_version = self.get_image().load()
+
+        target[self.y: self.y + self.h, self.x: self.x + self.w] = transformed_version
+
     def __str__(self) -> str:
         return f"Region '{self.identifier}'"
 

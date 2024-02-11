@@ -19,6 +19,7 @@
 * Removed the `--worker` argument from the `run` and `test` commands, because it has become redundant and unnececcary in light of the new architecture.
 * Implemented a new approach to handling image outputting in the CLI, that is much more flexible compared to the previous one.
 * Improved type annotations.
+* Removed the `--visualize` argument from the `test` command.
 
 [View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.2.0){ .md-button }
 
