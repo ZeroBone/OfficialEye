@@ -1,23 +1,24 @@
 from __future__ import annotations
 
-from typing import Iterable, TYPE_CHECKING, Dict, List
+from typing import TYPE_CHECKING, Dict, Iterable, List
 
 import cv2
 import numpy as np
 
 # noinspection PyProtectedMember
-from officialeye._api.template.matcher import Matcher
-# noinspection PyProtectedMember
-from officialeye._api.template.match import Match, IMatch
-# noinspection PyProtectedMember
 from officialeye._api.template.keypoint import IKeypoint
 
+# noinspection PyProtectedMember
+from officialeye._api.template.match import IMatch, Match
+
+# noinspection PyProtectedMember
+from officialeye._api.template.matcher import Matcher
 from officialeye.error.errors.matching import ErrMatchingInvalidEngineConfig
 
 if TYPE_CHECKING:
-    from officialeye.types import ConfigDict
     # noinspection PyProtectedMember
     from officialeye._api.template.template import ITemplate
+    from officialeye.types import ConfigDict
 
 
 _FLANN_INDEX_KDTREE = 1

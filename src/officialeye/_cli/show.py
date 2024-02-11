@@ -2,10 +2,11 @@ import numpy as np
 
 # noinspection PyProtectedMember
 from officialeye._api.template.template import Template
+from officialeye._cli.context import CLIContext
 from officialeye._cli.utils import visualize_feature, visualize_keypoint
+
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
-from officialeye._cli.context import CLIContext
 
 
 def _visualize_regions(template: Template, background_img: np.ndarray, /, *,

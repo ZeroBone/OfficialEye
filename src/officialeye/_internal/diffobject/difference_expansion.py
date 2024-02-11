@@ -1,11 +1,11 @@
 from typing import Dict
 
-from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_afi
 from officialeye._internal.diffobject.difference_modes import DIFF_MODE_ADD, DIFF_MODE_OVERRIDE, DIFF_MODE_REMOVE
 from officialeye._internal.diffobject.exception import DiffObjectException
 from officialeye._internal.diffobject.specification import DiffObjectSpecification
 from officialeye._internal.diffobject.specification_entry import DiffObjectSpecificationEntry
+from officialeye._internal.feedback.verbosity import Verbosity
 
 
 class DiffObjectExpansion:

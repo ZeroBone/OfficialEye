@@ -1,17 +1,20 @@
 from __future__ import annotations
 
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 from rich.json import JSON
 from rich.table import Table
 
 # noinspection PyProtectedMember
 from officialeye._api.detection import detect
+
 # noinspection PyProtectedMember
 from officialeye._api.image import Image
+
 # noinspection PyProtectedMember
 from officialeye._api.template.template import Template
 from officialeye._cli.context import CLIContext
+
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 
@@ -24,6 +27,7 @@ def do_run(context: CLIContext, /, *, target_path: str, template_paths: List[str
     context.print_intro()
 
     # TODO: implement visualization generation
+    # TODO: update the example in the documentation
 
     api_context = context.get_api_context()
 

@@ -1,13 +1,15 @@
 from __future__ import annotations
 
-from concurrent.futures import Future as PythonFuture, wait as python_wait, ALL_COMPLETED
-from typing import Any, TYPE_CHECKING, Iterable, Set, Tuple, Dict
+from concurrent.futures import ALL_COMPLETED
+from concurrent.futures import Future as PythonFuture
+from concurrent.futures import wait as python_wait
+from typing import TYPE_CHECKING, Any, Dict, Iterable, Set, Tuple
 
 # noinspection PyProtectedMember
 from officialeye._internal.api_implementation import IApiInterfaceImplementation
+
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
-
 
 if TYPE_CHECKING:
     from officialeye._api.context import Context

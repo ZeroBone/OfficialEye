@@ -8,7 +8,6 @@ import numpy as np
 # noinspection PyProtectedMember
 from officialeye._api.mutator import Mutator
 
-
 if TYPE_CHECKING:
     from officialeye.types import ConfigDict
 

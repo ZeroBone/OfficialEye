@@ -6,14 +6,13 @@ from typing import List
 
 import click
 
-from officialeye.__version__ import __version__, __github_url__, __github_full_url__
+from officialeye.__version__ import __github_full_url__, __github_url__, __version__
 from officialeye._cli.context import CLIContext
 from officialeye._cli.create import do_create
 from officialeye._cli.run import do_run
 from officialeye._cli.show import do_show
 from officialeye._cli.test import do_test
 from officialeye._cli.ui import Verbosity
-
 
 _context = CLIContext()
 

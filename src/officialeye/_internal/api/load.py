@@ -1,6 +1,6 @@
 from officialeye._internal.context.singleton import get_internal_context
-from officialeye._internal.template.schema.loader import load_template
 from officialeye._internal.template.external_template import ExternalTemplate
+from officialeye._internal.template.schema.loader import load_template
 
 
 def template_load(template_path: str, /, **kwargs) -> ExternalTemplate:

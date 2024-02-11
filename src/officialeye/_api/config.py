@@ -7,10 +7,9 @@ and safely retrieving information from there.
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Callable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Callable
 
 from officialeye.error.errors.general import ErrInvalidKey
-
 
 if TYPE_CHECKING:
     from officialeye.types import ConfigDict

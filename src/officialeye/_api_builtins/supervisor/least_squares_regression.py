@@ -4,16 +4,17 @@ from typing import TYPE_CHECKING, Iterable
 
 import numpy as np
 
-
-# noinspection PyProtectedMember
-from officialeye._api.template.template_interface import ITemplate
 # noinspection PyProtectedMember
 from officialeye._api.template.matching_result import IMatchingResult
-# noinspection PyProtectedMember
-from officialeye._api.template.supervisor import Supervisor
+
 # noinspection PyProtectedMember
 from officialeye._api.template.supervision_result import SupervisionResult
 
+# noinspection PyProtectedMember
+from officialeye._api.template.supervisor import Supervisor
+
+# noinspection PyProtectedMember
+from officialeye._api.template.template_interface import ITemplate
 
 if TYPE_CHECKING:
     from officialeye.types import ConfigDict

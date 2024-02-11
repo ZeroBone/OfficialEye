@@ -1,5 +1,5 @@
-from officialeye.error.errors.template import ErrTemplateInvalidFeatureClass
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
+from officialeye.error.errors.template import ErrTemplateInvalidFeatureClass
 
 
 def load_template_feature_classes(feature_classes_dict: dict, template_id: str, /) -> FeatureClassManager:

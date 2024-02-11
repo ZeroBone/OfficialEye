@@ -1,12 +1,11 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 
 import numpy as np
 
 from officialeye._api.template.region import IRegion
-
 
 if TYPE_CHECKING:
     from officialeye._api.mutator import IMutator

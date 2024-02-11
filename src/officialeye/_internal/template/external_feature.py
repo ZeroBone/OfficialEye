@@ -7,14 +7,14 @@ from officialeye._api.template.feature import IFeature
 from officialeye._internal.api_implementation import IApiInterfaceImplementation
 from officialeye._internal.template.region import ExternalRegion
 
-
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
     from officialeye._api.context import Context
+
     # noinspection PyProtectedMember
     from officialeye._api.mutator import IMutator
-    from officialeye._internal.template.internal_feature import InternalFeature
     from officialeye._internal.template.external_template import ExternalTemplate
+    from officialeye._internal.template.internal_feature import InternalFeature
 
 
 class ExternalFeature(ExternalRegion, IFeature, IApiInterfaceImplementation):

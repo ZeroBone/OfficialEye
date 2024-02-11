@@ -5,9 +5,8 @@ from typing import TYPE_CHECKING
 # noinspection PyProtectedMember
 from officialeye._api.template.keypoint import IKeypoint
 from officialeye._internal.api_implementation import IApiInterfaceImplementation
+from officialeye._internal.template.region import ExternalRegion, InternalRegion
 from officialeye.error.errors.template import ErrTemplateInvalidKeypoint
-from officialeye._internal.template.region import InternalRegion, ExternalRegion
-
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember

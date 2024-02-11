@@ -1,29 +1,33 @@
 from __future__ import annotations
 
-from typing import Iterable, Dict, TYPE_CHECKING, List
+from typing import TYPE_CHECKING, Dict, Iterable, List
 
 # noinspection PyProtectedMember
 from officialeye._api.future import Future
-# noinspection PyProtectedMember
-from officialeye._api.mutator import IMutator
+
 # noinspection PyProtectedMember
 from officialeye._api.image import IImage, Image
+
+# noinspection PyProtectedMember
+from officialeye._api.mutator import IMutator
+
 # noinspection PyProtectedMember
 from officialeye._api.template.template_interface import ITemplate
 from officialeye._internal.api.detect import template_detect
 from officialeye._internal.api_implementation import IApiInterfaceImplementation
+
 # noinspection PyProtectedMember
 from officialeye._internal.template.external_feature import ExternalFeature
 from officialeye._internal.template.keypoint import ExternalKeypoint
 from officialeye.error.errors.general import ErrOperationNotSupported
 
-
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
     from officialeye._api.context import Context
-    from officialeye._internal.template.internal_template import InternalTemplate
+
     # noinspection PyProtectedMember
     from officialeye._api.template.supervision_result import ISupervisionResult
+    from officialeye._internal.template.internal_template import InternalTemplate
 
 
 class ExternalTemplate(ITemplate, IApiInterfaceImplementation):

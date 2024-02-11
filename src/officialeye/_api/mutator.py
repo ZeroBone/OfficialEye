@@ -7,7 +7,6 @@ import numpy as np
 
 from officialeye._api.config import MutatorConfig
 
-
 if TYPE_CHECKING:
     from officialeye.types import ConfigDict
 

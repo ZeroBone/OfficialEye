@@ -4,12 +4,13 @@ import cv2
 import numpy as np
 
 # noinspection PyProtectedMember
-from officialeye._api.template.region import IRegion
-# noinspection PyProtectedMember
 from officialeye._api.template.feature import IFeature
+
 # noinspection PyProtectedMember
 from officialeye._api.template.keypoint import IKeypoint
 
+# noinspection PyProtectedMember
+from officialeye._api.template.region import IRegion
 
 _LABEL_COLOR_DEFAULT = (0, 0, 0xff)
 _VISUALIZATION_SCALE_COEFF = 1.0 / 1400.0

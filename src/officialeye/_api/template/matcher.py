@@ -3,8 +3,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Iterable
 
-from officialeye._api.template.keypoint import IKeypoint
 from officialeye._api.config import MatcherConfig
+from officialeye._api.template.keypoint import IKeypoint
 from officialeye._api.template.match import IMatch
 
 if TYPE_CHECKING:

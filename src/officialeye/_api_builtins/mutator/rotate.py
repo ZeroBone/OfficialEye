@@ -5,10 +5,9 @@ from typing import TYPE_CHECKING
 import cv2
 import numpy as np
 
-from officialeye.error.errors.template import ErrTemplateInvalidMutator
 # noinspection PyProtectedMember
 from officialeye._api.mutator import Mutator
-
+from officialeye.error.errors.template import ErrTemplateInvalidMutator
 
 if TYPE_CHECKING:
     from officialeye.types import ConfigDict

@@ -2,48 +2,51 @@ from __future__ import annotations
 
 import os
 import random
-from typing import Dict, List, TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Dict, Iterable, List
 
 import numpy as np
 
 # noinspection PyProtectedMember
 from officialeye._api.future import Future
-# noinspection PyProtectedMember
-from officialeye._api.template.match import IMatch
-# noinspection PyProtectedMember
-from officialeye._api.template.supervisor import ISupervisor
+
 # noinspection PyProtectedMember
 from officialeye._api.image import IImage
+
+# noinspection PyProtectedMember
+from officialeye._api.template.match import IMatch
+
+# noinspection PyProtectedMember
+from officialeye._api.template.supervisor import ISupervisor
+
 # noinspection PyProtectedMember
 from officialeye._api.template.template import ITemplate
+from officialeye._internal.context.singleton import get_internal_afi, get_internal_context
+
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
-from officialeye._internal.context.singleton import get_internal_context, get_internal_afi
-from officialeye._internal.template.image import InternalImage
-from officialeye._internal.template.internal_supervision_result import InternalSupervisionResult
-from officialeye._internal.template.utils import load_mutator_from_dict
-from officialeye._internal.timer import Timer
-from officialeye.error.errors.general import ErrOperationNotSupported, ErrInvalidIdentifier
-from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
-from officialeye.error.errors.template import (
-    ErrTemplateInvalidFeature,
-    ErrTemplateInvalidKeypoint
-)
-
-from officialeye._internal.template.internal_matching_result import InternalMatchingResult
 from officialeye._internal.template.feature_class.loader import load_template_feature_classes
 from officialeye._internal.template.feature_class.manager import FeatureClassManager
+from officialeye._internal.template.image import InternalImage
 from officialeye._internal.template.internal_feature import InternalFeature
+from officialeye._internal.template.internal_matching_result import InternalMatchingResult
+from officialeye._internal.template.internal_supervision_result import InternalSupervisionResult
 from officialeye._internal.template.keypoint import InternalKeypoint
+from officialeye._internal.template.utils import load_mutator_from_dict
+from officialeye._internal.timer import Timer
+from officialeye.error.errors.general import ErrInvalidIdentifier, ErrOperationNotSupported
+from officialeye.error.errors.supervision import ErrSupervisionCorrespondenceNotFound
+from officialeye.error.errors.template import ErrTemplateInvalidFeature, ErrTemplateInvalidKeypoint
 
 if TYPE_CHECKING:
-    from officialeye.types import ConfigDict
-    # noinspection PyProtectedMember
-    from officialeye._api.template.matcher import IMatcher
     # noinspection PyProtectedMember
     from officialeye._api.mutator import IMutator
+
+    # noinspection PyProtectedMember
+    from officialeye._api.template.matcher import IMatcher
+
     # noinspection PyProtectedMember
     from officialeye._api.template.supervision_result import ISupervisionResult
+    from officialeye.types import ConfigDict
 
 
 # TODO: refactor this into an enum

@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-from abc import abstractmethod, ABC
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 
 from officialeye._api.template.feature import IFeature
-
 
 if TYPE_CHECKING:
     from officialeye._api.template.template_interface import ITemplate

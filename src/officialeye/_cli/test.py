@@ -3,15 +3,19 @@ from typing import List
 import numpy as np
 
 # noinspection PyProtectedMember
-from officialeye._api.template.template_interface import ITemplate
-# noinspection PyProtectedMember
 from officialeye._api.detection import detect
+
 # noinspection PyProtectedMember
 from officialeye._api.image import Image
+
 # noinspection PyProtectedMember
 from officialeye._api.template.template import Template
+
+# noinspection PyProtectedMember
+from officialeye._api.template.template_interface import ITemplate
 from officialeye._cli.context import CLIContext
 from officialeye._cli.utils import visualize_feature
+
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 

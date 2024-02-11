@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Dict, List, Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, Iterable, List
 
 # noinspection PyProtectedMember
 from officialeye._api.template.match import IMatch
+
 # noinspection PyProtectedMember
 from officialeye._api.template.matching_result import IMatchingResult
-from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye._internal.context.singleton import get_internal_afi
+from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye.error.errors.matching import ErrMatchingMatchCountOutOfBounds
-
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember

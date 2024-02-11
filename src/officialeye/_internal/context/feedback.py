@@ -1,5 +1,6 @@
 import enum
 from concurrent.futures import Future
+
 # noinspection PyProtectedMember
 from multiprocessing.connection import Connection
 from types import TracebackType
@@ -7,6 +8,7 @@ from typing import Any
 
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
+
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 

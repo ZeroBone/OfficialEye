@@ -3,14 +3,14 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 # noinspection PyProtectedMember
-from officialeye._api.template.matcher import IMatcher
-# noinspection PyProtectedMember
 from officialeye._api.mutator import IMutator
+
+# noinspection PyProtectedMember
+from officialeye._api.template.matcher import IMatcher
 from officialeye._api_builtins.interpretation.file import FileInterpretation
 from officialeye._api_builtins.interpretation.file_temp import FileTempInterpretation
 from officialeye._api_builtins.interpretation.ocr_tesseract import TesseractInterpretation
 from officialeye._api_builtins.matcher.sift_flann import SiftFlannMatcher
-
 from officialeye._api_builtins.mutator.clahe import CLAHEMutator
 from officialeye._api_builtins.mutator.grayscale import GrayscaleMutator
 from officialeye._api_builtins.mutator.non_local_means_denoising import NonLocalMeansDenoisingMutator
@@ -19,13 +19,15 @@ from officialeye._api_builtins.supervisor.combinatorial import CombinatorialSupe
 from officialeye._api_builtins.supervisor.least_squares_regression import LeastSquaresRegressionSupervisor
 
 if TYPE_CHECKING:
-    from officialeye.types import ConfigDict
     # noinspection PyProtectedMember
     from officialeye._api.context import Context
+
     # noinspection PyProtectedMember
     from officialeye._api.template.interpretation import IInterpretation
+
     # noinspection PyProtectedMember
     from officialeye._api.template.supervisor import ISupervisor
+    from officialeye.types import ConfigDict
 
 
 """

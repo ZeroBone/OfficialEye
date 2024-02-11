@@ -4,9 +4,10 @@ from typing import TYPE_CHECKING
 
 import cv2
 
+from officialeye._internal.context.singleton import get_internal_context
+
 # noinspection PyProtectedMember
 from officialeye._internal.template.external_interpretation_result import ExternalInterpretationResult
-from officialeye._internal.context.singleton import get_internal_context
 from officialeye._internal.template.schema.loader import load_template
 
 if TYPE_CHECKING:

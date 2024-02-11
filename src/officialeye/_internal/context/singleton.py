@@ -1,5 +1,5 @@
-from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 from officialeye._internal.context.context import InternalContext
+from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 
 _internal_context: InternalContext = InternalContext()
 

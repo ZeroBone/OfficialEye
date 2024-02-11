@@ -12,15 +12,17 @@ from officialeye.error.errors.template import ErrTemplateIdNotUnique
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
-    from officialeye._api.template.interpretation import IInterpretation
-    # noinspection PyProtectedMember
-    from officialeye._api.template.supervisor import ISupervisor
-    # noinspection PyProtectedMember
-    from officialeye._api.template.matcher import IMatcher
     # noinspection PyProtectedMember
     from officialeye._api.mutator import IMutator
+    from officialeye._api.template.interpretation import IInterpretation
+
+    # noinspection PyProtectedMember
+    from officialeye._api.template.matcher import IMatcher
+
+    # noinspection PyProtectedMember
+    from officialeye._api.template.supervisor import ISupervisor
     from officialeye._internal.template.internal_template import InternalTemplate
-    from officialeye.types import ConfigDict, MutatorFactory, MatcherFactory, SupervisorFactory, InterpretationFactory
+    from officialeye.types import ConfigDict, InterpretationFactory, MatcherFactory, MutatorFactory, SupervisorFactory
 
 
 class InternalContext:

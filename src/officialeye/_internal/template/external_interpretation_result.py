@@ -1,17 +1,19 @@
 from __future__ import annotations
 
-from typing import Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 from officialeye import Context
-# noinspection PyProtectedMember
-from officialeye._api.template.interpretation_result import IInterpretationResult
+
 # noinspection PyProtectedMember
 from officialeye._api.template.feature import IFeature
+
+# noinspection PyProtectedMember
+from officialeye._api.template.interpretation_result import IInterpretationResult
+
 # noinspection PyProtectedMember
 from officialeye._api.template.template_interface import ITemplate
 from officialeye._internal.api_implementation import IApiInterfaceImplementation
 from officialeye._internal.template.external_template import ExternalTemplate
-
 
 if TYPE_CHECKING:
     from officialeye._internal.template.internal_template import InternalTemplate

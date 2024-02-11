@@ -5,9 +5,11 @@ from typing import TYPE_CHECKING, Dict
 import numpy as np
 
 # noinspection PyProtectedMember
-from officialeye._api.template.interpretation_result import IInterpretationResult
-# noinspection PyProtectedMember
 from officialeye._api.future import Future
+
+# noinspection PyProtectedMember
+from officialeye._api.template.interpretation_result import IInterpretationResult
+
 # noinspection PyProtectedMember
 from officialeye._api.template.supervision_result import ISupervisionResult
 from officialeye.error.errors.general import ErrOperationNotSupported
@@ -15,11 +17,13 @@ from officialeye.error.errors.general import ErrOperationNotSupported
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
     from officialeye._api.image import IImage
+
+    # noinspection PyProtectedMember
+    from officialeye._api.template.match import IMatch
+
     # noinspection PyProtectedMember
     from officialeye._api.template.supervision_result import SupervisionResult
     from officialeye._internal.template.internal_matching_result import InternalMatchingResult
-    # noinspection PyProtectedMember
-    from officialeye._api.template.match import IMatch
     from officialeye._internal.template.internal_template import InternalTemplate
 
 

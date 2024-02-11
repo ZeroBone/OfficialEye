@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Iterable, TYPE_CHECKING
+from typing import TYPE_CHECKING, Iterable
 
 from officialeye._api.template.match import IMatch
-
 
 if TYPE_CHECKING:
     from officialeye._api.template.template_interface import ITemplate

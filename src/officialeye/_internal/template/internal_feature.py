@@ -1,18 +1,18 @@
 from __future__ import annotations
 
-from typing import Dict, Union, TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING, Dict, Iterable, Union
 
 import numpy as np
 
 from officialeye import IMutator
+
 # noinspection PyProtectedMember
 from officialeye._api.template.feature import IFeature
 from officialeye._internal.context.singleton import get_internal_context
-from officialeye._internal.template.utils import load_mutator_from_dict
-from officialeye.error.errors.template import ErrTemplateInvalidFeature
-
 from officialeye._internal.template.feature_class.feature_class import FeatureClass
 from officialeye._internal.template.region import InternalRegion
+from officialeye._internal.template.utils import load_mutator_from_dict
+from officialeye.error.errors.template import ErrTemplateInvalidFeature
 
 if TYPE_CHECKING:
     from officialeye._internal.template.feature_class.manager import FeatureClassManager

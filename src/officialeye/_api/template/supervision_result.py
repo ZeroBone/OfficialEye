@@ -12,12 +12,11 @@ from officialeye._api.template.interpretation_result import IInterpretationResul
 from officialeye._api.template.match import IMatch
 from officialeye.error.errors.general import ErrObjectNotInitialized
 
-
 if TYPE_CHECKING:
-    from officialeye._api.image import IImage
     from officialeye._api.future import Future
-    from officialeye._api.template.template_interface import ITemplate
+    from officialeye._api.image import IImage
     from officialeye._api.template.matching_result import IMatchingResult
+    from officialeye._api.template.template_interface import ITemplate
 
 
 class ISupervisionResult(ABC):

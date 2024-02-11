@@ -6,11 +6,10 @@ from officialeye._internal.api_implementation import IApiInterfaceImplementation
 from officialeye._internal.template.external_template import ExternalTemplate
 from officialeye._internal.template.shared_matching_result import SharedMatchingResult
 
-
 if TYPE_CHECKING:
-    from officialeye._internal.template.internal_matching_result import InternalMatchingResult
     # noinspection PyProtectedMember
     from officialeye._api.context import Context
+    from officialeye._internal.template.internal_matching_result import InternalMatchingResult
 
 
 class ExternalMatchingResult(SharedMatchingResult, IApiInterfaceImplementation):

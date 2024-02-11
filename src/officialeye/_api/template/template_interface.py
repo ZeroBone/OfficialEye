@@ -1,11 +1,11 @@
-from abc import abstractmethod, ABC
-from typing import Iterable, Any
+from abc import ABC, abstractmethod
+from typing import Any, Iterable
 
 from officialeye._api.future import Future
-from officialeye._api.template.supervision_result import ISupervisionResult
-from officialeye._api.template.keypoint import IKeypoint
-from officialeye._api.template.feature import IFeature
 from officialeye._api.image import IImage
+from officialeye._api.template.feature import IFeature
+from officialeye._api.template.keypoint import IKeypoint
+from officialeye._api.template.supervision_result import ISupervisionResult
 
 
 class ITemplate(ABC):

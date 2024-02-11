@@ -1,12 +1,12 @@
 import strictyaml as yml
 
+from officialeye._internal.context.singleton import get_internal_afi, get_internal_context
+
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
-from officialeye._internal.context.singleton import get_internal_afi, get_internal_context
-from officialeye.error.errors.template import ErrTemplateInvalidSyntax
-
-from officialeye._internal.template.schema.schema import generate_template_schema
 from officialeye._internal.template.internal_template import InternalTemplate
+from officialeye._internal.template.schema.schema import generate_template_schema
+from officialeye.error.errors.template import ErrTemplateInvalidSyntax
 
 _oe_template_schema = generate_template_schema()
 
@@ -29,7 +29,7 @@ def _do_load_template(path: str, /) -> InternalTemplate:
     try:
         yaml_document = yml.load(raw_data, schema=_oe_template_schema)
     except yml.YAMLError as err:
-        raise _strict_yaml_error_to_syntax_error(err, path=path)
+        raise _strict_yaml_error_to_syntax_error(err, path=path) from err
 
     data = yaml_document.data
 

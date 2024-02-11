@@ -1,4 +1,4 @@
-from officialeye import Context, Template, Image, IImage, ISupervisionResult
+from officialeye import Context, IImage, Image, ISupervisionResult, Template
 from officialeye.detection import detect
 
 

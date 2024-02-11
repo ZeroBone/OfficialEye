@@ -124,7 +124,8 @@ select = [
 
 ignore = [
     "D417",
-    "SIM108" # Usage of ternary operators instead of if-then-else
+    "SIM108", # Usage of ternary operators instead of if-then-else
+    "SIM117" # Use a single `with` statement with multiple contexts instead of nested `with` statements
 ]
 
 [tool.ruff.lint.pydocstyle]

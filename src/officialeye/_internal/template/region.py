@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 from abc import ABC
-from typing import Dict, TYPE_CHECKING
-
-import numpy as np
+from typing import TYPE_CHECKING, Dict
 
 # noinspection PyProtectedMember
 from officialeye._api.template.region import IRegion
@@ -12,8 +10,8 @@ from officialeye._internal.context.singleton import get_internal_context
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
     from officialeye._api.template.template_interface import ITemplate
-    from officialeye._internal.template.internal_template import InternalTemplate
     from officialeye._internal.template.external_template import ExternalTemplate
+    from officialeye._internal.template.internal_template import InternalTemplate
 
 
 class SharedRegion(IRegion, ABC):

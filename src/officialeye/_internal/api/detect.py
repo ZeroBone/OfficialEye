@@ -8,7 +8,6 @@ import numpy as np
 from officialeye._internal.context.singleton import get_internal_context
 from officialeye._internal.template.schema.loader import load_template
 
-
 if TYPE_CHECKING:
     from officialeye._internal.template.external_supervision_result import ExternalSupervisionResult
     from officialeye._internal.template.internal_supervision_result import InternalSupervisionResult

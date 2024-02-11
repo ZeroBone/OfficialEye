@@ -1,25 +1,30 @@
 from __future__ import annotations
 
-from typing import Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 import numpy as np
 
 # noinspection PyProtectedMember
-from officialeye._api.image import Image
+from officialeye._api.context import Context
+
 # noinspection PyProtectedMember
 from officialeye._api.future import Future
+
 # noinspection PyProtectedMember
-from officialeye._api.context import Context
-# noinspection PyProtectedMember
-from officialeye._internal.template.external_interpretation_result import ExternalInterpretationResult
+from officialeye._api.image import Image
+
 # noinspection PyProtectedMember
 from officialeye._api.template.match import IMatch
+
 # noinspection PyProtectedMember
 from officialeye._api.template.supervision_result import ISupervisionResult
 from officialeye._internal.api.interpret import template_interpret
 from officialeye._internal.api_implementation import IApiInterfaceImplementation
-from officialeye._internal.template.external_template import ExternalTemplate
+
+# noinspection PyProtectedMember
+from officialeye._internal.template.external_interpretation_result import ExternalInterpretationResult
 from officialeye._internal.template.external_matching_result import ExternalMatchingResult
+from officialeye._internal.template.external_template import ExternalTemplate
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember

@@ -1,7 +1,7 @@
 import os
 import random
-from types import TracebackType
 from tempfile import NamedTemporaryFile
+from types import TracebackType
 from typing import List
 
 import click
@@ -9,10 +9,9 @@ import cv2
 import numpy as np
 from rich.prompt import Confirm
 
-from officialeye.__version__ import __ascii_logo__
-
 from officialeye import Context
-from officialeye._cli.ui import Verbosity, TerminalUI
+from officialeye.__version__ import __ascii_logo__
+from officialeye._cli.ui import TerminalUI, Verbosity
 
 
 class CLIContext:
@@ -64,22 +63,20 @@ class CLIContext:
 
         self._assert_entered()
 
-        if len(self._not_deleted_temporary_files) > 0:
-
-            if self.verbosity == Verbosity.QUIET or Confirm.ask(
+        if len(self._not_deleted_temporary_files) > 0 and (self.verbosity == Verbosity.QUIET or Confirm.ask(
                 ":question: Should temporary files created above be cleaned up now?",
                 default=True, console=self._ui.get_console()
-            ):
+            )
+        ):
+            files_removed = 0
 
-                files_removed = 0
+            # cleanup temporary files
+            for temp_file_path in self._not_deleted_temporary_files:
+                if os.path.isfile(temp_file_path):
+                    os.unlink(temp_file_path)
+                    files_removed += 1
 
-                # cleanup temporary files
-                for temp_file_path in self._not_deleted_temporary_files:
-                    if os.path.isfile(temp_file_path):
-                        os.unlink(temp_file_path)
-                        files_removed += 1
-
-                self._ui.info(Verbosity.INFO, f"Successfully removed {files_removed} temporary file(s).")
+            self._ui.info(Verbosity.INFO, f"Successfully removed {files_removed} temporary file(s).")
 
         # reset fields related to file exporting
         self._export_counter = 1

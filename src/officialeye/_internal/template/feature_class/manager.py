@@ -2,9 +2,9 @@ from typing import Dict
 
 from officialeye._internal.context.singleton import get_internal_context
 from officialeye._internal.diffobject.exception import DiffObjectException
-from officialeye.error.errors.template import ErrTemplateInvalidFeatureClass
 from officialeye._internal.template.feature_class.const import IMPLICIT_FEATURE_CLASS_BASE_INSTANCE_ID
 from officialeye._internal.template.feature_class.feature_class import FeatureClass
+from officialeye.error.errors.template import ErrTemplateInvalidFeatureClass
 
 
 class FeatureClassManager:

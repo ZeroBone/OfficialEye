@@ -7,7 +7,6 @@ import numpy as np
 
 from officialeye._api.template.keypoint import IKeypoint
 
-
 if TYPE_CHECKING:
     from officialeye._api.template.template import ITemplate
 

@@ -9,7 +9,6 @@ import numpy as np
 # noinspection PyProtectedMember
 from officialeye._api.template.interpretation import Interpretation
 
-
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
     from officialeye._api.template.feature import IFeature

@@ -4,25 +4,28 @@ Module represeting the OfficialEye context.
 
 from __future__ import annotations
 
-from concurrent.futures import ProcessPoolExecutor, Future as PythonFuture
+from concurrent.futures import Future as PythonFuture
+from concurrent.futures import ProcessPoolExecutor
 from types import TracebackType
-from typing import Dict, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict
 
 from officialeye._api.future import Future
 from officialeye._api.mutator import IMutator
+
 # noinspection PyProtectedMember
 from officialeye._api_builtins.init import initialize_builtins
+
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
+
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.dummy import DummyFeedbackInterface
 from officialeye.error.errors.general import ErrInvalidIdentifier
-
 from officialeye.error.errors.internal import ErrInvalidState
 from officialeye.error.errors.template import ErrTemplateInvalidMutator
 
 if TYPE_CHECKING:
-    from officialeye.types import ConfigDict, MutatorFactory, MatcherFactory, SupervisorFactory, InterpretationFactory
+    from officialeye.types import ConfigDict, InterpretationFactory, MatcherFactory, MutatorFactory, SupervisorFactory
 
 
 class Context:

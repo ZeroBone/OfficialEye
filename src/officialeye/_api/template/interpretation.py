@@ -5,9 +5,8 @@ from typing import TYPE_CHECKING
 
 import numpy as np
 
-from officialeye._api.template.feature import IFeature
 from officialeye._api.config import InterpretationConfig
-
+from officialeye._api.template.feature import IFeature
 
 if TYPE_CHECKING:
     from officialeye.types import ConfigDict, FeatureInterpretation

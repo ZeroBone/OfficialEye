@@ -5,16 +5,18 @@ from typing import TYPE_CHECKING, Iterable
 
 from officialeye._api.image import IImage
 from officialeye._api.template.template_interface import ITemplate
+
 # noinspection PyProtectedMember
 from officialeye._internal.api.load import template_load
+
 # noinspection PyProtectedMember
 from officialeye._internal.template.external_template import ExternalTemplate
 
 if TYPE_CHECKING:
-    from officialeye._api.template.supervision_result import ISupervisionResult
     from officialeye._api.context import Context
     from officialeye._api.template.feature import IFeature
     from officialeye._api.template.keypoint import IKeypoint
+    from officialeye._api.template.supervision_result import ISupervisionResult
 
 
 class Template(ITemplate):

@@ -1,5 +1,4 @@
 import pytest
-
 from officialeye import Context, Template
 from officialeye.error.errors.internal import ErrInvalidState
 

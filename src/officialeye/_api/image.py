@@ -2,17 +2,16 @@ from __future__ import annotations
 
 import os
 from abc import ABC, abstractmethod
-from typing import List, TYPE_CHECKING
+from typing import TYPE_CHECKING, List
 
 import cv2
 import numpy as np
 
 from officialeye.error.errors.io import ErrIOInvalidPath
 
-
 if TYPE_CHECKING:
-    from officialeye._api.mutator import IMutator
     from officialeye._api.context import Context
+    from officialeye._api.mutator import IMutator
 
 
 class IImage(ABC):
@@ -43,13 +42,13 @@ class Image(IImage):
         if not os.path.isfile(self._path):
             raise ErrIOInvalidPath(
                 f"while loading image located at '{self._path}'.",
-                f"This path does not refer to a file."
+                "This path does not refer to a file."
             )
 
         if not os.access(self._path, os.R_OK):
             raise ErrIOInvalidPath(
                 f"while loading image located at '{self._path}'.",
-                f"The file at this path is not readable."
+                "The file at this path is not readable."
             )
 
         img = cv2.imread(self._path, cv2.IMREAD_COLOR)

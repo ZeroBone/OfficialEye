@@ -1,27 +1,32 @@
 from __future__ import annotations
 
 import random
-from typing import Dict, TYPE_CHECKING, Iterable, List
+from typing import TYPE_CHECKING, Dict, Iterable, List
 
 import numpy as np
 import z3
 
 # noinspection PyProtectedMember
-from officialeye._api.template.template_interface import ITemplate
-# noinspection PyProtectedMember
 from officialeye._api.template.match import IMatch
+
 # noinspection PyProtectedMember
 from officialeye._api.template.matching_result import IMatchingResult
-# noinspection PyProtectedMember
-from officialeye._api.template.supervisor import Supervisor
+
 # noinspection PyProtectedMember
 from officialeye._api.template.supervision_result import SupervisionResult
+
+# noinspection PyProtectedMember
+from officialeye._api.template.supervisor import Supervisor
+
+# noinspection PyProtectedMember
+from officialeye._api.template.template_interface import ITemplate
+
 # noinspection PyProtectedMember
 from officialeye._internal.context.singleton import get_internal_afi
+
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye.error.errors.supervision import ErrSupervisionInvalidEngineConfig
-
 
 if TYPE_CHECKING:
     from officialeye.types import ConfigDict

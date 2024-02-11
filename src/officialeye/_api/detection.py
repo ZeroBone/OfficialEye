@@ -3,10 +3,12 @@ from __future__ import annotations
 from concurrent.futures import ALL_COMPLETED
 from typing import TYPE_CHECKING, List
 
-from officialeye._api.future import wait, Future
+from officialeye._api.future import Future, wait
 from officialeye._api.template.supervision_result import ISupervisionResult
+
 # noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
+
 # noinspection PyProtectedMember
 from officialeye._internal.template.external_supervision_result import ExternalSupervisionResult
 from officialeye.error.error import OEError
@@ -55,7 +57,7 @@ def detect(context: Context, *templates: ITemplate, target: IImage) -> ISupervis
 
             if not isinstance(error, OEError):
                 err = ErrInternal(
-                    f"while analyzing target image against multiple templates.",
+                    "while analyzing target image against multiple templates.",
                     "One of the individual analysis workers has crashed due to an external error."
                 )
                 err.add_external_cause(error)

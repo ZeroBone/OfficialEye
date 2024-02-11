@@ -3,28 +3,30 @@ from __future__ import annotations
 from concurrent.futures import Future
 from contextlib import contextmanager
 from multiprocessing import Pipe
+
 # noinspection PyProtectedMember
 from multiprocessing.connection import Connection, wait
-from threading import Thread, Lock
+from threading import Lock, Thread
 from types import TracebackType
-from typing import Any, Dict, Tuple, List, Set
+from typing import Any, Dict, List, Set, Tuple
 
 from rich.console import Console, ConsoleRenderable
 from rich.panel import Panel
+from rich.progress import Progress, SpinnerColumn, TaskID, TextColumn
 from rich.theme import Theme
-from rich.progress import Progress, SpinnerColumn, TextColumn, TaskID
 from rich.traceback import Traceback
 
 # noinspection PyProtectedMember
 from officialeye._internal.context.feedback import InternalFeedbackInterface, IPCMessageType
+
+# noinspection PyProtectedMember
+from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
+
+# noinspection PyProtectedMember
+from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye.error.error import OEError
 from officialeye.error.errors.general import ErrOperationNotSupported
 from officialeye.error.errors.internal import ErrInternal
-# noinspection PyProtectedMember
-from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
-# noinspection PyProtectedMember
-from officialeye._internal.feedback.verbosity import Verbosity
-
 
 _THEME_TAG_INFO = "info"
 _THEME_TAG_INFO_VERBOSE = "infov"
@@ -186,7 +188,7 @@ class _ChildrenListener:
             elif message_type == IPCMessageType.TASK_DONE:
                 is_task_done = True
             else:
-                assert False, "Unknown IPC message type received by parent process."
+                raise AssertionError("Unknown IPC message type received by parent process.")
 
         if is_task_done:
 

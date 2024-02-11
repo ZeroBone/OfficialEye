@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-from typing import Dict, List, TYPE_CHECKING
+from typing import TYPE_CHECKING, Dict, List
 
 # noinspection PyProtectedMember
 from officialeye._api.template.match import IMatch
 from officialeye._internal.context.singleton import get_internal_context
 from officialeye._internal.template.shared_matching_result import SharedMatchingResult
-
 
 if TYPE_CHECKING:
     from officialeye._internal.template.internal_template import InternalTemplate
