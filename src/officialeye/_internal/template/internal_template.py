@@ -198,7 +198,10 @@ class InternalTemplate(ITemplate):
 
     def get_matcher(self, /) -> IMatcher:
         matcher_id = self._matching["engine"]
-        matcher_config = self._matching["config"]
+
+        matcher_configs: dict = self._matching["config"]
+        matcher_config: ConfigDict = matcher_configs[matcher_id] if matcher_id in matcher_configs else {}
+
         return get_internal_context().get_matcher(matcher_id, matcher_config)
 
     def get_supervisor(self, /) -> ISupervisor:

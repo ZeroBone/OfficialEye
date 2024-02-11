@@ -57,6 +57,8 @@ def do_test(context: CLIContext, /, *,
     for feature in result.template.features:
         feature_image_mat = result.warp_feature(feature, target_image_mat)
 
+        assert feature_image_mat.shape == (feature.h, feature.w, 3)
+
         feature_image_mutated_mat = feature.apply_mutators_to_image(feature_image_mat)
 
         if feature_image_mat.shape == feature_image_mutated_mat.shape:

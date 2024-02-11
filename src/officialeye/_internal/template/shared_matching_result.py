@@ -90,7 +90,7 @@ class SharedMatchingResult(IMatchingResult, ABC):
                     f"Keypoint '{keypoint_id}' of template '{self.template.identifier}' has too many matches "
                     f"(matches: {keypoint_matches_count} max: {keypoint_matches_max}). Cherry-picking the best matches.")
                 # cherry-pick the best matches
-                self._matches_dict[keypoint_id] = sorted(self._matches_dict[keypoint_id])[:keypoint_matches_max]
+                self._matches_dict[keypoint_id] = sorted(self._matches_dict[keypoint_id])[-keypoint_matches_max:]
                 keypoint_matches_count = keypoint_matches_max
 
             get_internal_afi().info(

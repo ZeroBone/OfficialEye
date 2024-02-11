@@ -25,6 +25,7 @@ _FLANN_INDEX_KDTREE = 1
 
 
 def _preprocess_sensitivity(value: str, /) -> float:
+
     value = float(value)
 
     if value < 0.0:
@@ -116,7 +117,13 @@ class SiftFlannMatcher(Matcher):
             pattern_point = np.array(pattern_point, dtype=int)
             target_point = np.array(target_point, dtype=int)
 
-            match = Match(self._template, keypoint, region_point=pattern_point, target_point=target_point)
+            match = Match(
+                self._template,
+                keypoint,
+                keypoint_point=pattern_point,
+                target_point=target_point
+            )
+
             match.set_score(self._sensitivity * n.distance - m.distance)
 
             result.append(match)

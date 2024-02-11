@@ -39,8 +39,8 @@ _THEME_TAG_ERR = "err"
 _THEME: Dict[str, str] = {
     _THEME_TAG_INFO: "bold green",
     _THEME_TAG_INFO_VERBOSE: "bold cyan",
-    _THEME_TAG_DEBUG: "bold purple",
-    _THEME_TAG_DEBUG_VERBOSE: "bold magenta",
+    _THEME_TAG_DEBUG: "bold blue",
+    _THEME_TAG_DEBUG_VERBOSE: "bold purple",
     _THEME_TAG_WARN: "bold yellow",
     _THEME_TAG_ERR: "bold red"
 }

@@ -8,7 +8,7 @@
 * Reimplemented the CLI as a layer on top of the new API. Thus, the API and the internal implementation no longer contain any code that is specific to the CLI user interface. In particular, it is now easy to implement different frontends that rely on OfficialEye as a backend service.
 * Implemented a framework for transparent and process-safe interaction with the API backend.
 * Switched from thread-based to process-based parallelism for resource-intensive backend operations.
-* Substrantially improved the CLI user interface.
+* Substantially improved the CLI user interface.
 * Numerous other related architecture changes aimed at the long-term stability of the software.
 * Integrated a new error handling system and related debugging facilitibes.
 * Removed the (legacy) orthogonal regression supervision engine.

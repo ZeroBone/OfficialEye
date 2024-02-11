@@ -118,7 +118,7 @@ class CombinatorialSupervisor(Supervisor):
 
         for match in matching_result.get_all_matches():
             self._match_weight[match] = z3.Real(
-                f"w_{match.template_point[0]}_{match.template_point[1]}_{match.target_point[0]}_{match.target_point[1]}",
+                f"w_{match.keypoint_point[0]}_{match.keypoint_point[1]}_{match.target_point[0]}_{match.target_point[1]}",
                 ctx=self._z3_context
             )
 
@@ -129,8 +129,7 @@ class CombinatorialSupervisor(Supervisor):
         """
         Generates a z3 formula asserting the consistency of the match with the affine linear transformation model.
         Consistency does not mean ideal matching of coordinates; rather, the template position with the affine
-        transformation applied to it, must roughly be equal the target position for consistency to hold
-        In other words, targetpoint = M * (templatepoint - offset), where offset is a vector and M is a 2x2 matrix
+        transformation applied to it, must roughly be equal the target position for consistency to hold.
         """
 
         template_point = match.get_original_template_point()

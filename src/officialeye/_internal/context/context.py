@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Dict
 
 from officialeye._internal.feedback.abstract import AbstractFeedbackInterface
 from officialeye._internal.feedback.dummy import DummyFeedbackInterface
+from officialeye._internal.feedback.verbosity import Verbosity
 from officialeye.error.error import OEError
 from officialeye.error.errors.general import ErrInvalidKey
 from officialeye.error.errors.template import ErrTemplateIdNotUnique
@@ -74,6 +75,7 @@ class InternalContext:
     def get_mutator(self, mutator_id: str, mutator_config: ConfigDict, /) -> IMutator:
 
         # TODO: (low priority) consider caching mutators that have the same id and configuration
+        self._afi.info(Verbosity.DEBUG_VERBOSE, f"Loading mutator '{mutator_id}' with configuration {mutator_config}.")
 
         if mutator_id not in self._mutator_factories:
             raise ErrInvalidKey(
@@ -86,6 +88,7 @@ class InternalContext:
     def get_matcher(self, matcher_id: str, matcher_config: ConfigDict, /) -> IMatcher:
 
         # TODO: (low priority) consider caching matchers that have the same id and configuration
+        self._afi.info(Verbosity.DEBUG_VERBOSE, f"Loading matcher '{matcher_id}' with configuration {matcher_config}.")
 
         if matcher_id not in self._matcher_factories:
             raise ErrInvalidKey(
@@ -98,6 +101,7 @@ class InternalContext:
     def get_supervisor(self, supervisor_id: str, supervisor_config: ConfigDict, /) -> ISupervisor:
 
         # TODO: (low priority) consider caching supervisors that have the same id and configuration
+        self._afi.info(Verbosity.DEBUG_VERBOSE, f"Loading supervisor '{supervisor_id}' with configuration {supervisor_config}.")
 
         if supervisor_id not in self._supervisor_factories:
             raise ErrInvalidKey(
@@ -110,6 +114,7 @@ class InternalContext:
     def get_interpretation(self, interpretation_id: str, interpretation_config: ConfigDict, /) -> IInterpretation:
 
         # TODO: (low priority) consider caching interpretations that have the same id and configuration
+        self._afi.info(Verbosity.DEBUG_VERBOSE, f"Loading interpretation '{interpretation_id}' with configuration {interpretation_config}.")
 
         if interpretation_id not in self._interpretation_factories:
             raise ErrInvalidKey(
