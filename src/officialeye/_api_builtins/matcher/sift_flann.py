@@ -108,7 +108,6 @@ class SiftFlannMatcher(Matcher):
             pattern_point = keypoints_pattern[m.queryIdx].pt
             target_point = self._keypoints_target[m.trainIdx].pt
 
-            # TODO: maybe one should consider rounding values here, instead of simply stripping the floating-point part
             pattern_point_vec = np.array(pattern_point, dtype=int)
             target_point_vec = np.array(target_point, dtype=int)
 

@@ -2,7 +2,9 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, List
 
+from rich.console import Group
 from rich.json import JSON
+from rich.panel import Panel
 from rich.table import Table
 
 # noinspection PyProtectedMember
@@ -41,7 +43,7 @@ def do_run(context: CLIContext, /, *, target_path: str, template_paths: List[str
 
     interpretation_result = result.interpret(target=interpretation_target_image)
 
-    table = Table()
+    table = Table(title="Feature interpretations")
 
     table.add_column("Feature", justify="right")
     table.add_column("Interpretation", justify="left")
@@ -53,4 +55,15 @@ def do_run(context: CLIContext, /, *, target_path: str, template_paths: List[str
 
         table.add_row(feature.identifier, interpretation_visualization)
 
-    context.get_terminal_ui().echo(Verbosity.INFO, table)
+    context.get_terminal_ui().echo(
+        Verbosity.INFO,
+        Panel(
+            Group(
+                f"Detected template '{result.template.identifier}' ({result.template.name}).",
+                table
+            ),
+            expand=False,
+            title="Result",
+            border_style="turquoise2"
+        )
+    )

@@ -1,6 +1,7 @@
 from typing import List
 
 import numpy as np
+from rich.panel import Panel
 
 # noinspection PyProtectedMember
 from officialeye._api.detection import detect
@@ -50,6 +51,16 @@ def do_test(context: CLIContext, /, *,
     templates = [Template(api_context, path=template_path) for template_path in template_paths]
 
     result = detect(api_context, *templates, target=target_image)
+
+    context.get_terminal_ui().echo(
+        Verbosity.INFO,
+        Panel(
+            f"Detected template '{result.template.identifier}' ({result.template.name}).",
+            expand=False,
+            title="Result",
+            border_style="turquoise2"
+        )
+    )
 
     visualization = _get_background(context, result.template)
     target_image_mat = target_image.load()
