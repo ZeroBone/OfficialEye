@@ -41,7 +41,7 @@ class LeastSquaresRegressionSupervisor(Supervisor):
 
         for anchor_match in matching_result.get_all_matches():
 
-            delta = anchor_match.get_original_template_point()
+            delta = anchor_match.template_point
             delta_prime = anchor_match.target_point
 
             matrix = np.zeros((match_count << 1, 4), dtype=np.float64)
@@ -51,7 +51,7 @@ class LeastSquaresRegressionSupervisor(Supervisor):
                 first_constraint_id = i << 1
                 second_constraint_id = first_constraint_id + 1
 
-                s = match.get_original_template_point()
+                s = match.template_point
                 d = match.target_point
 
                 matrix[first_constraint_id][_IND_A] = s[0] - delta[0]

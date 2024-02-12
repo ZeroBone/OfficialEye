@@ -22,11 +22,6 @@ def template_detect(template_path: str, /, *, target_path: str, **kwargs) -> Ext
 
         target: np.ndarray = cv2.imread(target_path, cv2.IMREAD_COLOR)
 
-        # TODO: move the following to a separate internal api method
-        """
-        
-        """
-
         internal_supervision_result: InternalSupervisionResult = template.do_detect(target)
 
         return ExternalSupervisionResult(internal_supervision_result)

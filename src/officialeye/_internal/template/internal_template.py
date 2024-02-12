@@ -358,6 +358,12 @@ class InternalTemplate(ITemplate):
             f"and {_timer.get_cpu_time():.2f} seconds of CPU time."
         )
 
+        get_internal_afi().info(
+            Verbosity.DEBUG_VERBOSE,
+            f"Supervision result: Delta = {supervision_result.delta} Delta' = {supervision_result.delta_prime} "
+            f"M = {supervision_result.transformation_matrix}"
+        )
+
         if supervision_result is None:
             raise ErrSupervisionCorrespondenceNotFound(
                 "while processing a supervision result.",

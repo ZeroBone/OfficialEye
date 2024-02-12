@@ -132,13 +132,11 @@ class CombinatorialSupervisor(Supervisor):
         transformation applied to it, must roughly be equal the target position for consistency to hold.
         """
 
-        template_point = match.get_original_template_point()
-
         assert delta.shape == (2,)
         assert delta_prime.shape == (2,)
-        assert template_point.shape == (2,)
+        assert match.template_point.shape == (2,)
 
-        translated_template_point = self._transformation_matrix @ (template_point - delta) + delta_prime
+        translated_template_point = self._transformation_matrix @ (match.template_point - delta) + delta_prime
         translated_template_point_x, translated_template_point_y = translated_template_point
 
         target_point_x, target_point_y = match.target_point
@@ -175,7 +173,7 @@ class CombinatorialSupervisor(Supervisor):
             # TODO: think whether this is a good algorithm design decision, and improve it if not
             anchor_match: IMatch = random.choice(keypoint_matches)
 
-            delta = anchor_match.get_original_template_point()
+            delta = anchor_match.template_point
             delta_prime = anchor_match.target_point
 
             solver.push()

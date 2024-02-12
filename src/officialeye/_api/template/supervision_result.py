@@ -85,7 +85,7 @@ class ISupervisionResult(ABC):
 
             singificant_match_count += 1
 
-            s = match.get_original_template_point()
+            s = match.template_point
 
             # calculate prediction
             p = self.translate(s)

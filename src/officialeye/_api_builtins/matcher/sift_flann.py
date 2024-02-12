@@ -114,19 +114,38 @@ class SiftFlannMatcher(Matcher):
             target_point = self._keypoints_target[m.trainIdx].pt
 
             # maybe one should consider rounding values here, instead of simply stripping the floating-point part
-            pattern_point = np.array(pattern_point, dtype=int)
-            target_point = np.array(target_point, dtype=int)
+            pattern_point_vec = np.array(pattern_point, dtype=int)
+            target_point_vec = np.array(target_point, dtype=int)
 
             match = Match(
                 self._template,
                 keypoint,
-                keypoint_point=pattern_point,
-                target_point=target_point
+                keypoint_point=pattern_point_vec,
+                target_point=target_point_vec
             )
 
             match.set_score(self._sensitivity * n.distance - m.distance)
 
             result.append(match)
+
+        # TODO: visualization generation
+        """
+        # noinspection PyTypeChecker
+        debug_image = cv2.drawMatchesKnn(
+            pattern,
+            keypoints_pattern,
+            self._img,
+            self._keypoints_target,
+            matches,
+            None,
+            matchColor=(0, 0xff, 0),
+            singlePointColor=(0xff, 0, 0),
+            matchesMask=matches_mask,
+            flags=cv2.DrawMatchesFlags_DEFAULT
+        )
+
+        cv2.imwrite(f"test_{keypoint.identifier}.png", debug_image)
+        """
 
         assert keypoint not in self._matches
         self._matches[keypoint] = result

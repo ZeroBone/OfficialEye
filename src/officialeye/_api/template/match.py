@@ -37,7 +37,8 @@ class IMatch(ABC):
     def get_score(self) -> float:
         raise NotImplementedError()
 
-    def get_original_template_point(self) -> np.ndarray:
+    @property
+    def template_point(self) -> np.ndarray:
         """Returns the coordinates of the point lying in the keypoint, in the coordinate system of the underlying template."""
         return self.keypoint_point + self.keypoint.top_left
 

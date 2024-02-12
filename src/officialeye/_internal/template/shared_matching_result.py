@@ -92,12 +92,12 @@ class SharedMatchingResult(IMatchingResult, ABC):
                 # cherry-pick the best matches
                 self._matches_dict[keypoint_id] = sorted(self._matches_dict[keypoint_id])[-keypoint_matches_max:]
                 keypoint_matches_count = keypoint_matches_max
-
-            get_internal_afi().info(
-                Verbosity.INFO_VERBOSE,
-                f"Keypoint '{keypoint_id}' of template '{self.template.identifier}' has been matched {keypoint_matches_count} times "
-                f"(min: {keypoint_matches_min} max: {keypoint_matches_max})."
-            )
+            else:
+                get_internal_afi().info(
+                    Verbosity.INFO_VERBOSE,
+                    f"Keypoint '{keypoint_id}' of template '{self.template.identifier}' has been matched {keypoint_matches_count} times "
+                    f"(min: {keypoint_matches_min} max: {keypoint_matches_max})."
+                )
 
             total_match_count += keypoint_matches_count
 
@@ -106,4 +106,9 @@ class SharedMatchingResult(IMatchingResult, ABC):
             raise ErrMatchingMatchCountOutOfBounds(
                 f"while checking that there has been at least one match for template '{self.template.identifier}'.",
                 "There have been no matches."
+            )
+        elif total_match_count < 3:
+            raise ErrMatchingMatchCountOutOfBounds(
+                f"while checking that there has been at least three matches for template '{self.template.identifier}'.",
+                "There have been less than three matches."
             )
