@@ -209,6 +209,12 @@ class CombinatorialSupervisor(Supervisor):
             # extract transformation matrix from model
             transformation_matrix = model_evaluator(self._transformation_matrix)
 
+            """
+            delta = np.array([1217, 109], dtype=int)
+            delta_prime = np.array([785, 374], dtype=int)
+            transformation_matrix = np.array([[0.57689122, 0.01245905], [-0.0564908, 0.59782386]], dtype=float)
+            """
+
             _result = SupervisionResult(
                 delta=delta,
                 delta_prime=delta_prime,

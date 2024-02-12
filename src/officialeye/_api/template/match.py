@@ -44,7 +44,7 @@ class IMatch(ABC):
 
     def __str__(self) -> str:
         return (f"Point ({self.target_point[0]}, {self.target_point[1]}) matches ({self.keypoint_point[0]}, {self.keypoint_point[1]}) "
-                f"in {self.keypoint} of {self.template}.")
+                f"in '{self.keypoint}' of '{self.template.identifier}'.")
 
     def __eq__(self, o: Any) -> bool:
 

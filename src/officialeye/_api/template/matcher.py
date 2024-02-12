@@ -3,6 +3,8 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Iterable
 
+import numpy as np
+
 from officialeye._api.config import MatcherConfig
 from officialeye._api.template.keypoint import IKeypoint
 from officialeye._api.template.match import IMatch
@@ -20,7 +22,7 @@ class IMatcher(ABC):
         raise NotImplementedError()
 
     @abstractmethod
-    def setup(self, template: ITemplate, /) -> None:
+    def setup(self, target: np.ndarray, template: ITemplate, /) -> None:
         raise NotImplementedError()
 
     @abstractmethod

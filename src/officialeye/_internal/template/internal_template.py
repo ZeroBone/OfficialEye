@@ -312,6 +312,9 @@ class InternalTemplate(ITemplate):
     def do_detect(self, target: np.ndarray, /) -> InternalSupervisionResult:
         # find all patterns in the target image
 
+        # prepare target image
+        get_internal_afi().update_status("Preparing target image...")
+
         # apply mutators to the target image
         for mutator in self._target_mutators:
             target = mutator.mutate(target)
@@ -323,7 +326,7 @@ class InternalTemplate(ITemplate):
         with _timer:
             # start matching
             matcher: IMatcher = self.get_matcher()
-            matcher.setup(self)
+            matcher.setup(target, self)
 
             for keypoint in self.keypoints:
                 get_internal_afi().info(Verbosity.DEBUG, f"Running matcher '{matcher}' for keypoint '{keypoint.identifier}'.")
@@ -358,17 +361,17 @@ class InternalTemplate(ITemplate):
             f"and {_timer.get_cpu_time():.2f} seconds of CPU time."
         )
 
-        get_internal_afi().info(
-            Verbosity.DEBUG_VERBOSE,
-            f"Supervision result: Delta = {supervision_result.delta} Delta' = {supervision_result.delta_prime} "
-            f"M = {supervision_result.transformation_matrix}"
-        )
-
         if supervision_result is None:
             raise ErrSupervisionCorrespondenceNotFound(
                 "while processing a supervision result.",
                 f"Could not establish correspondence of the image with the '{self.identifier}' template."
             )
+
+        get_internal_afi().info(
+            Verbosity.DEBUG_VERBOSE,
+            f"Supervision result: Delta = {supervision_result.delta} Delta' = {supervision_result.delta_prime} "
+            f"M = {supervision_result.transformation_matrix}"
+        )
 
         # TODO: visualizations
         """

@@ -21,9 +21,6 @@ if TYPE_CHECKING:
     from officialeye.types import ConfigDict
 
 
-_FLANN_INDEX_KDTREE = 1
-
-
 def _preprocess_sensitivity(value: str, /) -> float:
 
     value = float(value)
@@ -60,11 +57,9 @@ class SiftFlannMatcher(Matcher):
         self._template: ITemplate | None = None
         self._matches: Dict[IKeypoint, List[Match]] | None = {}
 
-    def setup(self, template: ITemplate, /) -> None:
+    def setup(self, target: np.ndarray, template: ITemplate, /) -> None:
 
-        assert template is not None
-
-        self._img = template.get_mutated_image().load()
+        self._img = cv2.cvtColor(target, cv2.COLOR_BGR2GRAY)
 
         # initialize the SIFT engine in CV2
         # noinspection PyUnresolvedReferences
@@ -86,7 +81,7 @@ class SiftFlannMatcher(Matcher):
         keypoints_pattern, destination_pattern = self._sift.detectAndCompute(pattern, None)
 
         index_params = {
-            "algorithm": _FLANN_INDEX_KDTREE,
+            "algorithm": 1,
             "trees": 5
         }
 
@@ -113,7 +108,7 @@ class SiftFlannMatcher(Matcher):
             pattern_point = keypoints_pattern[m.queryIdx].pt
             target_point = self._keypoints_target[m.trainIdx].pt
 
-            # maybe one should consider rounding values here, instead of simply stripping the floating-point part
+            # TODO: maybe one should consider rounding values here, instead of simply stripping the floating-point part
             pattern_point_vec = np.array(pattern_point, dtype=int)
             target_point_vec = np.array(target_point, dtype=int)
 
