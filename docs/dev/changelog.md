@@ -1,5 +1,12 @@
 # Changelog
 
+## Release 1.2.1
+
+* Bug fixes & minor improvements.
+* Minor API refinement.
+
+[View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.2.1){ .md-button }
+
 ## Release 1.2.0 (beta)
 
 ### Major changes

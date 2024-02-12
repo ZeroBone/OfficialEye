@@ -1,6 +1,6 @@
 [project]
 name = "officialeye"
-version = "1.2.0"
+version = "1.2.1"
 description = "AI-powered generic document-analysis tool"
 authors = [
     {name = "Alexander Mayorov", email = "zb@zerobone.net"},
@@ -19,7 +19,7 @@ requires-python = ">=3.10"
 readme = "README.md"
 license = { file = "LICENSE" }
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering :: Image Recognition",
     "Topic :: Scientific/Engineering :: Image Processing",
