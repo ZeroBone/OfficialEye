@@ -104,15 +104,12 @@ def _child_listener(listener: _ChildrenListener, /):
                 known_children.add(child_id)
 
             connections = [
-                listener.children[child_id].connection for child_id in listener.children
+                listener.child_listener_thread_rx,
+                *(listener.children[child_id].connection for child_id in listener.children)
             ]
 
             assert len(connections) >= 1
 
-        # TODO: consider introducing a mechanism allowing one to let the child listener thread know about the change in the children dictionary
-        # TODO: this will improve performance, because there will be no need to wait for the timeout to expire
-        # TODO: this idea can be implemented, for example, by introducing a new dummy connection designed only to communicate 'refresh' messages
-        # TODO: with the child listener thread
         wait(connections, timeout=1.0)
 
         messages_to_handle: List[Tuple[Any, _Child]] = []
@@ -163,6 +160,8 @@ class _ChildrenListener:
 
         self.children: Dict[int, _Child] = {}
         self.children_lock = Lock()
+
+        self.child_listener_thread_rx, self._child_listener_thread_tx = Pipe(duplex=False)
 
         self._children_listener: Thread | None = None
 
@@ -283,6 +282,13 @@ class _ChildrenListener:
             if len(self.children) == 0:
                 # we have removed the last child
                 last_child_removed = True
+
+        # notify the child listener thread that it is necessary to update the list of children
+        # if we don't send this, then the child listener will be stuck waiting for a closed connection to send a message,
+        # which will cause the child listener thread to sleep until the timeout of the wait expires, meaning that it will
+        # cause significant lag to the user since we are synchronously joining the thread below
+        # using this method of signalling the removal of the child above to the child listener thread, we fully circumvent this lag
+        self._child_listener_thread_tx.send(())
 
         if last_child_removed:
             self._terminal_ui.info(Verbosity.DEBUG_VERBOSE, "Last child removed, stopping the child listener and the progress bar.")
@@ -437,9 +443,6 @@ class TerminalUI(AbstractFeedbackInterface):
         self.info(Verbosity.DEBUG_VERBOSE, "AbstractFeedbackInterface: fork()")
 
         rx, tx = Pipe(duplex=False)
-
-        assert isinstance(rx, Connection)
-        assert isinstance(tx, Connection)
 
         self._fork_counter += 1
         child_id = self._fork_counter
