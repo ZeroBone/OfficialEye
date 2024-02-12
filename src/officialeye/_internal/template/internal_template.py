@@ -200,7 +200,7 @@ class InternalTemplate(ITemplate):
         matcher_id = self._matching["engine"]
 
         matcher_configs: dict = self._matching["config"]
-        matcher_config: ConfigDict = matcher_configs[matcher_id] if matcher_id in matcher_configs else {}
+        matcher_config: ConfigDict = matcher_configs.get(matcher_id, {})
 
         return get_internal_context().get_matcher(matcher_id, matcher_config)
 
