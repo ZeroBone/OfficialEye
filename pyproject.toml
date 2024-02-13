@@ -55,7 +55,10 @@ count-loc = {shell = "find src -name '*.py' | xargs wc -l"}
 ci-pytest = {shell = "pytest src/tests/"}
 ci-ruff = {shell = "ruff check --output-format=github"}
 
+# scripts to be run by developers to make sure that pull requests do not break anything
+dev-docs = {shell = "mkdocs build"}
 dev-ruff = {shell = "ruff check"}
+dev-pytest = {shell = "pytest src/tests/"}
 
 [tool.pdm.dev-dependencies]
 doc = [
