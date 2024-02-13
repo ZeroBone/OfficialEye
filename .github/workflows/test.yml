@@ -17,5 +17,10 @@ jobs:
         uses: pdm-project/setup-pdm@v3
       - name: Install dependencies
         run: pdm install
+      - name: Install tesseract
+        run:
+          - sudo apt update
+          - sudo apt install -y tesseract-ocr
+          - sudo apt install -y tesseract-ocr-rus
       - name: Run pytest
         run: pdm run ci-pytest
