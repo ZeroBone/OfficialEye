@@ -1,6 +1,6 @@
 from difflib import SequenceMatcher
 
-from officialeye import Context, IImage, Image, ISupervisionResult, Template, IInterpretationResult
+from officialeye import Context, IImage, IInterpretationResult, Image, ISupervisionResult, Template
 from officialeye.detection import detect
 
 

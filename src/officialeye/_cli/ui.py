@@ -110,7 +110,7 @@ def _child_listener(listener: _ChildrenListener, /):
 
             assert len(connections) >= 1
 
-        wait(connections, timeout=1.0)
+        wait(connections, timeout=4.0)
 
         messages_to_handle: List[Tuple[Any, _Child]] = []
 

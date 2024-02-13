@@ -1,5 +1,12 @@
 # Changelog
 
+## Release 1.2.2
+
+* Improved the way in which the result of the `run` and `test` commands gets outputted, it now also includes the chosen template.
+* Significantly improved performance by implementing a better system for graceful IPC-based interrupting of the thread listening for messages from child processes.
+
+[View on GitHub](https://github.com/ZeroBone/OfficialEye/releases/tag/1.2.2){ .md-button }
+
 ## Release 1.2.1
 
 * Bug fixes & minor improvements.
