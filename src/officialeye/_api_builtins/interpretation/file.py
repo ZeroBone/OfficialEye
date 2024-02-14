@@ -26,7 +26,10 @@ class FileInterpretation(Interpretation):
 
     def interpret(self, feature_img: np.ndarray, feature: IFeature, /) -> FeatureInterpretation:
 
-        os.makedirs(os.path.dirname(self._path), exist_ok=True)
+        file_dir = os.path.dirname(self._path)
+
+        if file_dir not in ("", "/"):
+            os.makedirs(file_dir, exist_ok=True)
 
         cv2.imwrite(self._path, feature_img)
 
