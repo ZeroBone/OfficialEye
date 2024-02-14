@@ -17,6 +17,7 @@ from officialeye._api_builtins.mutator.non_local_means_denoising import NonLocal
 from officialeye._api_builtins.mutator.rotate import RotateMutator
 from officialeye._api_builtins.supervisor.combinatorial import CombinatorialSupervisor
 from officialeye._api_builtins.supervisor.least_squares_regression import LeastSquaresRegressionSupervisor
+from officialeye._api_builtins.supervisor.simplex import SimplexSupervisor
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
@@ -73,6 +74,10 @@ def _gen_supervisor_least_squares_regression(config: ConfigDict, /) -> ISupervis
     return LeastSquaresRegressionSupervisor(config)
 
 
+def _gen_supervisor_simplex_experiment(config: ConfigDict, /) -> ISupervisor:
+    return SimplexSupervisor(config)
+
+
 """
 Interpretation generators
 """
@@ -104,6 +109,7 @@ def initialize_builtins(context: Context, /):
     # register supervisors
     context.register_supervisor(CombinatorialSupervisor.SUPERVISOR_ID, _gen_supervisor_combinatorial)
     context.register_supervisor(LeastSquaresRegressionSupervisor.SUPERVISOR_ID, _gen_supervisor_combinatorial)
+    context.register_supervisor(SimplexSupervisor.SUPERVISOR_ID, _gen_supervisor_simplex_experiment)
 
     # register interpretations
     context.register_interpretation(FileInterpretation.INTERPRETATION_ID, _gen_interpretation_file)

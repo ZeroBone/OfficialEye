@@ -4,6 +4,9 @@ source: "driver_license_ru.jpg"
 mutators:
   source:
   target:
+    - id: rotate
+      config:
+        angle: 180
 keypoints:
   title:
     x: 453
@@ -59,7 +62,7 @@ matching:
     sift_flann:
       sensitivity: 0.7
 supervision:
-  engine: combinatorial
+  engine: simplex
   config:
     combinatorial:
       min_match_factor: 0.1

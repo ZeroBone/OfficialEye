@@ -123,7 +123,6 @@ class SiftFlannMatcher(Matcher):
             result.append(match)
 
         # TODO: visualization generation
-        """
         # noinspection PyTypeChecker
         debug_image = cv2.drawMatchesKnn(
             pattern,
@@ -139,7 +138,6 @@ class SiftFlannMatcher(Matcher):
         )
 
         cv2.imwrite(f"test_{keypoint.identifier}.png", debug_image)
-        """
 
         assert keypoint not in self._matches
         self._matches[keypoint] = result
