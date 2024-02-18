@@ -108,7 +108,7 @@ def initialize_builtins(context: Context, /):
 
     # register supervisors
     context.register_supervisor(CombinatorialSupervisor.SUPERVISOR_ID, _gen_supervisor_combinatorial)
-    context.register_supervisor(LeastSquaresRegressionSupervisor.SUPERVISOR_ID, _gen_supervisor_combinatorial)
+    context.register_supervisor(LeastSquaresRegressionSupervisor.SUPERVISOR_ID, _gen_supervisor_least_squares_regression)
     context.register_supervisor(SimplexSupervisor.SUPERVISOR_ID, _gen_supervisor_simplex_experiment)
 
     # register interpretations
