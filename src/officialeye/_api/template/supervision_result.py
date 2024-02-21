@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
 
 class ISupervisionResult(ABC):
+    # TODO: remove delta_prime, a matrix and a single offset is sufficient to represent the space of all affine linear transformations
 
     @property
     @abstractmethod

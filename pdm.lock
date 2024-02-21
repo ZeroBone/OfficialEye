@@ -5,7 +5,7 @@
 groups = ["default", "doc", "test"]
 strategy = ["cross_platform", "inherit_metadata"]
 lock_version = "4.4.1"
-content_hash = "sha256:7dcc5b397d044fd48a992675e75661fff2f88eac1b003f7c9e542527dc22354f"
+content_hash = "sha256:39c250b42cccaf1738c3562037b57e0046ae68d3c8c143115beba809275bfedf"
 
 [[package]]
 name = "babel"
@@ -806,6 +806,21 @@ dependencies = [
 files = [
     {file = "pymdown_extensions-10.7-py3-none-any.whl", hash = "sha256:6ca215bc57bc12bf32b414887a68b810637d039124ed9b2e5bd3325cbb2c050c"},
     {file = "pymdown_extensions-10.7.tar.gz", hash = "sha256:c0d64d5cf62566f59e6b2b690a4095c931107c250a8c8e1351c1de5f6b036deb"},
+]
+
+[[package]]
+name = "pyscipopt"
+version = "4.4.0"
+summary = "Python interface and modeling environment for SCIP"
+groups = ["default"]
+files = [
+    {file = "PySCIPOpt-4.4.0-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:da94fef084be20a654b2d9e4af05b5c7c8360f086a29466b7dcb5c256f604410"},
+    {file = "PySCIPOpt-4.4.0-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f8f48dcc7c67512033bc3cca76f6fb142f6ecb7734513c10d14b87709c653ea9"},
+    {file = "PySCIPOpt-4.4.0-cp310-cp310-win_amd64.whl", hash = "sha256:94f5943f1864bb170e19dc7628bc5a9e4f67b81311b90ea4a8c5b93d3ab77ca5"},
+    {file = "PySCIPOpt-4.4.0-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:336b48b5b75a9dadc9126543747a2ff8db9701fed8ebb6838291e075eba1d5a9"},
+    {file = "PySCIPOpt-4.4.0-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:cad91ad249f7dda1b72b46d54f03433be5db1f9fadd79b3b3a87bb3eef7ad43e"},
+    {file = "PySCIPOpt-4.4.0-cp311-cp311-win_amd64.whl", hash = "sha256:6c9070336685dee1529c1aacba3cc5a922726b2979d49953f076e60b813d53dd"},
+    {file = "PySCIPOpt-4.4.0.tar.gz", hash = "sha256:87aad96de296991792db0b49ad5cab614ade3e00207bf80f3397745aa478579b"},
 ]
 
 [[package]]

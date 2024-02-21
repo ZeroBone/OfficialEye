@@ -59,7 +59,7 @@ matching:
     sift_flann:
       sensitivity: 0.7
 supervision:
-  engine: combinatorial
+  engine: ransac
   config:
     combinatorial:
       min_match_factor: 0.1
