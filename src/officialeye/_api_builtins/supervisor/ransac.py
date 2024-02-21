@@ -102,7 +102,7 @@ class AffineTransformationModel:
     def __init__(self):
         self._repr: AffineTransformationRepr | None = None
 
-    def fit(self, matches: Iterable[IMatch], /):
+    def fit(self, matches: Iterable[IMatch], /) -> None:
         fitter = AffineTransformationModelFitter(matches)
         self._repr = fitter.fit()
 
@@ -160,37 +160,38 @@ class RansacModel:
         # noinspection PyTypeChecker
         return rng.choice(matches_pool, self._n, replace=False, p=pool_probability_distribution)
 
-    def fit(self, template: ITemplate, matching_result: IMatchingResult, /):
+    def fit(self, template: ITemplate, matching_result: IMatchingResult, /) -> None:
 
         self._best_model = None
         best_model_mse: float = np.inf
 
         for iter_num in range(1, self._k + 1):
 
-            get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Starting RANSAC iteration {iter_num}.")
+            get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Starting ransac iteration {iter_num}.")
 
-            maybe_inliers = self._get_random_match_sample(template, matching_result)
-            maybe_model = AffineTransformationModel()
-            maybe_model.fit(maybe_inliers)
+            maybe_good_matches = self._get_random_match_sample(template, matching_result)
+            maybe_good_model = AffineTransformationModel()
+            maybe_good_model.fit(maybe_good_matches)
 
-            confirmed_inliers: List[IMatch] = [
-                match for match in matching_result.get_all_matches() if maybe_model.get_prediction_error(match) < self._t
+            # matches that have low error with respect to the maybe_good_model created above
+            good_matches: List[IMatch] = [
+                match for match in matching_result.get_all_matches() if maybe_good_model.get_prediction_error(match) < self._t
             ]
 
-            get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Confirmed inliers count: {len(confirmed_inliers)} Threshold: {self._d}")
+            get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Good matches count: {len(good_matches)} Threshold: {self._d}")
 
-            if len(confirmed_inliers) > self._d:
+            if len(good_matches) > self._d:
                 better_model = AffineTransformationModel()
-                better_model.fit(confirmed_inliers)
+                better_model.fit(good_matches)
 
                 better_model_mse = 0.0
-                for match in confirmed_inliers:
+                for match in good_matches:
                     predicted_terget_point = better_model.predict(match.template_point)
                     actual_target_point = match.target_point
                     error_vec = predicted_terget_point - actual_target_point
                     better_model_mse += np.dot(error_vec, error_vec)
 
-                better_model_mse /= len(confirmed_inliers)
+                better_model_mse /= len(good_matches)
 
                 if better_model_mse < best_model_mse:
                     self._best_model = better_model
@@ -219,7 +220,7 @@ class RansacSupervisor(Supervisor):
         total_match_count = matching_result.get_total_match_count()
 
         # the minimum number of data points required to estimate the model parameters
-        n = 10
+        n = 15
         # a threshold value to determine data points that are fit well by the model (inlier)
         t = 10
         # the number of close data points (inliers) required to assert that the model fits well to the data
