@@ -124,9 +124,9 @@ class AffineTransformationModel:
 
 class RansacModel:
 
-    def __init__(self, /, *, n: int = 90, k: int = 100, t: float = 80.0, d: int = 10):
-        self._n = n
+    def __init__(self, /, *, k: int = 100, n: int, t: float, d: int):
         self._k = k
+        self._n = n
         self._t = t
         self._d = d
 
@@ -165,9 +165,9 @@ class RansacModel:
         self._best_model = None
         best_model_mse: float = np.inf
 
-        for ransac_iter_num in range(self._k):
+        for iter_num in range(1, self._k + 1):
 
-            get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Starting RANSAC iteration {ransac_iter_num + 1}.")
+            get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Starting RANSAC iteration {iter_num}.")
 
             maybe_inliers = self._get_random_match_sample(template, matching_result)
             maybe_model = AffineTransformationModel()
@@ -216,7 +216,18 @@ class RansacSupervisor(Supervisor):
 
     def supervise(self, template: ITemplate, matching_result: IMatchingResult, /) -> Iterable[SupervisionResult]:
 
-        model = RansacModel()
+        total_match_count = matching_result.get_total_match_count()
+
+        # the minimum number of data points required to estimate the model parameters
+        n = 10
+        # a threshold value to determine data points that are fit well by the model (inlier)
+        t = 10
+        # the number of close data points (inliers) required to assert that the model fits well to the data
+        d = int(0.1 * total_match_count)
+
+        get_internal_afi().info(Verbosity.DEBUG, f"Ransac params: n={n} t={t} d={d} Total match count: {total_match_count}")
+
+        model = RansacModel(n=n, t=t, d=d)
         model.fit(template, matching_result)
         result = model.get_result()
 
