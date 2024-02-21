@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Iterable, List
+from typing import TYPE_CHECKING, Iterable, List, Dict
 
 import numpy as np
 import pyscipopt as scip
@@ -19,7 +19,10 @@ from officialeye._api.template.supervisor import Supervisor
 
 # noinspection PyProtectedMember
 from officialeye._api.template.template_interface import ITemplate
+
+# noinspection PyProtectedMember
 from officialeye._internal.context.singleton import get_internal_afi
+# noinspection PyProtectedMember
 from officialeye._internal.feedback.verbosity import Verbosity
 
 if TYPE_CHECKING:
@@ -106,13 +109,22 @@ class AffineTransformationModel:
     def predict(self, template_point: np.ndarray, /) -> np.ndarray:
         return self._repr.matrix @ template_point + self._repr.offset
 
+    def get_prediction_error(self, match: IMatch, /) -> float:
+
+        predicted_terget_point = self.predict(match.template_point)
+        actual_target_point = match.target_point
+
+        error = actual_target_point - predicted_terget_point
+
+        return np.sqrt(np.dot(error, error))
+
     def get_repr(self) -> AffineTransformationRepr:
         return self._repr
 
 
 class RansacModel:
 
-    def __init__(self, /, *, n: int = 40, k: int = 100, t: float = 20.0, d: int = 10):
+    def __init__(self, /, *, n: int = 90, k: int = 100, t: float = 80.0, d: int = 10):
         self._n = n
         self._k = k
         self._t = t
@@ -124,16 +136,23 @@ class RansacModel:
 
         matches_pool: List[IMatch] = list(matching_result.get_all_matches())
 
-        relevant_keypoint_count = len(set(match.keypoint.identifier for match in matches_pool))
+        relevant_keypoint_ids = set(match.keypoint.identifier for match in matches_pool)
+        relevant_keypoint_count = len(relevant_keypoint_ids)
 
         assert relevant_keypoint_count >= 1
         assert relevant_keypoint_count <= len(list(template.keypoints))
 
+        matches_for_relevant_keypoints: Dict[str, int] = {}
+
+        for keypoint_id in relevant_keypoint_ids:
+            matches_for_relevant_keypoints[keypoint_id] = len(list(matching_result.get_matches_for_keypoint(keypoint_id)))
+
         pool_probability_distribution = [
-            1.0 / (relevant_keypoint_count * len(list(matching_result.get_matches_for_keypoint(match.keypoint.identifier))))
+            1.0 / (relevant_keypoint_count * matches_for_relevant_keypoints[match.keypoint.identifier])
             for match in matches_pool
         ]
 
+        # TODO: imprecise comparison
         assert np.sum(pool_probability_distribution) == 1.0
 
         rng = np.random.default_rng()
@@ -154,19 +173,9 @@ class RansacModel:
             maybe_model = AffineTransformationModel()
             maybe_model.fit(maybe_inliers)
 
-            confirmed_inliers: List[IMatch] = []
-
-            for match in matching_result.get_all_matches():
-                predicted_terget_point = maybe_model.predict(match.template_point)
-                actual_target_point = match.target_point
-
-                error = actual_target_point - predicted_terget_point
-                error_value = np.sqrt(np.dot(error, error))
-
-                # get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Current match fits maybe_model with error {error_value}. Threshold: {self._t}")
-
-                if error_value < self._t:
-                    confirmed_inliers.append(match)
+            confirmed_inliers: List[IMatch] = [
+                match for match in matching_result.get_all_matches() if maybe_model.get_prediction_error(match) < self._t
+            ]
 
             get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Confirmed inliers count: {len(confirmed_inliers)} Threshold: {self._d}")
 
