@@ -112,7 +112,7 @@ class AffineTransformationModel:
 
 class RansacModel:
 
-    def __init__(self, /, *, n: int = 10, k: int = 100, t: float = 0.05, d: int = 10):
+    def __init__(self, /, *, n: int = 40, k: int = 100, t: float = 20.0, d: int = 10):
         self._n = n
         self._k = k
         self._t = t
@@ -163,8 +163,12 @@ class RansacModel:
                 error = actual_target_point - predicted_terget_point
                 error_value = np.sqrt(np.dot(error, error))
 
+                # get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Current match fits maybe_model with error {error_value}. Threshold: {self._t}")
+
                 if error_value < self._t:
                     confirmed_inliers.append(match)
+
+            get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Confirmed inliers count: {len(confirmed_inliers)} Threshold: {self._d}")
 
             if len(confirmed_inliers) > self._d:
                 better_model = AffineTransformationModel()
@@ -183,7 +187,11 @@ class RansacModel:
                     self._best_model = better_model
                     best_model_mse = better_model_mse
 
-    def get_repr(self) -> AffineTransformationRepr:
+    def get_result(self) -> AffineTransformationRepr | None:
+
+        if self._best_model is None:
+            return None
+
         return self._best_model.get_repr()
 
 
@@ -201,12 +209,15 @@ class RansacSupervisor(Supervisor):
 
         model = RansacModel()
         model.fit(template, matching_result)
-        model_repr = model.get_repr()
+        result = model.get_result()
+
+        if result is None:
+            return []
 
         return [
             SupervisionResult(
                 delta=np.array([0.0, 0.0]),
-                delta_prime=model_repr.offset,
-                transformation_matrix=model_repr.matrix
+                delta_prime=result.offset,
+                transformation_matrix=result.matrix
             )
         ]
