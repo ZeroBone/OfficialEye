@@ -109,14 +109,14 @@ class AffineTransformationModel:
     def predict(self, template_point: np.ndarray, /) -> np.ndarray:
         return self._repr.matrix @ template_point + self._repr.offset
 
-    def get_prediction_error(self, match: IMatch, /) -> float:
+    def get_squared_error(self, match: IMatch, /) -> float:
 
         predicted_terget_point = self.predict(match.template_point)
         actual_target_point = match.target_point
 
         error = actual_target_point - predicted_terget_point
 
-        return np.sqrt(np.dot(error, error))
+        return np.dot(error, error)
 
     def get_repr(self) -> AffineTransformationRepr:
         return self._repr
@@ -175,7 +175,7 @@ class RansacModel:
 
             # matches that have low error with respect to the maybe_good_model created above
             good_matches: List[IMatch] = [
-                match for match in matching_result.get_all_matches() if maybe_good_model.get_prediction_error(match) < self._t
+                match for match in matching_result.get_all_matches() if maybe_good_model.get_squared_error(match) < self._t
             ]
 
             get_internal_afi().info(Verbosity.DEBUG_VERBOSE, f"Good matches count: {len(good_matches)} Threshold: {self._d}")
@@ -186,10 +186,7 @@ class RansacModel:
 
                 better_model_mse = 0.0
                 for match in good_matches:
-                    predicted_terget_point = better_model.predict(match.template_point)
-                    actual_target_point = match.target_point
-                    error_vec = predicted_terget_point - actual_target_point
-                    better_model_mse += np.dot(error_vec, error_vec) * match.get_score()
+                    better_model_mse += better_model.get_squared_error(match) * match.get_score()
 
                 better_model_mse /= len(good_matches)
 
@@ -222,7 +219,7 @@ class RansacSupervisor(Supervisor):
         # the minimum number of data points required to estimate the model parameters
         n = 5
         # a threshold value to determine data points that are fit well by the model (inlier)
-        t = 15
+        t = 225
         # the number of close data points (inliers) required to assert that the model fits well to the data
         d = 10  # int(0.1 * total_match_count)
 
