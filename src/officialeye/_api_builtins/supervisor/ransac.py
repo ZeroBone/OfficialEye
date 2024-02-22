@@ -189,7 +189,7 @@ class RansacModel:
                     predicted_terget_point = better_model.predict(match.template_point)
                     actual_target_point = match.target_point
                     error_vec = predicted_terget_point - actual_target_point
-                    better_model_mse += np.dot(error_vec, error_vec)
+                    better_model_mse += np.dot(error_vec, error_vec) * match.get_score()
 
                 better_model_mse /= len(good_matches)
 
@@ -220,11 +220,11 @@ class RansacSupervisor(Supervisor):
         total_match_count = matching_result.get_total_match_count()
 
         # the minimum number of data points required to estimate the model parameters
-        n = 15
+        n = 5
         # a threshold value to determine data points that are fit well by the model (inlier)
-        t = 10
+        t = 15
         # the number of close data points (inliers) required to assert that the model fits well to the data
-        d = int(0.1 * total_match_count)
+        d = 10  # int(0.1 * total_match_count)
 
         get_internal_afi().info(Verbosity.DEBUG, f"Ransac params: n={n} t={t} d={d} Total match count: {total_match_count}")
 
