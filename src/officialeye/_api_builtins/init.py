@@ -69,7 +69,7 @@ def _gen_supervisor_combinatorial(config: ConfigDict, /) -> ISupervisor:
     return CombinatorialSupervisor(config)
 
 
-def _gen_supervisor_least_squares_regression(config: ConfigDict, /) -> ISupervisor:
+def _gen_supervisor_least_squares(config: ConfigDict, /) -> ISupervisor:
     return LeastSquaresSupervisor(config)
 
 
@@ -103,7 +103,7 @@ def initialize_builtins(context: Context, /):
 
     # register supervisors
     context.register_supervisor(CombinatorialSupervisor.SUPERVISOR_ID, _gen_supervisor_combinatorial)
-    context.register_supervisor(LeastSquaresSupervisor.SUPERVISOR_ID, _gen_supervisor_least_squares_regression)
+    context.register_supervisor(LeastSquaresSupervisor.SUPERVISOR_ID, _gen_supervisor_least_squares)
 
     # register interpretations
     context.register_interpretation(FileInterpretation.INTERPRETATION_ID, _gen_interpretation_file)
