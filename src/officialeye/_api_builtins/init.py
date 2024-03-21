@@ -16,7 +16,7 @@ from officialeye._api_builtins.mutator.grayscale import GrayscaleMutator
 from officialeye._api_builtins.mutator.non_local_means_denoising import NonLocalMeansDenoisingMutator
 from officialeye._api_builtins.mutator.rotate import RotateMutator
 from officialeye._api_builtins.supervisor.combinatorial import CombinatorialSupervisor
-from officialeye._api_builtins.supervisor.least_squares_regression import LeastSquaresRegressionSupervisor
+from officialeye._api_builtins.supervisor.least_squares import LeastSquaresSupervisor
 
 if TYPE_CHECKING:
     # noinspection PyProtectedMember
@@ -70,7 +70,7 @@ def _gen_supervisor_combinatorial(config: ConfigDict, /) -> ISupervisor:
 
 
 def _gen_supervisor_least_squares_regression(config: ConfigDict, /) -> ISupervisor:
-    return LeastSquaresRegressionSupervisor(config)
+    return LeastSquaresSupervisor(config)
 
 
 """
@@ -103,7 +103,7 @@ def initialize_builtins(context: Context, /):
 
     # register supervisors
     context.register_supervisor(CombinatorialSupervisor.SUPERVISOR_ID, _gen_supervisor_combinatorial)
-    context.register_supervisor(LeastSquaresRegressionSupervisor.SUPERVISOR_ID, _gen_supervisor_least_squares_regression)
+    context.register_supervisor(LeastSquaresSupervisor.SUPERVISOR_ID, _gen_supervisor_least_squares_regression)
 
     # register interpretations
     context.register_interpretation(FileInterpretation.INTERPRETATION_ID, _gen_interpretation_file)

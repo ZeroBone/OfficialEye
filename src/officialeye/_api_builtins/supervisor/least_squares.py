@@ -25,12 +25,12 @@ _IND_C = 2
 _IND_D = 3
 
 
-class LeastSquaresRegressionSupervisor(Supervisor):
+class LeastSquaresSupervisor(Supervisor):
 
-    SUPERVISOR_ID = "least_squares_regression"
+    SUPERVISOR_ID = "least_squares"
 
     def __init__(self, config_dict: ConfigDict, /):
-        super().__init__(LeastSquaresRegressionSupervisor.SUPERVISOR_ID, config_dict)
+        super().__init__(LeastSquaresSupervisor.SUPERVISOR_ID, config_dict)
 
     def setup(self, template: ITemplate, matching_result: IMatchingResult, /) -> None:
         pass
